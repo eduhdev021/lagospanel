@@ -6,7 +6,9 @@ use App\Models\Operation;
 use App\Models\Service;
 use App\Provisioning\AaPanelDriver;
 use App\Provisioning\CpanelDriver;
+use App\Provisioning\DirectAdminDriver;
 use App\Provisioning\JsonDriver;
+use App\Provisioning\PleskDriver;
 use App\Provisioning\ProtocolError;
 use App\Provisioning\PterodactylDriver;
 use App\Services\Audit;
@@ -86,6 +88,8 @@ class RunOperation implements ShouldQueue
             $remote = match ($connector->driver) {
                 'json' => app(JsonDriver::class)->run($op),
                 'cpanel' => app(CpanelDriver::class)->run($op),
+                'directadmin' => app(DirectAdminDriver::class)->run($op),
+                'plesk' => app(PleskDriver::class)->run($op),
                 'aapanel' => app(AaPanelDriver::class)->run($op),
                 'pterodactyl' => app(PterodactylDriver::class)->run($op),
                 default => throw new ProtocolError('Driver de provisionamento desconhecido.'),

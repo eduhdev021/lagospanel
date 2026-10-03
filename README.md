@@ -1,6 +1,6 @@
 # LagosPanel
 
-**Versão 1.2.0 — distribuição principal.**
+**Versão 1.3.0 — distribuição principal.**
 
 
 Painel de clientes, cobrança, serviços e atendimento, com administração própria, integrações de hospedagem/jogos e assistente Ollama com pesquisa web. Aplicação independente sobre Laravel, mantendo a identidade visual do LagosPanel.
@@ -9,13 +9,17 @@ Painel de clientes, cobrança, serviços e atendimento, com administração pró
 
 > **Antes de operar com clientes reais:** esta distribuição não certifica integrações autenticadas ou infraestrutura de produção. Os testes automatizados passaram; o catálogo público Ollama foi consultado de verdade. Inferência/pesquisa autenticada, provisionamento real, pagamentos, SMTP externo e MySQL/MariaDB ainda precisam ser validados no ambiente do operador. Consulte [operação](docs/OPERACAO.md) e [escopo](docs/ESCOPO.md).
 
+## Novidades 1.3.0
+
+DirectAdmin: contas individuais por pacote, criação após pagamento, suspensão/reativação, encerramento, conciliação e acesso inicial protegido. Plesk: assinaturas gerenciadas sob proprietário existente, plano por GUID, ciclo completo de cobrança/provisionamento e credenciais de publicação FTP/FTPS privadas — sem compartilhar login administrativo. [Configuração dos novos painéis](docs/DIRECTADMIN-E-PLESK.md).
+
 ## Recursos
 
 - Cadastro, verificação de e-mail, recuperação de senha, TOTP/2FA e permissões de equipe.
 - Catálogo, carrinho, opções de produto, cupons, estoque reservado e pedidos idempotentes.
 - Faturas/PDF não fiscal, carteira e pagamentos em BRL; rotinas de renovação e cobrança.
 - Tickets, prioridades, responsáveis, notas internas, anexos privados, base de conhecimento e respostas prontas.
-- Provisionamento cPanel/WHM, aaPanel e Pterodactyl nos recortes documentados; conector HTTPS/JSON próprio.
+- Provisionamento cPanel/WHM, aaPanel, Pterodactyl, DirectAdmin e Plesk nos recortes documentados; conector HTTPS/JSON próprio.
 - Criação de usuários Pterodactyl pelo ADM, vínculo automático após conferência e recuperação de resultado incerto sem repetir a criação. Preparação automática após pagamento disponível por opção do produto.
 - Energia Pterodactyl (ligar/parar/reiniciar) com Client API do cliente, senha/2FA e chave não persistida.
 - SSO temporário cPanel com senha/2FA, conferência de identidade e origem HTTPS fixa. [Configuração e limites](docs/AUTOMACAO-E-ACESSO-1.2.md).
@@ -72,7 +76,7 @@ Backup de banco, APP_KEY e arquivos privados; instale dependências do lockfile,
 
 ## Testes e problemas
 
-Nesta atualização: **309 testes PHP / 1690 asserções**, **18 cenários concorrentes**, **13 verificações novas de navegador** para energia/SSO, mais **15 verificações do instalador** e **6 guardas** numa cópia extraída do pacote. Provedores simulados; nenhum servidor real foi reiniciado nem sessão WHM real emitida. Relatórios anteriores de navegador permanecem históricos, não todos reexecutados. Veja [automação e acesso](docs/AUTOMACAO-E-ACESSO-1.2.md).
+Nesta atualização: **341 testes PHP / 1832 asserções** e **20 cenários concorrentes**, incluindo 20 entregas duplicadas por novo provedor sem duplicar criação. Blade/routes compilados, lint e Composer audit aprovados. APIs externas simuladas conforme contratos documentados. Os relatórios de navegador da 1.2.0 continuam históricos, não foram repetidos nesta revisão.
 
 ```bash
 composer install

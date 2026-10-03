@@ -3,13 +3,14 @@ PHPUnit 11.5.56 by Sebastian Bergmann and contributors.
 Runtime:       PHP 8.4.26
 Configuration: /home/user/lagospanel-independent/phpunit.xml
 
-...............................................................  63 / 309 ( 20%)
-............................................................... 126 / 309 ( 40%)
-............................................................... 189 / 309 ( 61%)
-............................................................... 252 / 309 ( 81%)
-.........................................................       309 / 309 (100%)
+...............................................................  63 / 341 ( 18%)
+............................................................... 126 / 341 ( 36%)
+............................................................... 189 / 341 ( 55%)
+............................................................... 252 / 341 ( 73%)
+............................................................... 315 / 341 ( 92%)
+..........................                                      341 / 341 (100%)
 
-Time: 00:06.455, Memory: 76.50 MB
+Time: 00:08.903, Memory: 76.50 MB
 
 Aa Panel (Tests\Feature\AaPanel)
  ✔ Create signed requests and bind numeric site id
@@ -93,6 +94,40 @@ Expansion (Tests\Feature\Expansion)
  ✔ Additional cycles have explicit calendar rules
  ✔ Expired order cannot open a gateway checkout
  ✔ Rate limit buckets are separate between unrelated web actions
+
+Hosting Panels (Tests\Feature\HostingPanels)
+ ✔ Paid lifecycle and duplicate jobs with data set #0
+ ✔ Paid lifecycle and duplicate jobs with data set #1
+ ✔ Unpaid and disabled provisioning never mutate with data set #0
+ ✔ Unpaid and disabled provisioning never mutate with data set #1
+ ✔ Uncertain creation is read back not automatically repeated with data set #0
+ ✔ Uncertain creation is read back not automatically repeated with data set #1
+ ✔ Preexisting account is not adopted with data set #0
+ ✔ Preexisting account is not adopted with data set #1
+ ✔ Identity or nonmanaged status blocks suspension with data set #0
+ ✔ Identity or nonmanaged status blocks suspension with data set #1
+ ✔ Identity or nonmanaged status blocks suspension with data set #2
+ ✔ Identity or nonmanaged status blocks suspension with data set #3
+ ✔ Identity or nonmanaged status blocks suspension with data set #4
+ ✔ Identity or nonmanaged status blocks suspension with data set #5
+ ✔ Identity or nonmanaged status blocks suspension with data set #6
+ ✔ Identity or nonmanaged status blocks suspension with data set #7
+ ✔ Identity or nonmanaged status blocks suspension with data set #8
+ ✔ Identity or nonmanaged status blocks suspension with data set #9
+ ✔ Pause and execution fence before mutation with data set #0
+ ✔ Pause and execution fence before mutation with data set #1
+ ✔ Stale operation cannot mutate with data set #0
+ ✔ Stale operation cannot mutate with data set #1
+ ✔ Malformed or unauthorized response is not absence with data set #0
+ ✔ Malformed or unauthorized response is not absence with data set #1
+ ✔ Malformed or unauthorized response is not absence with data set #2
+ ✔ Malformed or unauthorized response is not absence with data set #3
+ ✔ Malformed or unauthorized response is not absence with data set #4
+ ✔ Malformed or unauthorized response is not absence with data set #5
+ ✔ Directadmin initial access is owner only and private
+ ✔ Plesk only reveals own ftp credentials after reauthentication
+ ✔ Admin can configure connector and product with no key echo with data set #0
+ ✔ Admin can configure connector and product with no key echo with data set #1
 
 Independent Panel (Tests\Feature\IndependentPanel)
  ✔ Public pages render without legacy runtime
@@ -342,4 +377,4 @@ Web And Site (Tests\Feature\WebAndSite)
  ✔ Installer refuses existing users without modifying environment
  ✔ Installer token grant is required and expiry is enforced
 
-OK (309 tests, 1690 assertions)
+OK (341 tests, 1832 assertions)

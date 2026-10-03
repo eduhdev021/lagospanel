@@ -3,7 +3,7 @@
 from pathlib import Path
 import hashlib,zipfile
 ROOT=Path(__file__).resolve().parents[1]
-DEST=ROOT.parent/'lagospanel-1.2.0.zip'
+DEST=ROOT.parent/'lagospanel-1.3.0.zip'
 exclude={'.git','.cache','node_modules','vendor','__pycache__','.phpunit.cache','.idea','.vscode'}
 with zipfile.ZipFile(DEST,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9)as z:
  for p in sorted(ROOT.rglob('*')):

@@ -86,8 +86,8 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 | Fila e reconciliação de resultado incerto | Parcial | Sem repetir criação cegamente; resolução operacional ainda manual |
 | cPanel/WHM | Parcial / homologação pendente | Ciclo WHM API 1, snapshots, conciliação e SSO temporário com senha/2FA; faltam WHM real, alteração de pacote e domínio próprio no checkout |
 | aaPanel | Parcial / homologação pendente | Sites gerenciados via API clássica; sem contas isoladas, FTP/banco/quotas/SSL/DNS automáticos; somente simulação |
-| Plesk | Planejado | Driver nativo ausente |
-| DirectAdmin | Planejado | Driver nativo ausente |
+| Plesk | Parcial / homologação pendente | Assinaturas gerenciadas XML API, plano/GUID, ciclo e conciliação, FTP/FTPS privado; faltam clientes automáticos, SSO e gestão avançada |
+| DirectAdmin | Parcial / homologação pendente | Contas por pacote, ciclo, conciliação e acesso inicial privado; faltam SSO, upgrades e gestão avançada |
 | Enhance | Planejado | Driver nativo ausente |
 | Pterodactyl e jogos | Parcial / homologação pendente | Ciclo de servidores, planos, criação de contas pelo ADM ou após pagamento, energia via Client API do cliente; faltam console/SSO, backups, reinstalação, upgrades e validação real |
 | Proxmox | Planejado | Implementação própria via API ou licença válida para reutilização |

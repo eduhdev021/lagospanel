@@ -38,7 +38,7 @@ class AdminController extends Controller
 
     public function saveProduct(Request $r, ?Product $product = null)
     {
-        $v = $r->validate(['name' => 'required|string|max:180', 'slug' => ['required', 'alpha_dash', 'max:180', Rule::unique('products', 'slug')->ignore($product?->id)], 'description' => 'nullable|string|max:10000', 'price' => 'required|string', 'setup' => 'nullable|string', 'cycle' => ['required', Rule::in(array_keys(Cycle::LABELS))], 'stock' => 'nullable|integer|min:0|max:100000', 'connector_id' => 'nullable|integer|exists:connectors,id', 'max_per_user' => 'nullable|integer|min:1|max:10000', 'allow_quantity' => 'sometimes|boolean', 'cpanel_plan' => 'nullable|string|max:100', 'cpanel_domain_suffix' => 'nullable|string|max:190', 'aapanel_domain_suffix' => 'nullable|string|max:190', 'aapanel_php_version' => 'nullable|string|max:2', 'ptero_config' => 'nullable|string|max:20000']);
+        $v = $r->validate(['name' => 'required|string|max:180', 'slug' => ['required', 'alpha_dash', 'max:180', Rule::unique('products', 'slug')->ignore($product?->id)], 'description' => 'nullable|string|max:10000', 'price' => 'required|string', 'setup' => 'nullable|string', 'cycle' => ['required', Rule::in(array_keys(Cycle::LABELS))], 'stock' => 'nullable|integer|min:0|max:100000', 'connector_id' => 'nullable|integer|exists:connectors,id', 'max_per_user' => 'nullable|integer|min:1|max:10000', 'allow_quantity' => 'sometimes|boolean', 'cpanel_plan' => 'nullable|string|max:100', 'cpanel_domain_suffix' => 'nullable|string|max:190', 'aapanel_domain_suffix' => 'nullable|string|max:190', 'aapanel_php_version' => 'nullable|string|max:2', 'ptero_config' => 'nullable|string|max:20000', 'hosting_config' => 'nullable|string|max:10000']);
         $data = ['name' => $v['name'], 'slug' => $v['slug'], 'description' => $v['description'] ?? '', 'price_minor' => Money::parse($v['price']), 'setup_minor' => Money::parse($v['setup'] ?? '0'), 'cycle' => $v['cycle'], 'stock' => $v['stock'] ?? null, 'connector_id' => $v['connector_id'] ?? null, 'active' => $r->boolean('active'), 'max_per_user' => $v['max_per_user'] ?? null, 'allow_quantity' => $r->boolean('allow_quantity', true)];
         $data['provisioning'] = NativeConfig::product(isset($v['connector_id']) ? Connector::find($v['connector_id']) : null, $v);
         $product?->exists ? $product->update($data) : $product = Product::create($data);
@@ -73,7 +73,7 @@ class AdminController extends Controller
                 abort_unless($service->invoices()->where('status', 'paid')->exists(), 422, 'Confirme o pagamento.');
             }
             $action = ['active' => $service->remote_id ? 'unsuspend' : 'create', 'suspended' => 'suspend', 'cancelled' => 'terminate'][$v['status']];
-            if ($action === 'terminate' && in_array($service->connector?->driver, ['cpanel', 'aapanel', 'pterodactyl'], true)) {
+            if ($action === 'terminate' && in_array($service->connector?->driver, ['cpanel', 'aapanel', 'pterodactyl', 'directadmin', 'plesk'], true)) {
                 $r->validate(['confirm_termination' => 'accepted']);
             }
             $provisioning->enqueue($service, $action, 'admin:'.Str::uuid());
@@ -131,7 +131,7 @@ class AdminController extends Controller
 
     public function connectorCreate(Request $r)
     {
-        $v = $r->validate(['name' => 'required|string|max:120', 'endpoint' => 'required|url:https|max:255', 'token' => 'required|string|min:16|max:2000', 'driver' => 'sometimes|in:json,cpanel,aapanel,pterodactyl', 'whm_username' => 'nullable|string|max:32', 'account_prefix' => 'nullable|string|max:2', 'client_url' => 'nullable|url:https|max:255']);
+        $v = $r->validate(['name' => 'required|string|max:120', 'endpoint' => 'required|url:https|max:255', 'token' => 'required|string|min:16|max:2000', 'driver' => 'sometimes|in:json,cpanel,aapanel,pterodactyl,directadmin,plesk', 'whm_username' => 'nullable|string|max:32', 'account_prefix' => 'nullable|string|max:2', 'client_url' => 'nullable|url:https|max:255']);
         abort_if(parse_url($v['endpoint'], PHP_URL_USER) || parse_url($v['endpoint'], PHP_URL_PASS) || parse_url($v['endpoint'], PHP_URL_QUERY) || parse_url($v['endpoint'], PHP_URL_FRAGMENT) || preg_match('/[\r\n]/', $v['token']), 422);
         $driver = $v['driver'] ?? 'json';
         $settings = null;
@@ -147,6 +147,18 @@ class AdminController extends Controller
             $r->validate(['account_prefix' => ['required', 'regex:/^[a-z]{2}$/D']]);
             $v['endpoint'] = AaPanelConfig::origin($v['endpoint']);
             $settings = ['prefix' => $v['account_prefix']];
+            if ($r->boolean('active')) {
+                $r->validate(['ack_native' => 'accepted']);
+            }
+        }
+        if (in_array($driver, ['directadmin', 'plesk'], true)) {
+            $r->validate(['account_prefix' => ['required', 'regex:/^[a-z]{2}$/D']]);
+            $v['endpoint'] = NativeConfig::origin($v['endpoint'], $driver === 'directadmin' ? [2222, 443] : [8443, 443]);
+            $settings = ['prefix' => $v['account_prefix']];
+            if ($driver === 'directadmin') {
+                $r->validate(['whm_username' => ['required', 'regex:/^[a-z][a-z0-9]{0,31}$/D']]);
+                $settings['username'] = $v['whm_username'];
+            }
             if ($r->boolean('active')) {
                 $r->validate(['ack_native' => 'accepted']);
             }

@@ -24,6 +24,9 @@ final class NativeConfig
         if (! $connector || $connector->driver === 'json') {
             return null;
         }
+        if (in_array($connector->driver, ['directadmin', 'plesk'], true)) {
+            return HostingConfig::product($connector->driver, $input);
+        }
         if ($connector->driver === 'pterodactyl') {
             return PterodactylConfig::product($input);
         }
@@ -49,6 +52,11 @@ final class NativeConfig
     {
         $c = $product->connector;
         if (! $c || $c->driver === 'json') {
+            return;
+        }
+        if (in_array($c->driver, ['directadmin', 'plesk'], true)) {
+            HostingConfig::snapshot($service, $product, $c);
+
             return;
         }
         if ($c->driver === 'pterodactyl') {

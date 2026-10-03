@@ -1,4 +1,4 @@
-# Escopo real — 1.2.0
+# Escopo real — 1.3.0
 
 ## Direção aprovada
 
@@ -6,7 +6,11 @@ Abranger as operações de WHMCS e Paymenter: hospedagem, domínios, cloud/VPS, 
 
 **Este alvo ainda não foi alcançado.** O ecossistema de extensões é aberto, algumas soluções são comerciais e o inventário precisa ser versionado. Não há declaração de paridade total nem de superioridade comprovada. `MATRIZ-PARIDADE.md` e `MATRIZ-PARIDADE.csv` distinguem implementado, parcial e planejado.
 
-## Entregue até 1.2.0
+## Entregue até 1.3.0
+
+- DirectAdmin: ciclo de contas individuais por pacote/IP, Login Key, identidade e pacote conferidos, senha inicial privada.
+- Plesk: ciclo de assinaturas gerenciadas com XML API 1.6.9.1, proprietário existente e plano por GUID, identidade externa exclusiva e publicação FTP/FTPS privada. Não cria clientes Plesk automaticamente nem oferece SSO deles.
+- Ambos integrados à fila, confirmação de pagamento, conciliação e confirmação de exclusão; contratos simulados, sem homologação autenticada.
 
 - Instalador web com chave temporária, banco vazio e bloqueio; configuração administrativa de nome/URL/logo/contato/cadastro/SMTP. Não substitui preparação do servidor, DNS/TLS, worker/cron ou importação de dados.
 - Pesquisa web Ollama mediada pelo painel, independente de tool calling, com consulta pública, fontes e consentimento; sem navegação autônoma ou validação automática de veracidade.

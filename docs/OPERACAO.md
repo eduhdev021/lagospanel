@@ -1,6 +1,6 @@
 # Operação e corte para produção
 
-Esta distribuição é **1.2.0**. A publicação estável não substitui validação operacional: consulte as limitações de `ESCOPO.md` antes de operar com clientes reais.
+Esta distribuição é **1.3.0**. A publicação estável não substitui validação operacional: consulte as limitações de `ESCOPO.md` antes de operar com clientes reais.
 
 ## Preparação
 
@@ -91,3 +91,7 @@ Executar a migration `2026_10_03_000011_pterodactyl_account_requests` antes de u
 ## Atualização 1.2.0
 
 Execute as migrations pendentes e reinicie os workers após atualizar dependências/caches. A nova tabela `pterodactyl_controls` guarda solicitações de energia e marcadores de envio, nunca Client API Key. São 15 migrations. Preparação de conta usa job próprio (45 s, até 20 entregas em disputa); servidor continua separado (60 s). Após `sent_at`, criação de usuário não é reenviada. Consulte `AUTOMACAO-E-ACESSO-1.2.md`.
+
+## Atualização 1.3.0
+
+Inclui DirectAdmin e Plesk no fluxo nativo. Não há migration nova (15 no total); execute migrations pendentes, caches e restart de workers após atualizar. Planos e integrações existentes não mudam. Leia `DIRECTADMIN-E-PLESK.md`, principalmente versões de API, permissões, IPs e isolamento Plesk gerenciado.

@@ -10,6 +10,8 @@ use App\Models\Service;
 use App\Models\User;
 use App\Provisioning\AaPanelDriver;
 use App\Provisioning\CpanelDriver;
+use App\Provisioning\DirectAdminDriver;
+use App\Provisioning\PleskDriver;
 use App\Provisioning\ProtocolError;
 use App\Provisioning\PterodactylDriver;
 use App\Services\Audit;
@@ -31,7 +33,7 @@ class NativeProvisioningController extends Controller
         if (isset($v['token']) && preg_match('/[\r\n]/', $v['token'])) {
             throw ValidationException::withMessages(['token' => 'Token inválido.']);
         }
-        if (in_array($connector->driver, ['cpanel', 'aapanel', 'pterodactyl'], true) && $r->boolean('active')) {
+        if (in_array($connector->driver, ['cpanel', 'aapanel', 'pterodactyl', 'directadmin', 'plesk'], true) && $r->boolean('active')) {
             $r->validate(['ack_native' => 'accepted']);
         }
         $connector->fill(['active' => $r->boolean('active')]);
@@ -60,10 +62,12 @@ class NativeProvisioningController extends Controller
             }
             $s = Service::lockForUpdate()->findOrFail($service->id);
             $p = $s->provisioning;
-            abort_unless($s->user_id === $u->id && $s->status === 'active' && ($p['driver'] ?? '') === 'cpanel' && $s->remote_id === $s->native_username && $s->provisioning_secret, 404);
+            abort_unless($s->user_id === $u->id && $s->status === 'active' && in_array($p['driver'] ?? '', ['cpanel', 'directadmin', 'plesk'], true) && (($p['driver'] ?? '') === 'plesk' ? ctype_digit($s->remote_id ?? '') && (int) $s->remote_id > 0 : $s->remote_id === $s->native_username) && $s->provisioning_secret, 404);
             Audit::record('service.credentials_viewed', 'service:'.$s->id, [], $u->id);
 
-            return ['username' => $p['username'], 'domain' => $p['domain'], 'url' => $p['client_url'], 'password' => $s->provisioning_secret];
+            return ['username' => $p['username'], 'domain' => $p['domain'], 'url' => $p['client_url'], 'password' => $s->provisioning_secret, 'panel' => match ($p['driver']) {
+                'directadmin' => 'DirectAdmin','plesk' => 'Plesk',default => 'cPanel'
+            }, 'ftp_only' => $p['driver'] === 'plesk', 'host' => $p['ip'] ?? null];
         });
 
         // Render directly; never copy the initial password into flash/session, mail or API.
@@ -168,14 +172,14 @@ class NativeProvisioningController extends Controller
         $claim = (string) Str::uuid();
         DB::transaction(function () use ($operation, $claim) {
             $op = Operation::lockForUpdate()->findOrFail($operation->id);
-            abort_unless(in_array($op->service->connector?->driver, ['cpanel', 'aapanel', 'pterodactyl'], true), 422);
+            abort_unless(in_array($op->service->connector?->driver, ['cpanel', 'aapanel', 'pterodactyl', 'directadmin', 'plesk'], true), 422);
             abort_unless($op->status === 'review', 409, 'Apenas operações em revisão podem ser conciliadas.');
             $op->update(['status' => 'reconciling', 'execution_token' => $claim]);
         });
         try {
             $operation->refresh()->load('service.connector');
             $driver = app(match ($operation->service->connector->driver) {
-                'pterodactyl' => PterodactylDriver::class,'aapanel' => AaPanelDriver::class,default => CpanelDriver::class
+                'directadmin' => DirectAdminDriver::class,'plesk' => PleskDriver::class,'pterodactyl' => PterodactylDriver::class,'aapanel' => AaPanelDriver::class,default => CpanelDriver::class
             });
             $observation = $driver->observe($operation->service);
             DB::transaction(function () use ($operation, $observation, $v, $r, $claim) {
@@ -222,7 +226,7 @@ class NativeProvisioningController extends Controller
         $r->validate(['note' => 'required|string|min:10|max:500', 'ack' => 'required|accepted']);
         DB::transaction(function () use ($operation, $r) {
             $op = Operation::lockForUpdate()->findOrFail($operation->id);
-            abort_unless(in_array($op->service->connector?->driver, ['cpanel', 'aapanel', 'pterodactyl'], true) && in_array($op->status, ['processing', 'reconciling'], true) && $op->updated_at->lt(now()->subMinutes(5)), 409);
+            abort_unless(in_array($op->service->connector?->driver, ['cpanel', 'aapanel', 'pterodactyl', 'directadmin', 'plesk'], true) && in_array($op->status, ['processing', 'reconciling'], true) && $op->updated_at->lt(now()->subMinutes(5)), 409);
             $op->update(['status' => 'review', 'execution_token' => null, 'error' => 'Worker/consulta interrompido. Consulte o provedor e verifique que não há execução remota em andamento.', 'review_note' => $r->input('note')]);
             Audit::record('operation.interrupted', 'operation:'.$op->id, ['note' => $r->input('note')], $r->user()->id);
         });

@@ -20,6 +20,7 @@ use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Tests\FakeAaPanel;
+use Tests\FakeHosting;
 use Tests\FakeOllama;
 use Tests\FakePterodactyl;
 use Tests\FakePterodactylUsers;
@@ -33,7 +34,13 @@ require __DIR__.'/../.cache/vendor/autoload.php';
 $app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 try {
-    if ($argv[1] === 'ptero-purchase-account') {
+    if ($argv[1] === 'hosting-run') {
+        require __DIR__.'/FakeHosting.php';
+        config(['lagos.native_provisioning' => true]);
+        $op = Operation::with('service.connector')->findOrFail((int) $argv[2]);
+        FakeHosting::install(base_path('.cache/concurrent-'.$op->service->connector->driver.'.json'), $op->service);
+        (new RunOperation($op->id))->handle();
+    } elseif ($argv[1] === 'ptero-purchase-account') {
         require __DIR__.'/FakePterodactylUsers.php';
         config(['lagos.native_provisioning' => true]);
         FakePterodactylUsers::install(base_path('.cache/concurrent-purchase-users.json'));
