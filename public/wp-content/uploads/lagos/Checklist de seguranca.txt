@@ -1,0 +1,10 @@
+CHECKLIST DE SEGURANCA
+
+== LagosPanel ==
+
+[ ] Ativar 2FA no Perfil
+[ ] Senha forte e unica
+[ ] Chave de API guardada com segredo
+[ ] Revisar sessoes ativas periodicamente
+
+Feito isso, sua conta esta muito mais segura!

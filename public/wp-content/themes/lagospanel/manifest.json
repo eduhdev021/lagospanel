@@ -1,0 +1,13 @@
+{
+  "name": "LagosPanel",
+  "short_name": "LagosPanel",
+  "description": "Painel de billing da Companhia Lagos",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#120B24",
+  "theme_color": "#7C3AED",
+  "icons": [
+    { "src": "/wp-content/themes/lagospanel/assets/img/logo-painel.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/wp-content/themes/lagospanel/assets/img/favicon.png", "sizes": "64x64", "type": "image/png", "purpose": "any" }
+  ]
+}

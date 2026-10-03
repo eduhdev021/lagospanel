@@ -1,0 +1,10 @@
+PAGAMENTO VIA PIX
+
+== LagosPanel ==
+
+1. Va em Faturas
+2. Clique no botao Pix
+3. Escaneie o QR Code ou copie o codigo
+4. Confirme no app do banco
+
+O valor e confirmado automaticamente em segundos.

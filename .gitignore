@@ -1,0 +1,8 @@
+# banco local (datadir MariaDB)
+data/
+# dependências e caches
+node_modules/
+scripts/shots/node_modules/
+*.log
+.DS_Store
+.env
