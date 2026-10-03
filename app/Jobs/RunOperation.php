@@ -78,6 +78,11 @@ class RunOperation implements ShouldQueue
             if ($op->action !== 'create' && ! $service->remote_id) {
                 throw new RuntimeException('ID remoto ausente.');
             }
+            if ($connector->driver === 'pterodactyl' && $op->action === 'create' && ($service->provisioning['auto_account'] ?? false) && empty($service->provisioning['remote_user_id'])) {
+                PreparePterodactylAccount::dispatch($op->id, $this->token())->onConnection('database')->afterCommit();
+
+                return;
+            }
             $remote = match ($connector->driver) {
                 'json' => app(JsonDriver::class)->run($op),
                 'cpanel' => app(CpanelDriver::class)->run($op),

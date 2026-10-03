@@ -1,7 +1,7 @@
 {
   "database": "SQLite WAL / BEGIN IMMEDIATE",
   "workers": 20,
-  "seconds": 25.683,
+  "seconds": 30.156,
   "results": [
     {
       "test": "20 processos creditam depósitos sem perder atualizações",
@@ -69,6 +69,10 @@
     },
     {
       "test": "20 solicitações de conta Pterodactyl produzem um POST e um vínculo, sem duplicar usuário remoto",
+      "passed": true
+    },
+    {
+      "test": "20 serviços pagos concorrentes compartilham uma conta remota e todos retomam a fila, sem POST duplicado",
       "passed": true
     }
   ]

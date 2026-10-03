@@ -6,6 +6,7 @@ use App\Jobs\PollPterodactyl;
 use App\Models\Operation;
 use App\Models\Service;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 final class PterodactylDriver
 {
@@ -61,7 +62,7 @@ final class PterodactylDriver
         return $d;
     }
 
-    public function observe(Service $s): array
+    public function observe(Service $s, bool $clientIdentity = false): array
     {
         $p = $this->config($s);
         // Verify owner before trusting even a 404 from the external server lookup.
@@ -103,7 +104,15 @@ final class PterodactylDriver
             throw new ProtocolError('Estado Pterodactyl contraditório.');
         }
 
-        return ['status' => $state, 'remote_id' => (string) $id, 'checked_at' => $base['checked_at']];
+        $extra = [];
+        if ($clientIdentity) {
+            if (! is_string($a['uuid'] ?? null) || ! Str::isUuid($a['uuid']) || ($a['identifier'] ?? null) !== substr($a['uuid'], 0, 8)) {
+                throw new ProtocolError('Identificador de controle inválido.');
+            }
+            $extra = ['uuid' => $a['uuid']];
+        }
+
+        return ['status' => $state, 'remote_id' => (string) $id, 'checked_at' => $base['checked_at']] + $extra;
     }
 
     public function run(Operation $op): string

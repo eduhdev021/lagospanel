@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\RunOperation;
 use App\Models\Connector;
 use App\Models\Operation;
+use App\Models\PterodactylControl;
 use App\Models\Service;
 use App\Models\User;
 use App\Provisioning\AaPanelDriver;
@@ -13,6 +14,7 @@ use App\Provisioning\ProtocolError;
 use App\Provisioning\PterodactylDriver;
 use App\Services\Audit;
 use App\Services\Provisioning;
+use App\Services\PterodactylPower;
 use App\Support\Totp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -66,6 +68,97 @@ class NativeProvisioningController extends Controller
 
         // Render directly; never copy the initial password into flash/session, mail or API.
         return response()->view('client.native-access', ['access' => $access])->header('Cache-Control', 'no-store, private')->header('Referrer-Policy', 'no-referrer');
+    }
+
+    private function confirmedService(Request $r, Service $service, string $driver): Service
+    {
+        abort_unless($service->user_id === $r->user()->id, 404);
+        $v = $r->validate(['password' => 'required|string|max:256', 'code' => 'nullable|string|max:30']);
+        $s = DB::transaction(function () use ($r, $service, $v, $driver) {
+            $u = User::whereKey($r->user()->id)->lockForUpdate()->firstOrFail();
+            if (! Hash::check($v['password'], $u->password)) {
+                throw ValidationException::withMessages(['password' => 'Senha atual inválida.']);
+            }
+            if ($u->totp_secret) {
+                $step = Totp::step($u->totp_secret, $v['code'] ?? '', $u->totp_last_step);
+                if ($step === null) {
+                    throw ValidationException::withMessages(['code' => 'Informe um código novo do autenticador.']);
+                }
+                $u->forceFill(['totp_last_step' => $step])->save();
+            }
+            $s = Service::whereKey($service->id)->lockForUpdate()->firstOrFail();
+            abort_unless($s->user_id === $u->id && $s->status === 'active' && ($s->provisioning['driver'] ?? '') === $driver, 404);
+
+            return $s;
+        });
+
+        return $s;
+    }
+
+    public function session(Request $r, Service $service)
+    {
+        $s = $this->confirmedService($r, $service, 'cpanel');
+        try {
+            $url = app(CpanelDriver::class)->session($s);
+        } catch (Throwable) {
+            Audit::record('service.session_failed', 'service:'.$s->id, [], $r->user()->id);
+            throw ValidationException::withMessages(['service' => 'Acesso temporário não confirmado. Confira a integração, permissões WHM e o estado da conta.']);
+        }
+        Audit::record('service.session_created', 'service:'.$s->id, [], $r->user()->id);
+
+        return redirect()->away($url, 303)->header('Cache-Control', 'no-store, private')->header('Referrer-Policy', 'no-referrer');
+    }
+
+    public function power(Request $r, Service $service)
+    {
+        $s = $this->confirmedService($r, $service, 'pterodactyl');
+        $v = $r->validate(['token' => 'required|string|min:16|max:2000|regex:/^[A-Za-z0-9_.-]+$/D', 'signal' => 'required|in:start,stop,restart', 'request_key' => 'required|uuid', 'ack' => 'accepted']);
+        [$control,$new] = DB::transaction(function () use ($s, $v) {
+            User::whereKey($s->user_id)->lockForUpdate()->firstOrFail();
+            Service::whereKey($s->id)->lockForUpdate()->firstOrFail();
+            $old = PterodactylControl::where('user_id', $s->user_id)->where('request_key', $v['request_key'])->first();
+            if ($old) {
+                abort_unless($old->service_id === $s->id && $old->signal === $v['signal'], 409);
+
+                return [$old, false];
+            }
+            abort_if(PterodactylControl::where('service_id', $s->id)->where('status', 'processing')->where('created_at', '>', now()->subMinutes(2))->exists(), 409);
+            $control = PterodactylControl::create(['user_id' => $s->user_id, 'service_id' => $s->id, 'request_key' => $v['request_key'], 'signal' => $v['signal'], 'status' => 'processing']);
+            Audit::record('service.power_requested', 'service:'.$s->id, ['control' => $control->id, 'signal' => $v['signal']], $s->user_id);
+
+            return [$control, true];
+        }, 5);
+        if (! $new) {
+            return back()->with('status', 'Solicitação já registrada; não foi reenviada. Confira o estado no Pterodactyl antes de um novo comando.');
+        }
+        try {
+            app(PterodactylPower::class)->run($s, $control, $v['token']);
+            Audit::record('service.power_accepted', 'service:'.$s->id, ['control' => $control->id, 'signal' => $v['signal']], $s->user_id);
+        } catch (Throwable) {
+            $control->refresh();
+            $control->update(['status' => $control->sent_at ? 'uncertain' : 'failed']);
+            Audit::record('service.power_unconfirmed', 'service:'.$s->id, ['control' => $control->id, 'status' => $control->status], $s->user_id);
+
+            return back()->withErrors(['service' => 'Comando não confirmado e não será reenviado automaticamente. Confira a chave Client API, o vínculo e o estado no Pterodactyl antes de tentar novamente.']);
+        }
+
+        return back()->with('status', 'Comando aceito pelo Pterodactyl. A transição pode levar alguns segundos; isso não altera a situação financeira do serviço.');
+    }
+
+    public function prepareAccount(Request $r, Operation $operation)
+    {
+        abort_unless($r->user()->hasPermission('services.manage'), 403);
+        $v = $r->validate(['note' => 'required|string|min:10|max:500', 'ack' => 'accepted']);
+        DB::transaction(function () use ($operation, $r, $v) {
+            $op = Operation::whereKey($operation->id)->lockForUpdate()->firstOrFail();
+            $s = Service::whereKey($op->service_id)->lockForUpdate()->firstOrFail();
+            abort_unless($op->status === 'review' && $op->action === 'create' && ! $op->sent_at && ! $s->remote_id && $s->status !== 'cancelled' && ($s->provisioning['driver'] ?? '') === 'pterodactyl' && ($s->provisioning['auto_account'] ?? false) && empty($s->provisioning['remote_user_id']), 409);
+            $op->update(['status' => 'pending', 'execution_token' => null, 'error' => null]);
+            RunOperation::dispatch($op->id)->onConnection('database')->afterCommit();
+            Audit::record('operation.account_resumed', 'operation:'.$op->id, ['note' => $v['note']], $r->user()->id);
+        }, 5);
+
+        return back()->with('status', 'Preparação retomada pela fila. Uma solicitação de conta já enviada somente será consultada.');
     }
 
     public function inspect(Request $r, Operation $operation)

@@ -1,12 +1,14 @@
 # LagosPanel
 
-**Versão 1.1.0 — distribuição principal.**
+**Versão 1.2.0 — pacote local desta entrega.**
+
+A publicação pública anterior é 1.1.0; não há afirmação de push/CI remoto para este pacote.
 
 Painel de clientes, cobrança, serviços e atendimento, com administração própria, integrações de hospedagem/jogos e assistente Ollama com pesquisa web. Aplicação independente sobre Laravel, mantendo a identidade visual do LagosPanel.
 
 [Baixar versão](https://github.com/eduhdev021/lagospanel/releases/latest) · [Relatar problema](https://github.com/eduhdev021/lagospanel/issues/new/choose) · [Testes](https://github.com/eduhdev021/lagospanel/actions)
 
-> **Antes de operar com clientes reais:** esta publicação como 1.0.0 não certifica integrações autenticadas ou infraestrutura de produção. Os testes automatizados passaram; o catálogo público Ollama foi consultado de verdade. Inferência/pesquisa autenticada, provisionamento real, pagamentos, SMTP externo e MySQL/MariaDB ainda precisam ser validados no ambiente do operador. Consulte [operação](docs/OPERACAO.md) e [escopo](docs/ESCOPO.md).
+> **Antes de operar com clientes reais:** esta distribuição não certifica integrações autenticadas ou infraestrutura de produção. Os testes automatizados passaram; o catálogo público Ollama foi consultado de verdade. Inferência/pesquisa autenticada, provisionamento real, pagamentos, SMTP externo e MySQL/MariaDB ainda precisam ser validados no ambiente do operador. Consulte [operação](docs/OPERACAO.md) e [escopo](docs/ESCOPO.md).
 
 ## Recursos
 
@@ -15,7 +17,9 @@ Painel de clientes, cobrança, serviços e atendimento, com administração pró
 - Faturas/PDF não fiscal, carteira e pagamentos em BRL; rotinas de renovação e cobrança.
 - Tickets, prioridades, responsáveis, notas internas, anexos privados, base de conhecimento e respostas prontas.
 - Provisionamento cPanel/WHM, aaPanel e Pterodactyl nos recortes documentados; conector HTTPS/JSON próprio.
-- Criação de usuários Pterodactyl pelo ADM, vínculo automático após conferência e recuperação de resultado incerto sem repetir a criação. Não é criação automática no checkout.
+- Criação de usuários Pterodactyl pelo ADM, vínculo automático após conferência e recuperação de resultado incerto sem repetir a criação. Preparação automática após pagamento disponível por opção do produto.
+- Energia Pterodactyl (ligar/parar/reiniciar) com Client API do cliente, senha/2FA e chave não persistida.
+- SSO temporário cPanel com senha/2FA, conferência de identidade e origem HTTPS fixa. [Configuração e limites](docs/AUTOMACAO-E-ACESSO-1.2.md).
 - Integrações Stripe e Mercado Pago, desativadas por padrão até configuração e validação operacional.
 - Chat Ollama com chave e modelo no ADM, conversas privadas, fila e consentimento.
 - Pesquisa web mediada pelo painel, com consulta pública e fontes, sem depender de tool calling nativo do modelo.
@@ -69,7 +73,7 @@ Backup de banco, APP_KEY e arquivos privados; instale dependências do lockfile,
 
 ## Testes e problemas
 
-Nesta atualização: **268 testes PHP / 1288 asserções**, **17 cenários concorrentes** e **12 verificações novas de navegador** para criação de contas Pterodactyl. As chamadas de criação foram simuladas; nenhum usuário foi criado em um provedor real. Relatórios das versões anteriores, incluindo 292 verificações de navegador, continuam identificados como evidência anterior — não foram todos reexecutados nesta etapa. Detalhes em [PTERODACTYL-CONTAS.md](docs/PTERODACTYL-CONTAS.md).
+Nesta atualização: **309 testes PHP / 1690 asserções**, **18 cenários concorrentes**, **13 verificações novas de navegador** para energia/SSO, mais **15 verificações do instalador** e **6 guardas** numa cópia extraída do pacote. Provedores simulados; nenhum servidor real foi reiniciado nem sessão WHM real emitida. Relatórios anteriores de navegador permanecem históricos, não todos reexecutados. Veja [automação e acesso](docs/AUTOMACAO-E-ACESSO-1.2.md).
 
 ```bash
 composer install

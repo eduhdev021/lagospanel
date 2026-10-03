@@ -1,10 +1,10 @@
-# Pterodactyl — Application API (1.1.0)
+# Pterodactyl — Application API (1.2.0)
 
 ## O que está implementado
 
 Provisionamento de servidores de jogos após pagamento, recursos por plano, consulta, suspensão, reativação e remoção. Confirmação por leitura e conciliação de estados incertos, além de acompanhamento de instalação em fila. **Não houve teste em Pterodactyl/Wings real.** Compatibilidade com uma versão específica deve ser homologada pelo operador.
 
-Este recorte exige **conta de cliente vinculada antes do checkout**. Na 1.1.0, o ADM pode criar uma conta remota e obter o vínculo automaticamente após conferência; também pode vincular uma conta já existente. Veja [criação de contas](PTERODACTYL-CONTAS.md). Não apaga usuários remotos. Não compartilha a Application Key com clientes. Cliente acessa o painel Pterodactyl com suas próprias credenciais; não há SSO, Client API, console, SFTP, energia, reinstalação, backups ou troca de plano controlados pelo LagosPanel. Recursos disponíveis diretamente no Pterodactyl continuam sendo administrados lá.
+O plano exige conta vinculada ou a opção `"auto_account":true`. Com ela, preparação da conta pela fila somente após pagamento, sem HTTP no checkout. Há ligar/parar/reiniciar com Client API Key não administrativa do cliente, fornecida por solicitação e não persistida. Application Key permanece privada. Sem console, SSO Pterodactyl, SFTP, reinstalação, backups ou troca de plano dentro do LagosPanel. Veja [automação e acesso](AUTOMACAO-E-ACESSO-1.2.md) e [contas](PTERODACTYL-CONTAS.md).
 
 ## Configurar
 

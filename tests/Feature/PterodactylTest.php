@@ -4,22 +4,27 @@ namespace Tests\Feature;
 
 use App\Jobs\PollPterodactyl;
 use App\Jobs\RunOperation;
+use App\Models\AuditEvent;
 use App\Models\Connector;
 use App\Models\Operation;
 use App\Models\Product;
 use App\Models\PterodactylAccount;
+use App\Models\PterodactylControl;
 use App\Models\Service;
 use App\Models\User;
 use App\Provisioning\PterodactylConfig;
 use App\Services\Billing;
 use App\Services\Checkout;
 use App\Services\Provisioning;
+use App\Support\Totp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Factory;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\FakePterodactyl;
 use Tests\TestCase;
 
@@ -291,5 +296,164 @@ class PterodactylTest extends TestCase
         $this->assertSame('review', $this->execute($s)->status);
         $this->assertSame('pending', $s->fresh()->status);
         $this->assertNull($s->fresh()->remote_id);
+    }
+
+    private function powerService(): Service
+    {
+        $s = $this->service();
+        $this->fake($s);
+        $this->assertSame('done', $this->execute($s)->status);
+        Http::swap(new Factory);
+        Http::preventStrayRequests();
+
+        return $s->fresh();
+    }
+
+    private function powerData(string $signal = 'restart'): array
+    {
+        return ['signal' => $signal, 'token' => 'ptlc_client-secret-123456789', 'password' => 'password', 'request_key' => (string) Str::uuid(), 'ack' => 1];
+    }
+
+    private function fakePower(Service $s, array $user = [], bool $timeout = false, ?callable $hook = null): void
+    {
+        $server = json_decode(file_get_contents($this->file), true)['server'];
+        $uuid = '01234567-89ab-4cde-8123-456789abcdef';
+        $server += ['uuid' => $uuid, 'identifier' => substr($uuid, 0, 8)];
+        Http::fake(function ($r) use ($s, $user, $server, $uuid, $timeout, $hook) {
+            $path = parse_url($r->url(), PHP_URL_PATH);
+            if ($path === '/api/client/account') {
+                $this->assertSame(['Bearer ptlc_client-secret-123456789'], $r->header('Authorization'));
+
+                return Http::response(['object' => 'user', 'attributes' => array_replace(['id' => 41, 'admin' => false, 'email' => $s->provisioning['email']], $user)]);
+            }
+            if (str_starts_with($path, '/api/application/')) {
+                $this->assertSame(['Bearer ptero-private-application-key'], $r->header('Authorization'));
+                if (str_starts_with($path, '/api/application/users/')) {
+                    return Http::response(['object' => 'user', 'attributes' => ['id' => 41, 'root_admin' => false, 'email' => $s->provisioning['email']]]);
+                }
+                if ($hook) {
+                    $hook();
+                }
+
+                return Http::response(['object' => 'server', 'attributes' => $server]);
+            }
+            $this->assertSame('/api/client/servers/'.$uuid.'/power', $path);
+            $this->assertSame('POST', $r->method());
+            $this->assertSame(['Bearer ptlc_client-secret-123456789'], $r->header('Authorization'));
+            $this->assertSame(['signal'], $r->data() ? array_keys($r->data()) : []);
+
+            return $timeout ? Http::failedConnection() : Http::response('', 204);
+        });
+    }
+
+    #[DataProvider('powerSignals')]
+    public function test_client_power_uses_customer_key_and_keeps_financial_status(string $signal): void
+    {
+        $s = $this->powerService();
+        $this->fakePower($s);
+        $data = $this->powerData($signal);
+        $this->actingAs($s->user)->get('/painel/servicos')->assertOk()->assertSee('Ligar, parar ou reiniciar');
+        $this->post('/painel/servicos/'.$s->id.'/energia', $data)->assertSessionHasNoErrors()->assertRedirect();
+        $control = PterodactylControl::sole();
+        $this->assertSame('accepted', $control->status);
+        $this->assertNotNull($control->sent_at);
+        $this->assertSame('active', $s->fresh()->status);
+        Http::assertSentCount(4);
+        $this->assertStringNotContainsString($data['token'], json_encode(AuditEvent::all()));
+        $this->assertStringNotContainsString($data['token'], json_encode($control));
+        $this->assertNull(session()->getOldInput('token'));
+        $this->assertNull(session()->getOldInput('password'));
+    }
+
+    public static function powerSignals(): array
+    {
+        return [['start'], ['stop'], ['restart']];
+    }
+
+    public function test_power_replayed_form_does_not_repeat_post(): void
+    {
+        $s = $this->powerService();
+        $this->fakePower($s);
+        $data = $this->powerData();
+        $url = '/painel/servicos/'.$s->id.'/energia';
+        $this->actingAs($s->user)->post($url, $data)->assertSessionHasNoErrors();
+        $this->post($url, $data)->assertSessionHasNoErrors();
+        Http::assertSentCount(4);
+        $this->assertSame(1, PterodactylControl::count());
+        $data['signal'] = 'stop';
+        $this->post($url, $data)->assertStatus(409);
+        Http::assertSentCount(4);
+    }
+
+    public function test_power_timeout_is_uncertain_and_never_replayed_automatically(): void
+    {
+        $s = $this->powerService();
+        $this->fakePower($s, [], true);
+        $data = $this->powerData();
+        $url = '/painel/servicos/'.$s->id.'/energia';
+        $this->actingAs($s->user)->post($url, $data)->assertSessionHasErrors('service');
+        $this->assertSame('uncertain', PterodactylControl::sole()->status);
+        $this->post($url, $data)->assertRedirect();
+        Http::assertSentCount(4);
+    }
+
+    #[DataProvider('wrongPowerUsers')]
+    public function test_power_rejects_admin_or_another_remote_account(array $user): void
+    {
+        $s = $this->powerService();
+        $this->fakePower($s, $user);
+        $this->actingAs($s->user)->post('/painel/servicos/'.$s->id.'/energia', $this->powerData())->assertSessionHasErrors('service');
+        $this->assertSame('failed', PterodactylControl::sole()->status);
+        Http::assertSentCount(1);
+    }
+
+    public static function wrongPowerUsers(): array
+    {
+        return [[['admin' => true]], [['id' => 42]], [['email' => 'someoneelse@example.test']], [['admin' => 0]]];
+    }
+
+    public function test_power_rejects_other_customer_wrong_password_unsupported_action_without_flashing_key(): void
+    {
+        $s = $this->powerService();
+        $data = $this->powerData();
+        $url = '/painel/servicos/'.$s->id.'/energia';
+        $this->actingAs(User::factory()->create())->post($url, $data)->assertNotFound();
+        $this->actingAs($s->user)->post($url, array_replace($data, ['password' => 'wrong']))->assertSessionHasErrors('password');
+        $this->post($url, array_replace($data, ['signal' => 'kill']))->assertSessionHasErrors('signal');
+        $this->assertNull(session()->getOldInput('token'));
+        $this->assertNull(session()->getOldInput('password'));
+        Http::assertNothingSent();
+    }
+
+    public function test_power_checks_local_state_again_before_sending_command(): void
+    {
+        $s = $this->powerService();
+        $this->fakePower($s, [], false, fn () => Service::whereKey($s->id)->update(['status' => 'suspended']));
+        $this->actingAs($s->user)->post('/painel/servicos/'.$s->id.'/energia', $this->powerData())->assertSessionHasErrors('service');
+        Http::assertSentCount(3);
+        $this->assertNull(PterodactylControl::sole()->sent_at);
+    }
+
+    public function test_power_requires_fresh_totp_and_native_enabled_flag(): void
+    {
+        $s = $this->powerService();
+        $u = $s->user;
+        $secret = Totp::secret();
+        $u->forceFill(['totp_secret' => $secret])->save();
+        $url = '/painel/servicos/'.$s->id.'/energia';
+        $data = $this->powerData();
+        $this->actingAs($u)->post($url, $data)->assertSessionHasErrors('code');
+        Http::assertNothingSent();
+        $data['code'] = Totp::code($secret, intdiv(now()->timestamp, 30));
+        $this->fakePower($s);
+        $this->post($url, $data)->assertSessionHasNoErrors();
+        $this->post($url, $data)->assertSessionHasErrors('code');
+        Http::assertSentCount(4);
+        Http::swap(new Factory);
+        Http::preventStrayRequests();
+        $u->forceFill(['totp_secret' => null])->save();
+        config(['lagos.native_provisioning' => false]);
+        $this->post($url,$this->powerData())->assertSessionHasErrors('service');
+        Http::assertNothingSent();
     }
 }

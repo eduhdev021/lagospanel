@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Jobs\RunOperation;
+use App\Models\AuditEvent;
 use App\Models\Connector;
 use App\Models\Invoice;
 use App\Models\Operation;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class NativeProvisioningTest extends TestCase
@@ -528,6 +530,123 @@ class NativeProvisioningTest extends TestCase
         }
         $this->assertSame($before, Invoice::count());
         $this->assertDatabaseCount('services', 1);
+        Http::assertNothingSent();
+    }
+
+    private function fakeSession(Service $s, array $override = [], ?callable $hook = null): void
+    {
+        $session = $s->native_username.':'.str_repeat('X', 48);
+        $data = array_replace(['service' => 'cpaneld', 'cp_security_token' => '/cpsess1234567890', 'expires' => time() + 900, 'session' => $session, 'url' => $s->provisioning['client_url'].'/cpsess1234567890/login/?session='.rawurlencode($session)], $override);
+        Http::fake(function ($r) use ($s, $data, $hook) {
+            $this->assertSame('POST', $r->method());
+            if (str_ends_with($r->url(), '/listaccts')) {
+                return Http::response($this->reply('listaccts', ['acct' => [$this->account($s)]]));
+            }
+            $this->assertStringEndsWith('/create_user_session', $r->url());
+            $this->assertSame('cpaneld', $r['service']);
+            $this->assertSame($s->native_username, $r['user']);
+            $this->assertArrayNotHasKey('password', $r->data());
+            if ($hook) {
+                $hook();
+            }
+
+            return Http::response($this->reply('create_user_session', $data));
+        });
+    }
+
+    public function test_cpanel_sso_confirms_identity_and_returns_private_redirect_without_storing_token(): void
+    {
+        $s = $this->active();
+        $this->fakeSession($s);
+        $this->actingAs($s->user)->get('/painel/servicos')->assertOk()->assertSee('Entrar no cPanel');
+        $r = $this->post('/painel/servicos/'.$s->id.'/acesso-cpanel', ['password' => 'password', 'service' => 'whostmgrd', 'user' => 'root']);
+        $r->assertStatus(303)->assertHeader('Referrer-Policy', 'no-referrer');
+        $this->assertStringContainsString('no-store', $r->headers->get('Cache-Control'));
+        $this->assertStringStartsWith($s->provisioning['client_url'].'/cpsess1234567890/login/?session=', $r->headers->get('Location'));
+        Http::assertSentCount(3);
+        $this->assertStringNotContainsString(str_repeat('X', 48), json_encode(AuditEvent::all()));
+        $this->assertNull(session()->getOldInput('password'));
+        $this->assertSame(1, AuditEvent::where('event', 'service.session_created')->count());
+    }
+
+    public function test_cpanel_sso_requires_ownership_password_and_active_service(): void
+    {
+        $s = $this->active();
+        $url = '/painel/servicos/'.$s->id.'/acesso-cpanel';
+        $this->actingAs($this->user())->post($url, ['password' => 'password'])->assertNotFound();
+        $this->actingAs($s->user)->post($url, ['password' => 'wrong'])->assertSessionHasErrors('password');
+        $s->update(['status' => 'suspended']);
+        $this->post($url, ['password' => 'password'])->assertNotFound();
+        Http::assertNothingSent();
+    }
+
+    public function test_cpanel_sso_consumes_fresh_totp_without_accepting_replay(): void
+    {
+        $s = $this->active();
+        $u = $s->user;
+        $secret = Totp::secret();
+        $u->forceFill(['totp_secret' => $secret])->save();
+        $this->fakeSession($s);
+        $url = '/painel/servicos/'.$s->id.'/acesso-cpanel';
+        $this->actingAs($u)->post($url, ['password' => 'password'])->assertSessionHasErrors('code');
+        Http::assertNothingSent();
+        $code = Totp::code($secret, intdiv(now()->timestamp, 30));
+        $this->post($url, ['password' => 'password', 'code' => $code])->assertStatus(303);
+        $this->post($url, ['password' => 'password', 'code' => $code])->assertSessionHasErrors('code');
+        Http::assertSentCount(3);
+    }
+
+    #[DataProvider('unsafeSessionData')]
+    public function test_cpanel_sso_rejects_unsafe_session_response(array $data): void
+    {
+        $s = $this->active();
+        $this->fakeSession($s, $data);
+        $r = $this->actingAs($s->user)->post('/painel/servicos/'.$s->id.'/acesso-cpanel', ['password' => 'password']);
+        $r->assertSessionHasErrors('service');
+        $this->assertStringNotContainsString('cpsess', $r->headers->get('Location'));
+        $this->assertSame(0, AuditEvent::where('event', 'service.session_created')->count());
+    }
+
+    public static function unsafeSessionData(): array
+    {
+        return [
+            'external origin' => [['url' => 'https://evil.example/cpsess1234567890/login/?session=secret']],
+            'plain http' => [['url' => 'http://whm.example.test:2083/cpsess1234567890/login/?session=secret']],
+            'whm port' => [['url' => 'https://whm.example.test:2087/cpsess1234567890/login/?session=secret']],
+            'userinfo' => [['url' => 'https://evil@whm.example.test:2083/cpsess1234567890/login/?session=secret']],
+            'wrong session' => [['session' => 'anotheruser:'.str_repeat('X', 48)]],
+            'whm service' => [['service' => 'whostmgrd']],
+            'expired' => [['expires' => 1]],
+            'invalid expiration' => [['expires' => '9999999999']],
+            'token path' => [['cp_security_token' => '/cpsess1234567890/../']],
+            'header injection' => [['url' => "https://whm.example.test:2083/\r\nLocation: evil"]],
+            'malformed url' => [['url' => []]],
+        ];
+    }
+
+    public function test_cpanel_sso_remote_identity_mismatch_does_not_issue_session(): void
+    {
+        $s = $this->active();
+        $account = $this->account($s);
+        $account['owner'] = 'someoneelse';
+        Http::fakeSequence()->push($this->reply('listaccts', ['acct' => [$account]]));
+        $this->actingAs($s->user)->post('/painel/servicos/'.$s->id.'/acesso-cpanel', ['password' => 'password'])->assertSessionHasErrors('service');
+        Http::assertSentCount(1);
+    }
+
+    public function test_cpanel_sso_does_not_deliver_session_if_service_changes_during_request(): void
+    {
+        $s = $this->active();
+        $this->fakeSession($s, [], fn () => $s->update(['status' => 'suspended']));
+        $this->actingAs($s->user)->post('/painel/servicos/'.$s->id.'/acesso-cpanel', ['password' => 'password'])->assertSessionHasErrors('service');
+        $this->assertSame(0, AuditEvent::where('event', 'service.session_created')->count());
+    }
+
+    public function test_cpanel_sso_blocks_when_remote_operation_is_unresolved(): void
+    {
+        $s = $this->active();
+        app(Provisioning::class)->enqueue($s, 'suspend', 'sso-unresolved');
+        $this->actingAs($s->user)->post('/painel/servicos/'.$s->id.'/acesso-cpanel',['password' => 'password'])->assertSessionHasErrors('service');
         Http::assertNothingSent();
     }
 }

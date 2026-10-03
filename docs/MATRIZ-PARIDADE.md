@@ -84,12 +84,12 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 | Serviços manuais | Implementado localmente | Pagamento não finge criar infraestrutura |
 | Conector HTTPS/JSON próprio | Homologação pendente | Contrato simulado; não é adaptador nativo |
 | Fila e reconciliação de resultado incerto | Parcial | Sem repetir criação cegamente; resolução operacional ainda manual |
-| cPanel/WHM | Parcial / homologação pendente | Ciclo de conta WHM API 1, snapshots e conciliação testados com simulação; faltam WHM real, SSO, alteração de pacote e domínio próprio no checkout |
+| cPanel/WHM | Parcial / homologação pendente | Ciclo WHM API 1, snapshots, conciliação e SSO temporário com senha/2FA; faltam WHM real, alteração de pacote e domínio próprio no checkout |
 | aaPanel | Parcial / homologação pendente | Sites gerenciados via API clássica; sem contas isoladas, FTP/banco/quotas/SSL/DNS automáticos; somente simulação |
 | Plesk | Planejado | Driver nativo ausente |
 | DirectAdmin | Planejado | Driver nativo ausente |
 | Enhance | Planejado | Driver nativo ausente |
-| Pterodactyl e jogos | Parcial / homologação pendente | Ciclo de servidores, planos, consultas de instalação e criação de contas pelo ADM com vínculo conferido; faltam criação no checkout, energia/console/SSO e validação real |
+| Pterodactyl e jogos | Parcial / homologação pendente | Ciclo de servidores, planos, criação de contas pelo ADM ou após pagamento, energia via Client API do cliente; faltam console/SSO, backups, reinstalação, upgrades e validação real |
 | Proxmox | Planejado | Implementação própria via API ou licença válida para reutilização |
 | Virtualizor | Planejado | Driver nativo ausente |
 | VirtFusion | Planejado | Driver nativo ausente |

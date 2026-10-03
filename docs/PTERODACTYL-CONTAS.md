@@ -1,4 +1,4 @@
-# Criação de contas Pterodactyl — 1.1.0
+# Criação de contas Pterodactyl — 1.2.0
 
 ## Usar
 
@@ -7,7 +7,7 @@
 3. Integração precisa estar ativa e `NATIVE_PROVISIONING_ENABLED=true`. Habilitar chamadas não equivale a homologar a instalação. Confira TLS, firewall e SMTP do Pterodactyl.
 4. Em **ADM → Integrações → Contas Pterodactyl**, informe o ID local do cliente, nome e sobrenome e confirme o envio desses dados. Exige `integrations.manage` e `customers.view`, além das proteções administrativas existentes.
 5. O cliente deve ter e-mail local verificado. A aplicação gera username e external_id únicos, solicita `root_admin=false` e **não envia uma senha**, muito menos a senha local do cliente.
-6. A confirmação de criação e duas leituras concordantes produzem o vínculo local. A contratação já existente pode usar esse vínculo. Não há criação disparada automaticamente pelo checkout nesta versão.
+6. A confirmação de criação e duas leituras concordantes produzem o vínculo local. A contratação já existente pode usar esse vínculo. A opção `"auto_account":true` também permite preparar a conta pela fila após pagamento; veja `AUTOMACAO-E-ACESSO-1.2.md`.
 
 O Pterodactyl gera o acesso inicial e aciona sua notificação de conta. A aceitação da API não comprova entrega do e-mail: configure o SMTP dele, verifique spam/logs e use a recuperação de senha no próprio Pterodactyl se necessário. LagosPanel não promete entrega, não armazena/exibe senha remota e não oferece SSO nesta etapa.
 

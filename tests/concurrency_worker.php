@@ -1,9 +1,11 @@
 <?php
 
 use App\Jobs\AnswerAiTurn;
+use App\Jobs\PreparePterodactylAccount;
 use App\Jobs\RunOperation;
 use App\Models\AiThread;
 use App\Models\Connector;
+use App\Models\Operation;
 use App\Models\Service;
 use App\Models\Ticket;
 use App\Models\User;
@@ -31,7 +33,15 @@ require __DIR__.'/../.cache/vendor/autoload.php';
 $app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 try {
-    if ($argv[1] === 'ptero-user') {
+    if ($argv[1] === 'ptero-purchase-account') {
+        require __DIR__.'/FakePterodactylUsers.php';
+        config(['lagos.native_provisioning' => true]);
+        FakePterodactylUsers::install(base_path('.cache/concurrent-purchase-users.json'));
+        $op = Operation::findOrFail((int) $argv[2]);
+        if ($op->status === 'processing') {
+            (new PreparePterodactylAccount($op->id, $op->execution_token))->handle();
+        }
+    } elseif ($argv[1] === 'ptero-user') {
         require __DIR__.'/FakePterodactylUsers.php';
         config(['lagos.native_provisioning' => true]);
         FakePterodactylUsers::install(base_path('.cache/concurrent-ptero-users.json'));

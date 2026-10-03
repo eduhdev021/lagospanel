@@ -23,6 +23,7 @@ final class PterodactylConfig
             throw ValidationException::withMessages(['ptero_config' => 'Configuração inválida.']);
         }
         $v = Validator::make($p, [
+            'auto_account' => 'sometimes|boolean',
             'egg' => 'required|integer|min:1|max:2147483647', 'location' => 'required|integer|min:1|max:2147483647',
             'docker_image' => 'required|string|max:255', 'startup' => 'required|string|max:2000', 'environment' => 'present|array|max:50', 'environment.*' => 'nullable|string|max:2000',
             'memory' => 'required|integer|min:128|max:1048576', 'disk' => 'required|integer|min:128|max:104857600', 'cpu' => 'required|integer|min:1|max:6400',
@@ -47,10 +48,16 @@ final class PterodactylConfig
             throw ValidationException::withMessages(['product' => 'Opções não mapeadas ou plano Pterodactyl inválido.']);
         }
         $account = PterodactylAccount::where('connector_id', $p->connector_id)->where('user_id', $s->user_id)->first();
-        if (! $account) {
+        $auto = (bool) ($p->provisioning['auto_account'] ?? false);
+        if (! $account && ! $auto) {
             throw ValidationException::withMessages(['product' => 'Antes da contratação, a equipe deve vincular sua conta Pterodactyl. Abra um chamado.']);
         }
+        if (! $account && (! $s->user->hasVerifiedEmail() || ! $p->connector->active || ! config('lagos.native_provisioning'))) {
+            throw ValidationException::withMessages(['product' => 'Criação automática exige e-mail verificado e integração nativa ativa.']);
+        }
         $cfg = self::product(['ptero_config' => json_encode($p->provisioning)]);
-        $s->update(['provisioning' => $cfg + ['endpoint' => AaPanelConfig::origin($p->connector->endpoint), 'external_id' => 'lagos-'.Str::uuid(), 'remote_user_id' => $account->remote_user_id, 'email' => $s->user->email]]);
+        $parts = preg_split('/\s+/u', trim($s->user->name), 2);
+        $names = ['first_name' => mb_substr($parts[0] ?: 'Cliente', 0, 64), 'last_name' => mb_substr($parts[1] ?? 'Cliente', 0, 64)];
+        $s->update(['provisioning' => $cfg + ['endpoint' => AaPanelConfig::origin($p->connector->endpoint), 'external_id' => 'lagos-'.Str::uuid(), 'remote_user_id' => $account?->remote_user_id, 'account_names' => $names, 'email' => $s->user->email]]);
     }
 }

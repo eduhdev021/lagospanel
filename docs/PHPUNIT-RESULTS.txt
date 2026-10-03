@@ -3,13 +3,13 @@ PHPUnit 11.5.56 by Sebastian Bergmann and contributors.
 Runtime:       PHP 8.4.26
 Configuration: /home/user/lagospanel-independent/phpunit.xml
 
-...............................................................  63 / 268 ( 23%)
-............................................................... 126 / 268 ( 47%)
-............................................................... 189 / 268 ( 70%)
-............................................................... 252 / 268 ( 94%)
-................                                                268 / 268 (100%)
+...............................................................  63 / 309 ( 20%)
+............................................................... 126 / 309 ( 40%)
+............................................................... 189 / 309 ( 61%)
+............................................................... 252 / 309 ( 81%)
+.........................................................       309 / 309 (100%)
 
-Time: 00:05.513, Memory: 74.50 MB
+Time: 00:06.455, Memory: 76.50 MB
 
 Aa Panel (Tests\Feature\AaPanel)
  ✔ Create signed requests and bind numeric site id
@@ -180,6 +180,23 @@ Native Provisioning (Tests\Feature\NativeProvisioning)
  ✔ Whm requests enforce tls and disable redirects
  ✔ Reference cannot be reused for another service
  ✔ Unmapped options cannot be charged for a native product
+ ✔ Cpanel sso confirms identity and returns private redirect without storing token
+ ✔ Cpanel sso requires ownership password and active service
+ ✔ Cpanel sso consumes fresh totp without accepting replay
+ ✔ Cpanel sso rejects unsafe session response with data set "external origin"
+ ✔ Cpanel sso rejects unsafe session response with data set "plain http"
+ ✔ Cpanel sso rejects unsafe session response with data set "whm port"
+ ✔ Cpanel sso rejects unsafe session response with data set "userinfo"
+ ✔ Cpanel sso rejects unsafe session response with data set "wrong session"
+ ✔ Cpanel sso rejects unsafe session response with data set "whm service"
+ ✔ Cpanel sso rejects unsafe session response with data set "expired"
+ ✔ Cpanel sso rejects unsafe session response with data set "invalid expiration"
+ ✔ Cpanel sso rejects unsafe session response with data set "token path"
+ ✔ Cpanel sso rejects unsafe session response with data set "header injection"
+ ✔ Cpanel sso rejects unsafe session response with data set "malformed url"
+ ✔ Cpanel sso remote identity mismatch does not issue session
+ ✔ Cpanel sso does not deliver session if service changes during request
+ ✔ Cpanel sso blocks when remote operation is unresolved
 
 Ollama (Tests\Feature\Ollama)
  ✔ Admin can save hidden key discover models and select available model
@@ -224,6 +241,32 @@ Pterodactyl (Tests\Feature\Pterodactyl)
  ✔ Tls policy and malformed 404 cannot prove absence
  ✔ Failed installation is not activated or recreated by poll
  ✔ Creation response and readback ids must match
+ ✔ Client power uses customer key and keeps financial status with data set #0
+ ✔ Client power uses customer key and keeps financial status with data set #1
+ ✔ Client power uses customer key and keeps financial status with data set #2
+ ✔ Power replayed form does not repeat post
+ ✔ Power timeout is uncertain and never replayed automatically
+ ✔ Power rejects admin or another remote account with data set #0
+ ✔ Power rejects admin or another remote account with data set #1
+ ✔ Power rejects admin or another remote account with data set #2
+ ✔ Power rejects admin or another remote account with data set #3
+ ✔ Power rejects other customer wrong password unsupported action without flashing key
+ ✔ Power checks local state again before sending command
+ ✔ Power requires fresh totp and native enabled flag
+
+Pterodactyl Purchase (Tests\Feature\PterodactylPurchase)
+ ✔ Unpaid checkout has frozen identity but no http or account job
+ ✔ Paid preparation is separate from server creation and duplicate delivery is harmless
+ ✔ Two services share one remote account
+ ✔ Concurrent sibling waits in queue instead of marking review
+ ✔ Uncertain post can resume through admin without second post
+ ✔ Unverified email cannot start automatic purchase
+ ✔ Changed email after payment stops before http
+ ✔ Unpaid operation cannot create remote user
+ ✔ Old job and failure cannot overwrite new execution
+ ✔ Flag disabled after payment stops before http
+ ✔ Resume route rejects other customer and server already sent
+ ✔ Legacy plan still requires explicit link
 
 Pterodactyl Users (Tests\Feature\PterodactylUsers)
  ✔ Admin creates non admin without local password and links after two reads
@@ -299,4 +342,4 @@ Web And Site (Tests\Feature\WebAndSite)
  ✔ Installer refuses existing users without modifying environment
  ✔ Installer token grant is required and expiry is enforced
 
-OK (268 tests, 1288 assertions)
+OK (309 tests, 1690 assertions)

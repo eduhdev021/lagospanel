@@ -58,10 +58,10 @@ Encerramento é destrutivo, exige confirmação no formulário e pode remover si
 
 Com serviço ativo e vínculo confirmado, o titular pode revelar a senha **inicial** após informar sua senha do LagosPanel e código TOTP novo, se habilitado. A resposta usa `no-store` e `no-referrer`; o LagosPanel não copia a senha para sessão, flash, e-mail ou API. Notificações/hooks do próprio WHM são externos a essa proteção e precisam ser conferidos na homologação. Revelação é auditada sem gravar a senha. TOTP consumido não pode ser reutilizado.
 
-A senha é criptografada no banco com `APP_KEY`; preserve a chave em backup protegido. Se for alterada no cPanel, a senha inicial armazenada não passa a refletir a nova. Não há sincronização/reset remoto nem SSO nesta versão. Encerramento confirmado apaga a cópia local da senha inicial.
+A senha é criptografada no banco com `APP_KEY`; preserve a chave em backup protegido. Se for alterada no cPanel, a senha inicial armazenada não passa a refletir a nova. Não há sincronização/reset remoto. Há SSO temporário com confirmação de senha/2FA LagosPanel; veja `AUTOMACAO-E-ACESSO-1.2.md`. Encerramento confirmado apaga a cópia local da senha inicial.
 
 ## Teste e homologação pendente
 
 `NativeProvisioningTest`, `browser_native.py`, `FakeWhm.php` e cenários de concorrência usam respostas simuladas, nunca WHM real. O fixture CLI só aceita ambiente LOCAL e origem reservada `whm-fixture.invalid`; a simulação intercepta HTTP sem fallback de rede. Sua página de login usa IP reservado no proxy LOCAL para separar orçamento de autenticação das outras suites, sem afrouxar limites.
 
-Antes de produção, testar com WHM licenciado/isolado: token e ACLs de revendedor, pacotes/quota/capacidade, TLS, criação e acesso real, DNS/SSL, suspensão e reativação, remoção com backup, falhas/timeouts, worker interrompido, dados/contatos divergentes e restauração. Registrar versões/configuração/resultados. Ainda faltam domínio próprio no checkout, SSO, upgrades/troca de pacote, resellers, métricas de uso, sincronização periódica, outros painéis e provedores.
+Antes de produção, testar com WHM licenciado/isolado: token e ACLs de revendedor, pacotes/quota/capacidade, TLS, criação e acesso real, DNS/SSL, suspensão e reativação, remoção com backup, falhas/timeouts, worker interrompido, dados/contatos divergentes e restauração. Registrar versões/configuração/resultados. Ainda faltam domínio próprio no checkout, upgrades/troca de pacote, resellers, métricas de uso, sincronização periódica, outros painéis e provedores.

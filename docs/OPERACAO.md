@@ -1,6 +1,6 @@
 # Operação e corte para produção
 
-Esta distribuição é **1.1.0**. A publicação estável não substitui validação operacional: consulte as limitações de `ESCOPO.md` antes de operar com clientes reais.
+Esta distribuição é **1.2.0**. A publicação estável não substitui validação operacional: consulte as limitações de `ESCOPO.md` antes de operar com clientes reais.
 
 ## Preparação
 
@@ -87,3 +87,7 @@ Agora há sete suites de navegador no modo opt-in. Fixtures só em demonstraçã
 ## Atualização 1.1.0
 
 Executar a migration `2026_10_03_000011_pterodactyl_account_requests` antes de usar a nova tela de contas. Ela adiciona o histórico/controle de solicitações, sem alterar vínculos existentes nem executar chamadas externas. Para criação de usuários pelo ADM, a Application Key precisa também de permissão de escrita em usuários. Chamadas nativas continuam desabilitadas por padrão. Leia `PTERODACTYL-CONTAS.md`.
+
+## Atualização 1.2.0
+
+Execute as migrations pendentes e reinicie os workers após atualizar dependências/caches. A nova tabela `pterodactyl_controls` guarda solicitações de energia e marcadores de envio, nunca Client API Key. São 15 migrations. Preparação de conta usa job próprio (45 s, até 20 entregas em disputa); servidor continua separado (60 s). Após `sent_at`, criação de usuário não é reenviada. Consulte `AUTOMACAO-E-ACESSO-1.2.md`.

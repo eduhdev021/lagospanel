@@ -1,28 +1,27 @@
-# LagosPanel 1.1.0 — contas Pterodactyl pelo ADM
+# LagosPanel 1.2.0 — automação e acesso
+
+Pacote local implementado e validado. Última publicação pública confirmada: 1.1.0. Sem afirmação de push/CI novo, deploy ou paridade completa com WHMCS/Paymenter.
 
 ## Implementado
 
-- Criação de usuário remoto em ADM → Integrações → Contas Pterodactyl, com confirmação explícita do operador.
-- Cliente precisa de e-mail verificado; chave com leitura/escrita de usuários, integração ativa e chave global de chamadas nativas habilitada.
-- Usuário remoto sempre não administrador. Nome/e-mail são enviados; senha do LagosPanel nunca é enviada. Pterodactyl cuida da definição de senha/convite; SMTP remoto precisa funcionar.
-- Vínculo só é salvo após conferir identidade por external_id e por ID remoto. A contratação existente passa a funcionar com esse vínculo, sem preenchimento manual do ID.
-- Controle persistente por cliente/integração, trava concorrente e identificador de execução. Após envio, somente consultas: falha ou timeout não repetem o POST de criação.
-- Botão de conferência para resultados incertos; proteção contra conta privilegiada, identidade trocada, vínculo ocupado, integração pausada e execução substituída.
-- Vínculo manual continua disponível. Visual/arquivos-base preservados.
+- Conta Pterodactyl após pagamento, por opção `"auto_account":true`. Checkout sem HTTP; jobs separados para conta/servidor; uma conta compartilhada nas compras simultâneas do cliente.
+- Retomada administrativa com permissões, justificativa e proteção contra reenvio de criação já enviada.
+- Ligar/parar/reiniciar pela Client API do cliente: rejeita chave administrativa/conta divergente; senha/2FA, idempotência persistente e nenhum retry automático. Chave por solicitação, não armazenada.
+- SSO temporário cPanel: senha/2FA, conferência de conta e origem restrita; sessão não persistida.
+- Tema/layout-base preservados. Guia: `docs/AUTOMACAO-E-ACESSO-1.2.md`.
 
-## Verificação desta revisão
+## Validação
 
-- 268 testes PHP, 1288 asserções (19 novos testes).
-- 17 cenários concorrentes com até 20 processos; novo cenário confirmou um único POST/vínculo para 20 solicitações.
-- 12 novas verificações Chromium: formulário HTTP real, CSRF, criação, duplicação, timeout, conferência e mobile. Provedor simulado via Http::fake, sem interceptar os POSTs do navegador.
-- 15 verificações de instalação pelo navegador e seis guardas do instalador repetidas numa cópia extraída do ZIP; 14 migrations concluídas em SQLite.
-- Testes anteriores de navegador permanecem como evidência histórica; não alegamos que todos foram reexecutados.
-- Nenhuma conta criada em Pterodactyl real, nenhuma mensagem SMTP externa nem deploy em servidor real.
+- 309 testes PHP / 1690 asserções: 41 casos novos, incluindo datasets.
+- 18 cenários concorrentes, até 20 processos. Novo cenário: 20 serviços pagos compartilham uma conta Pterodactyl e retomam provisionamento sem duplicar POST.
+- 13 verificações Chromium de controles/SSO por HTTP real, com CSRF e APIs externas simuladas; 15 do instalador e seis guardas numa cópia extraída do pacote (15 migrations).
+- Composer strict validate/audit aprovados; zero avisos de vulnerabilidade na consulta.
+- Provedores simulados, não homologados com contas Pterodactyl/WHM reais. Testes anteriores de navegador são históricos, não contados como novos.
 
 ## Atualizar
 
-Backup de banco + APP_KEY + arquivos privados, dependências pelo lockfile, `php artisan migrate --force`, atualização dos caches utilizados e restart dos workers. Nova migration cria somente `pterodactyl_account_requests`, com vínculos existentes preservados. Não recrie APP_KEY e não execute o instalador sobre dados existentes.
+Backup de banco, APP_KEY e arquivos privados; dependências do lockfile; `php artisan migrate --force`; refaça caches utilizados e reinicie workers. Nova migration cria `pterodactyl_controls` (15 migrations), sem alterar vínculos existentes. Não recrie APP_KEY nem execute instalador sobre dados existentes.
 
-## Ainda falta
+## Ainda não está completo
 
-Criação de conta disparada pelo próprio checkout, energia/console, SSO, backups, reinstalação e upgrades continuam pendentes, assim como as demais frentes de `ESCOPO.md`. Esta entrega fecha a criação de contas pelo ADM, não toda a integração Pterodactyl.
+Console/SSO Pterodactyl, backups/reinstalação/upgrades, cobertura completa dos demais painéis, VPS/cloud, registradores, financeiro avançado, subcontas, extensões/importadores e homologação operacional continuam pendentes. Veja `docs/ESCOPO.md` e matrizes de paridade.

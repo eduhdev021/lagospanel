@@ -30,6 +30,7 @@ No syntax errors detected in app/Http/Middleware/SecurityHeaders.php
 No syntax errors detected in app/Jobs/AnswerAiTurn.php
 No syntax errors detected in app/Jobs/PollPterodactyl.php
 No syntax errors detected in app/Jobs/RunOperation.php
+No syntax errors detected in app/Jobs/PreparePterodactylAccount.php
 No syntax errors detected in app/Models/AiSetting.php
 No syntax errors detected in app/Models/AiThread.php
 No syntax errors detected in app/Models/AiTurn.php
@@ -50,6 +51,7 @@ No syntax errors detected in app/Models/PaymentReview.php
 No syntax errors detected in app/Models/Product.php
 No syntax errors detected in app/Models/ProductOption.php
 No syntax errors detected in app/Models/PterodactylAccount.php
+No syntax errors detected in app/Models/PterodactylAccountRequest.php
 No syntax errors detected in app/Models/Service.php
 No syntax errors detected in app/Models/SiteSetting.php
 No syntax errors detected in app/Models/StaffRole.php
@@ -59,7 +61,7 @@ No syntax errors detected in app/Models/TicketAttachment.php
 No syntax errors detected in app/Models/TicketReply.php
 No syntax errors detected in app/Models/User.php
 No syntax errors detected in app/Models/WalletEntry.php
-No syntax errors detected in app/Models/PterodactylAccountRequest.php
+No syntax errors detected in app/Models/PterodactylControl.php
 No syntax errors detected in app/Notifications/InvoiceNotice.php
 No syntax errors detected in app/Notifications/InvoiceReminder.php
 No syntax errors detected in app/Notifications/ResetPasswordQueued.php
@@ -86,17 +88,23 @@ No syntax errors detected in app/Services/Ollama.php
 No syntax errors detected in app/Services/OrderLifecycle.php
 No syntax errors detected in app/Services/Pricing.php
 No syntax errors detected in app/Services/Provisioning.php
+No syntax errors detected in app/Services/PterodactylUsers.php
 No syntax errors detected in app/Services/Reminders.php
 No syntax errors detected in app/Services/SiteConfiguration.php
 No syntax errors detected in app/Services/SupportDesk.php
 No syntax errors detected in app/Services/WebInstaller.php
 No syntax errors detected in app/Services/WebResearch.php
-No syntax errors detected in app/Services/PterodactylUsers.php
+No syntax errors detected in app/Services/PterodactylPower.php
 No syntax errors detected in app/Support/AdminPermissions.php
 No syntax errors detected in app/Support/Cycle.php
 No syntax errors detected in app/Support/Money.php
 No syntax errors detected in app/Support/Totp.php
 No syntax errors detected in app/Support/view_helpers.php
+No syntax errors detected in bootstrap/app.php
+No syntax errors detected in bootstrap/cache/packages.php
+No syntax errors detected in bootstrap/cache/services.php
+No syntax errors detected in bootstrap/providers.php
+No syntax errors detected in bootstrap/runtime.php
 No syntax errors detected in config/ai.php
 No syntax errors detected in config/app.php
 No syntax errors detected in config/auth.php
@@ -130,6 +138,7 @@ No syntax errors detected in database/migrations/2026_10_03_000008_canned_replie
 No syntax errors detected in database/migrations/2026_10_03_000009_pterodactyl_and_ai.php
 No syntax errors detected in database/migrations/2026_10_03_000010_site_and_web_search.php
 No syntax errors detected in database/migrations/2026_10_03_000011_pterodactyl_account_requests.php
+No syntax errors detected in database/migrations/2026_10_03_000012_pterodactyl_controls.php
 No syntax errors detected in routes/api.php
 No syntax errors detected in routes/console.php
 No syntax errors detected in routes/web.php
@@ -137,6 +146,7 @@ No syntax errors detected in routes/expansion.php
 No syntax errors detected in tests/FakeAaPanel.php
 No syntax errors detected in tests/FakeOllama.php
 No syntax errors detected in tests/FakePterodactyl.php
+No syntax errors detected in tests/FakePterodactylUsers.php
 No syntax errors detected in tests/FakeWhm.php
 No syntax errors detected in tests/Feature/AaPanelTest.php
 No syntax errors detected in tests/Feature/ExpansionTest.php
@@ -145,9 +155,10 @@ No syntax errors detected in tests/Feature/IndependentPanelTest.php
 No syntax errors detected in tests/Feature/NativeProvisioningTest.php
 No syntax errors detected in tests/Feature/OllamaTest.php
 No syntax errors detected in tests/Feature/PterodactylTest.php
+No syntax errors detected in tests/Feature/PterodactylUsersTest.php
 No syntax errors detected in tests/Feature/SupportTest.php
 No syntax errors detected in tests/Feature/WebAndSiteTest.php
-No syntax errors detected in tests/Feature/PterodactylUsersTest.php
+No syntax errors detected in tests/Feature/PterodactylPurchaseTest.php
 No syntax errors detected in tests/TestCase.php
 No syntax errors detected in tests/aapanel-fixture.php
 No syntax errors detected in tests/bootstrap.php
@@ -157,6 +168,7 @@ No syntax errors detected in tests/expansion-fixture.php
 No syntax errors detected in tests/installer_guards.php
 No syntax errors detected in tests/native-fixture.php
 No syntax errors detected in tests/ptero-ai-fixture.php
-No syntax errors detected in tests/support-fixture.php
-No syntax errors detected in tests/FakePterodactylUsers.php
 No syntax errors detected in tests/ptero-users-router.php
+No syntax errors detected in tests/support-fixture.php
+No syntax errors detected in tests/controls-seed.php
+No syntax errors detected in tests/controls-router.php

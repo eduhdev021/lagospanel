@@ -78,6 +78,52 @@ final class CpanelDriver
         return ['status' => (string) $a['suspended'] === '1' ? 'suspended' : 'active', 'username' => $p['username'], 'domain' => $p['domain'], 'plan' => $p['plan'], 'checked_at' => now()->toIso8601String()];
     }
 
+    private function sessionService(Service $original): Service
+    {
+        $s = $original->fresh();
+        if (! $s || $s->user_id !== $original->user_id || $s->status !== 'active' || ! $s->remote_id || $s->remote_id !== $s->native_username || $s->provisioning !== $original->provisioning || $s->operations()->whereIn('status', ['pending', 'processing', 'review', 'reconciling'])->exists()) {
+            throw new ProtocolError('Acesso temporário indisponível; confira o estado do serviço.');
+        }
+        $this->config($s);
+
+        return $s;
+    }
+
+    public function session(Service $service): string
+    {
+        $s = $this->sessionService($service);
+        $p = $this->config($s);
+        $origin = NativeConfig::origin($p['client_url'] ?? '', [2083, 443]);
+        if ($this->observe($s)['status'] !== 'active') {
+            throw new ProtocolError('Conta remota não está ativa.');
+        }
+        $s = $this->sessionService($service);
+        $data = $this->request($s, 'create_user_session', ['user' => $p['username'], 'service' => 'cpaneld', 'preferred_domain' => parse_url($origin, PHP_URL_HOST)])['data'] ?? [];
+        $url = $data['url'] ?? null;
+        $session = $data['session'] ?? null;
+        $token = $data['cp_security_token'] ?? null;
+        if (! is_string($url) || strlen($url) > 4096 || preg_match('/[\x00-\x20\x7f\\\\]/', $url) || ! is_string($session) || ! str_starts_with($session, $p['username'].':') || strlen($session) < strlen($p['username']) + 21 || strlen($session) > 2048 || preg_match('/[^\x21-\x7e]/', $session) || ! is_string($token) || ! preg_match('~^/cpsess[0-9]{1,30}$~D', $token) || ($data['service'] ?? null) !== 'cpaneld' || ! is_int($data['expires'] ?? null) || $data['expires'] <= time()) {
+            throw new ProtocolError('Sessão WHM inválida ou expirada.');
+        }
+        $u = parse_url($url);
+        $expected = parse_url($origin);
+        if (! $u || ($u['scheme'] ?? '') !== 'https' || strtolower($u['host'] ?? '') !== strtolower($expected['host']) || ($u['port'] ?? 443) !== ($expected['port'] ?? 443) || isset($u['user']) || isset($u['pass']) || isset($u['fragment']) || ($u['path'] ?? '') !== $token.'/login/') {
+            throw new ProtocolError('Destino de acesso diferente do contrato.');
+        }
+        parse_str($u['query'] ?? '', $query);
+        if (($query['session'] ?? null) !== $session) {
+            throw new ProtocolError('Identidade da sessão divergente.');
+        }
+        // Read back account identity after issuing the session, then recheck local state.
+        if ($this->observe($this->sessionService($service))['status'] !== 'active') {
+            throw new ProtocolError('Conta remota não está ativa.');
+        }
+        $this->sessionService($service);
+
+        // Rebuild rather than forwarding arbitrary provider query parameters or redirects.
+        return $origin.$token.'/login/?'.http_build_query(['session' => $session], '', '&', PHP_QUERY_RFC3986);
+    }
+
     public function run(Operation $op): string
     {
         $s = $op->service;

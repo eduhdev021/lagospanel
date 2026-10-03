@@ -1,4 +1,4 @@
-# Escopo real — 1.1.0
+# Escopo real — 1.2.0
 
 ## Direção aprovada
 
@@ -6,16 +6,16 @@ Abranger as operações de WHMCS e Paymenter: hospedagem, domínios, cloud/VPS, 
 
 **Este alvo ainda não foi alcançado.** O ecossistema de extensões é aberto, algumas soluções são comerciais e o inventário precisa ser versionado. Não há declaração de paridade total nem de superioridade comprovada. `MATRIZ-PARIDADE.md` e `MATRIZ-PARIDADE.csv` distinguem implementado, parcial e planejado.
 
-## Entregue até 1.1.0
+## Entregue até 1.2.0
 
 - Instalador web com chave temporária, banco vazio e bloqueio; configuração administrativa de nome/URL/logo/contato/cadastro/SMTP. Não substitui preparação do servidor, DNS/TLS, worker/cron ou importação de dados.
 - Pesquisa web Ollama mediada pelo painel, independente de tool calling, com consulta pública, fontes e consentimento; sem navegação autônoma ou validação automática de veracidade.
 
-- Pterodactyl: ciclo de servidores, recursos por plano e consultas de instalação; criação de usuário remoto pelo ADM e vínculo conferido automaticamente, além de vínculo manual. Ainda sem criação no checkout, energia/console/SSO ou homologação real.
+- Pterodactyl: ciclo de servidores, recursos por plano e consultas de instalação; criação de usuário remoto pelo ADM e vínculo conferido automaticamente, além de vínculo manual. Criação após pagamento quando habilitada no produto e energia com Client API do cliente. Ainda sem console/SSO, backups, reinstalação, upgrades ou homologação real.
 - Ollama: chave/modelo no ADM, descoberta de catálogo, chat privado com consentimento e fila. Sem ações administrativas ou leitura automática de conta; catálogo público testado de verdade; inferência e pesquisa autenticadas continuam simuladas.
 - PDF de cobrança privado e não fiscal, e biblioteca de respostas prontas com inserção manual no rascunho. Validados em PHP e navegador; detalhes em `DOCUMENTOS-E-MODELOS.md`.
 - aaPanel nativo: ciclo de sites gerenciados, conciliação e exclusão preservando arquivos; simulação local, sem contas isoladas ou homologação real. Consulte `AAPANEL.md`.
-- cPanel/WHM nativo: ciclo de conta, snapshots, consulta/conciliação, proteção contra duplicações locais e acesso inicial protegido. Validado com simulação; sem WHM real, SSO ou alteração de pacote.
+- cPanel/WHM nativo: ciclo de conta, snapshots, consulta/conciliação, proteção contra duplicações locais e acesso inicial protegido. Validado com simulação; SSO temporário implementado com senha/2FA e validação da origem. Sem WHM real ou alteração de pacote.
 - Atendimento: prioridades, responsáveis, filtros, metas em horas corridas, notas internas, anexos privados criptografados, fechamento/reabertura, histórico paginado e aviso por fila ao cliente após resposta pública.
 - Carrinho persistente multiproduto, checkout transacional e repetição idempotente sem apagar um carrinho novo.
 - Grupos de opções selecionáveis, preços de instalação/recorrência e snapshot do que foi contratado.

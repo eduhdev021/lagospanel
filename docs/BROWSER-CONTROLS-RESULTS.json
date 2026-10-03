@@ -1,0 +1,58 @@
+{
+  "results": [
+    {
+      "test": "Controles aparecem em serviços ativos",
+      "passed": true
+    },
+    {
+      "test": "CSRF bloqueia energia sem token",
+      "passed": true
+    },
+    {
+      "test": "CSRF bloqueia SSO sem token",
+      "passed": true
+    },
+    {
+      "test": "Comando aceito por HTTP e persistido",
+      "passed": true
+    },
+    {
+      "test": "Chave e senha não voltam ao HTML",
+      "passed": true
+    },
+    {
+      "test": "Reenvio HTTP não duplica comando",
+      "passed": true
+    },
+    {
+      "test": "Conta remota diferente bloqueada sem comando",
+      "passed": true
+    },
+    {
+      "test": "Timeout fica incerto sem retry",
+      "passed": true
+    },
+    {
+      "test": "SSO rejeita origem externa",
+      "passed": true
+    },
+    {
+      "test": "SSO emite 303 para origem validada",
+      "passed": true
+    },
+    {
+      "test": "SSO envia no-store e no-referrer",
+      "passed": true
+    },
+    {
+      "test": "Controles sem overflow móvel",
+      "passed": true
+    },
+    {
+      "test": "Nenhum erro JavaScript",
+      "passed": true
+    }
+  ],
+  "javascript_errors": [],
+  "provider": "simulated outbound API; real browser, HTTP kernel, CSRF and database"
+}

@@ -26,6 +26,8 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
     Route::get('/painel/chat/{thread}/estado', [AiChatController::class, 'state'])->middleware('throttle:60,1,lagos-ai-state')->name('ai.state');
     Route::post('/painel/chat/{thread}/excluir', [AiChatController::class, 'delete'])->name('ai.delete');
     Route::get('/painel/faturas/{invoice}/pdf', [InvoiceDocumentController::class, 'download'])->middleware('throttle:10,1,lagos-invoice-pdf')->name('invoices.pdf');
+    Route::post('/painel/servicos/{service}/energia', [NativeProvisioningController::class, 'power'])->middleware('throttle:5,1,lagos-ptero-power')->name('services.power');
+    Route::post('/painel/servicos/{service}/acesso-cpanel', [NativeProvisioningController::class, 'session'])->middleware('throttle:3,1,lagos-native-session')->name('services.session');
     Route::post('/painel/servicos/{service}/acesso-inicial', [NativeProvisioningController::class, 'credentials'])->middleware('throttle:5,1,lagos-native-credentials')->name('services.credentials');
     Route::get('/painel/suporte/{ticket}', [SupportController::class, 'thread'])->name('tickets.show');
     Route::get('/painel/anexos/{attachment}', [SupportController::class, 'download'])->middleware('throttle:30,1,lagos-support-download')->name('tickets.download');
@@ -57,6 +59,7 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
         Route::post('/integracoes/{connector}/contas/solicitacoes/{accountRequest}/conferir', [PterodactylAccountController::class, 'inspect'])->middleware('throttle:10,1,lagos-ptero-users-check')->name('connectors.accounts.inspect');
         Route::post('/integracoes/{connector}/contas', [PterodactylAccountController::class, 'create'])->name('connectors.accounts.create');
         Route::post('/integracoes/{connector}', [NativeProvisioningController::class, 'connector'])->name('connectors.update');
+        Route::post('/operacoes/{operation}/preparar-conta', [NativeProvisioningController::class, 'prepareAccount'])->middleware('throttle:5,1,lagos-ptero-prepare')->name('operations.prepare-account');
         Route::post('/operacoes/{operation}/conciliar', [NativeProvisioningController::class, 'inspect'])->middleware('throttle:10,1,lagos-native-review')->name('operations.reconcile');
         Route::post('/operacoes/{operation}/interrompida', [NativeProvisioningController::class, 'interrupted'])->name('operations.interrupted');
         Route::get('/suporte/{ticket}', [SupportController::class, 'thread'])->whereNumber('ticket')->name('tickets.show');
