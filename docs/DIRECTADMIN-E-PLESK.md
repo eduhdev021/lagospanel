@@ -1,6 +1,6 @@
 # DirectAdmin e Plesk — base pública 1.3.0
 
-> O modo automático de clientes e o SSO Plesk, posteriores a esta base e ainda não publicados, estão documentados em [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md). As limitações abaixo descrevem a release 1.3.0.
+> O modo automático de clientes e o SSO Plesk, posteriores a esta base e incluídos no desenvolvimento da main, estão documentados em [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md). As limitações abaixo descrevem a release 1.3.0.
 
 Drivers nativos ligados a contratação, pagamento, fila, suspensão, reativação, encerramento e conciliação. Não usam conector JSON genérico nem scripts enviados pelo cliente. HTTPS verificado, sem redirects/retry automático, conexão 3 s, resposta 8 s e limite de 1 MiB. Senhas remotas aleatórias são criptografadas com APP_KEY; nenhuma senha LagosPanel é enviada ao provedor. HTTP fora das transações de cobrança.
 

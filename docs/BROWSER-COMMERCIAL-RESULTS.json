@@ -1,0 +1,167 @@
+{
+  "fixture": "Isolated local SQLite / fake users; no external provider calls",
+  "results": [
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/orcamentos/novo",
+      "passed": true
+    },
+    {
+      "test": "Orçamento soma valores no servidor",
+      "passed": true
+    },
+    {
+      "test": "Orçamento publicado sem executar conteúdo",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/avisos",
+      "passed": true
+    },
+    {
+      "test": "Histórico de manutenção renderizado",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/downloads",
+      "passed": true
+    },
+    {
+      "test": "Upload pela interface",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/orcamentos/1",
+      "passed": true
+    },
+    {
+      "test": "Aceite abre fatura correta",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/downloads",
+      "passed": true
+    },
+    {
+      "test": "Download entrega bytes autorizados",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/orcamentos/1",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow 390 /painel/orcamentos/1",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/faturas/1",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow 390 /painel/faturas/1",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/downloads",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow 390 /painel/downloads",
+      "passed": true
+    },
+    {
+      "test": "HTTP /avisos/1",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow 390 /avisos/1",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/orcamentos/1",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow 768 /painel/orcamentos/1",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/faturas/1",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow 768 /painel/faturas/1",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/downloads",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow 768 /painel/downloads",
+      "passed": true
+    },
+    {
+      "test": "HTTP /avisos/1",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow 768 /avisos/1",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/orcamentos/1",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow 1440 /painel/orcamentos/1",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/faturas/1",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow 1440 /painel/faturas/1",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/downloads",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow 1440 /painel/downloads",
+      "passed": true
+    },
+    {
+      "test": "HTTP /avisos/1",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow 1440 /avisos/1",
+      "passed": true
+    },
+    {
+      "test": "Sem exceções JavaScript",
+      "passed": true
+    },
+    {
+      "test": "Sem recursos visuais ausentes",
+      "passed": true
+    }
+  ],
+  "js_errors": [],
+  "failed_assets": []
+}

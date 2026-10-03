@@ -3,14 +3,15 @@ PHPUnit 11.5.56 by Sebastian Bergmann and contributors.
 Runtime:       PHP 8.4.26
 Configuration: /home/user/lagospanel-independent/phpunit.xml
 
-...............................................................  63 / 366 ( 17%)
-............................................................... 126 / 366 ( 34%)
-............................................................... 189 / 366 ( 51%)
-............................................................... 252 / 366 ( 68%)
-............................................................... 315 / 366 ( 86%)
-...................................................             366 / 366 (100%)
+...............................................................  63 / 413 ( 15%)
+............................................................... 126 / 413 ( 30%)
+............................................................... 189 / 413 ( 45%)
+............................................................... 252 / 413 ( 61%)
+............................................................... 315 / 413 ( 76%)
+............................................................... 378 / 413 ( 91%)
+...................................                             413 / 413 (100%)
 
-Time: 00:09.622, Memory: 78.50 MB
+Time: 00:12.118, Memory: 82.50 MB
 
 Aa Panel (Tests\Feature\AaPanel)
  ✔ Create signed requests and bind numeric site id
@@ -30,6 +31,54 @@ Aa Panel (Tests\Feature\AaPanel)
  ✔ Connector and product validation
  ✔ Tls redirect policy and signature are enforced
  ✔ Manual product edit and nonce directory are safe
+
+Commercial Content (Tests\Feature\CommercialContent)
+ ✔ Quote acceptance generates one invoice with immutable values
+ ✔ Accepted quote invoice uses existing wallet and pdf flow
+ ✔ Quote owner isolation
+ ✔ Draft and withdrawn unsent quotes remain private
+ ✔ Expired quote cannot be accepted
+ ✔ Withdrawal prevents acceptance
+ ✔ Quote decline is idempotent and does not invoice
+ ✔ Stale quote version rejected
+ ✔ Explicit acceptance acknowledgement required
+ ✔ Sent quote cannot be repriced
+ ✔ Admin quote workflow and stale edit
+ ✔ Quote invalid or excessive values are rejected with data set #0
+ ✔ Quote invalid or excessive values are rejected with data set #1
+ ✔ Quote invalid or excessive values are rejected with data set #2
+ ✔ Quote invalid or excessive values are rejected with data set #3
+ ✔ Quote invalid or excessive values are rejected with data set #4
+ ✔ Quote read permission does not allow mutation
+ ✔ Quote html is escaped
+ ✔ Bulletin public visibility and scheduled publication
+ ✔ Bulletin update history and resolution
+ ✔ Bulletin stale write is rejected without duplicate history
+ ✔ Bulletin can be hidden without erasing history
+ ✔ Bulletin create and escaping
+ ✔ Bulletin read only role cannot publish
+ ✔ Download encrypted at rest and private response
+ ✔ Download guests and unverified accounts cannot read
+ ✔ Product download requires own active service
+ ✔ Nonactive service never grants download with data set #0
+ ✔ Nonactive service never grants download with data set #1
+ ✔ Nonactive service never grants download with data set #2
+ ✔ Deactivated download revokes client access
+ ✔ Corrupted download is not delivered
+ ✔ Download integrity is checked
+ ✔ Download path traversal is refused
+ ✔ Download read only role cannot upload or activate
+ ✔ Download upload http workflow
+ ✔ Download executable extension rejected
+ ✔ Download oversize rejected before storage
+ ✔ Clients cannot access new admin modules
+ ✔ File is removed if database audit fails
+ ✔ Empty download is rejected
+ ✔ Other product does not grant download
+ ✔ Rollback preserves commercial records with data set #0
+ ✔ Rollback preserves commercial records with data set #1
+ ✔ Rollback preserves commercial records with data set #2
+ ✔ Accepted quote cannot be withdrawn or edited
 
 Documents And Templates (Tests\Feature\DocumentsAndTemplates)
  ✔ Owner downloads real private pdf without financial side effect
@@ -283,6 +332,7 @@ Plesk Customers (Tests\Feature\PleskCustomers)
  ✔ Synthetic unpaid operation cannot prepare customer
  ✔ Admin can resume uncertain customer and view status without secrets
  ✔ Fresh customer lease blocks parallel preparation
+ ✔ Rollback cannot erase customer identity and send fences
 
 Pterodactyl (Tests\Feature\Pterodactyl)
  ✔ Full lifecycle uses exact external identity and nonforce delete
@@ -404,4 +454,4 @@ Web And Site (Tests\Feature\WebAndSite)
  ✔ Installer refuses existing users without modifying environment
  ✔ Installer token grant is required and expiry is enforced
 
-OK (366 tests, 2411 assertions)
+OK (413 tests, 2595 assertions)

@@ -55,7 +55,7 @@ class PleskCustomersTest extends TestCase
             app(Billing::class)->settle($i->id, 'test', 'customer-'.$i->id, 100, 'BRL');
         }
 
-return $i->services->sole();
+        return $i->services->sole();
     }
 
     private function fake(Service $s, array $changes = [], ?callable $hook = null): void
@@ -234,7 +234,7 @@ return $i->services->sole();
                 $s->connector->update(['active' => false]);
             }
 
-return null;
+            return null;
         });
         $this->assertSame('review', $this->prepare($s)->status);
         $this->assertSame(['customer.get'], $this->calls);
@@ -248,7 +248,7 @@ return null;
                 PleskCustomerRequest::query()->update(['execution_token' => (string) Str::uuid()]);
             }
 
-return null;
+            return null;
         });
         $this->assertSame('review', $this->prepare($s)->status);
         $this->assertSame(['customer.get'], $this->calls);
@@ -319,7 +319,7 @@ return null;
                 $s->connector->update(['active' => false]);
             }
 
-return null;
+            return null;
         });
         $this->actingAs($s->user)->post('/painel/servicos/'.$s->id.'/acesso-plesk', ['password' => 'password'])->assertSessionHasErrors('service')->assertDontSee(str_repeat('a', 32));
     }
@@ -381,16 +381,24 @@ return null;
         $this->fake($s, [], function ($a) use ($s) {
             if ($a === 'customer.add') {
                 try {
-                    app(PleskCustomers::class)->prepare($s->connector,$s->user);
+                    app(PleskCustomers::class)->prepare($s->connector, $s->user);
                     $this->fail('Concurrent preparation accepted');
                 } catch (HttpException $e) {
-                    $this->assertSame(409,$e->getStatusCode());
+                    $this->assertSame(409, $e->getStatusCode());
                 }
             }
 
-return null;
+            return null;
         });
-        $this->assertSame('pending',$this->prepare($s)->status);
-        $this->assertSame(1,count(array_filter($this->calls,fn ($a) => $a === 'customer.add')));
+        $this->assertSame('pending', $this->prepare($s)->status);
+        $this->assertSame(1, count(array_filter($this->calls, fn ($a) => $a === 'customer.add')));
+    }
+
+    public function test_rollback_cannot_erase_customer_identity_and_send_fences(): void
+    {
+        $this->active();
+        $m = require database_path('migrations/2026_10_03_000013_hosting_access.php');
+        $this->expectException(\RuntimeException::class);
+        $m->down();
     }
 }

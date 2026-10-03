@@ -1,6 +1,6 @@
 # Operação e corte para produção
 
-Esta distribuição é **1.3.0**. A publicação estável não substitui validação operacional: consulte as limitações de `ESCOPO.md` antes de operar com clientes reais.
+A release estável é **1.3.0**; a main contém **1.4.0-dev**, desenvolvimento sem nova release estável. A publicação estável não substitui validação operacional: consulte as limitações de `ESCOPO.md` antes de operar com clientes reais.
 
 ## Preparação
 
@@ -95,3 +95,9 @@ Execute as migrations pendentes e reinicie os workers após atualizar dependênc
 ## Atualização 1.3.0
 
 Inclui DirectAdmin e Plesk no fluxo nativo. Não há migration nova (15 no total); execute migrations pendentes, caches e restart de workers após atualizar. Planos e integrações existentes não mudam. Leia `DIRECTADMIN-E-PLESK.md`, principalmente versões de API, permissões, IPs e isolamento Plesk gerenciado.
+
+## Desenvolvimento consolidado após 1.3.0
+
+Aplique as duas migrations pendentes (17 no total) após backup compatível. Preserve APP_KEY e `storage/app/private/downloads` junto ao banco; perder a chave impede decifrar arquivos. As migrations novas bloqueiam rollback com registros. Permissões `bulletins.view/manage` e `downloads.view/manage` devem ser atribuídas às funções da equipe; orçamentos utilizam `billing.view/manage`. Nenhuma permissão nova é concedida automaticamente a papéis existentes. Administrador principal mantém acesso total.
+
+Orçamentos não reservam produtos nem provisionam recursos automaticamente. Downloads não são escaneados por antivírus; a equipe deve verificar o material antes da publicação. Avisos/status são registros manuais, não monitoramento. Consulte `COMERCIAL-E-CONTEUDO.md` e `DESENVOLVIMENTO.md`.

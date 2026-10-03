@@ -1,7 +1,7 @@
 {
   "database": "SQLite WAL / BEGIN IMMEDIATE",
   "workers": 20,
-  "seconds": 42.844,
+  "seconds": 47.313,
   "results": [
     {
       "test": "20 processos creditam depósitos sem perder atualizações",
@@ -85,6 +85,14 @@
     },
     {
       "test": "20 serviços Plesk pagos compartilham um cliente isolado e retomam sem duplicar POST",
+      "passed": true
+    },
+    {
+      "test": "20 aceites simultâneos de orçamento geram uma única fatura e um único aceite auditado",
+      "passed": true
+    },
+    {
+      "test": "Aceite e retirada concorrentes de orçamento têm um único vencedor sem fatura órfã",
       "passed": true
     }
   ]

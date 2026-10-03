@@ -1,6 +1,10 @@
-# Alterações locais ainda não publicadas
+# Desenvolvimento consolidado — main
 
-Base pública: **1.3.0**. Este documento descreve código posterior à base, não uma nova release nem a conclusão da paridade WHMCS/Paymenter. O visual existente foi mantido. Não houve deploy nem chamadas autenticadas a provedores reais.
+Última release estável: **1.3.0**. Código da main: **1.4.0-dev**. Este documento descreve desenvolvimento posterior à base, não uma nova release nem a conclusão da paridade WHMCS/Paymenter. O visual existente foi mantido. Não houve deploy nem chamadas autenticadas a provedores reais.
+
+## Módulos comerciais e conteúdo
+
+Orçamentos com aceite e fatura única, avisos/incidentes/manutenções e downloads privados por serviço ativo. Consulte [COMERCIAL-E-CONTEUDO.md](COMERCIAL-E-CONTEUDO.md) para configuração, permissões, limites e testes.
 
 ## Clientes Plesk isolados e acesso temporário
 
@@ -30,13 +34,14 @@ Substitua os exemplos pelo IP e GUID reais. **Não combine `owner_id` com `auto_
 
 ## Atualização do ambiente de desenvolvimento/homologação
 
-Faça backup do banco, preserve a `APP_KEY`, instale as dependências do lockfile e execute `php artisan migrate --force`, seguido de `php artisan queue:restart`. A nova migration cria `plesk_customer_requests`; não altera os dados de serviços anteriores. Não reutilize uma chave nova em banco com credenciais já criptografadas. Não houve atualização de servidor de produção nesta execução.
+Faça backup do banco, preserve a `APP_KEY`, instale as dependências do lockfile e execute `php artisan migrate --force`, seguido de `php artisan queue:restart`. As migrations novas criam `plesk_customer_requests`, `quotes`, `bulletins`, `bulletin_updates` e `download_assets`; não alteram dados de serviços anteriores. Rollback com registros é bloqueado. Não reutilize uma chave nova em banco com credenciais já criptografadas. Não houve atualização de servidor de produção nesta execução.
 
 ## Evidência
 
-- **366 testes PHP / 2.411 assertions**, incluindo 25 casos novos de preparação, recuperação, identidade, autorização, sessão e administração.
-- **21 cenários multiprocesso** passando, incluindo 20 serviços pagos concorrentes convergindo em um cliente Plesk com um único POST simulado.
-- Respostas XML e HTTP simuladas. Não são homologação de Plesk real, validação XSD, pentest ou teste de navegador desta alteração.
+- **413 testes PHP / 2.595 assertions**, incluindo preparação Plesk, recuperação, identidade, autorização, sessão, administração e módulos comerciais/conteúdo.
+- **23 cenários multiprocesso** passando, incluindo 20 serviços pagos concorrentes convergindo em um cliente Plesk com um único POST simulado.
+- Respostas XML e HTTP simuladas. Não são homologação de Plesk real, validação XSD ou pentest. O navegador foi exercitado nos módulos comerciais/conteúdo; não no SSO real Plesk.
+- **40 verificações Chromium** dos novos fluxos comerciais/conteúdo, incluindo três larguras de tela, sem erros JavaScript ou assets ausentes.
 - Resultados atuais: `PHPUNIT-RESULTS.txt`, `CONCURRENCY-RESULTS.json` e `CONCURRENCY-RESULTS.txt`. Relatórios anteriores de navegador continuam históricos.
 
 ## Referências oficiais consultadas

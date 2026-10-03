@@ -1,6 +1,6 @@
 # Matriz de evolução — WHMCS / Paymenter como referências
 
-**Escopo solicitado: todas as frentes de operação. Estado: base 1.3.0 + alterações locais não publicadas.**
+**Escopo solicitado: todas as frentes de operação. Estado: base 1.3.0 + desenvolvimento 1.4.0-dev na main.**
 
 Esta é uma matriz de trabalho, não uma declaração de que o LagosPanel já possui tudo, nem um inventário exaustivo de marketplaces. Linhas incluem metas complementares propostas; não afirmam que cada concorrente oferece cada recurso nativamente. “Implementado localmente” significa o recorte descrito e seus testes, não aprovação de produção. “Homologação pendente” significa código/contrato presente, sem operação real comprovada.
 
@@ -36,7 +36,7 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 | Ciclos de cobrança adicionais | Implementado localmente | Diário a trienal e pagamento único; regras de calendário testadas |
 | Categorias, imagens e ordenação comercial | Parcial | Descrição/slug ativos; taxonomia e imagens por produto faltam |
 | Bundles, addons e produtos dependentes | Planejado | Sem motor de composição |
-| Cotações e aprovação comercial | Planejado | Sem modelo de orçamento |
+| Cotações e aprovação comercial | Implementado localmente | Proposta avulsa em BRL, aceite/recusa, validade, revisão e fatura única; execução manual sem estoque/provisionamento |
 | Cupons fixos e percentuais | Implementado localmente | Primeira fatura; limites global e por cliente |
 | Cupons recorrentes e elegibilidade avançada | Planejado | Sem recorrência, segmentação ou regras combinadas |
 | Upgrades/downgrades e prorrata | Planejado | Não há alteração proporcional automática |
@@ -86,7 +86,7 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 | Fila e reconciliação de resultado incerto | Parcial | Sem repetir criação cegamente; resolução operacional ainda manual |
 | cPanel/WHM | Parcial / homologação pendente | Ciclo WHM API 1, snapshots, conciliação e SSO temporário com senha/2FA; faltam WHM real, alteração de pacote e domínio próprio no checkout |
 | aaPanel | Parcial / homologação pendente | Sites gerenciados via API clássica; sem contas isoladas, FTP/banco/quotas/SSL/DNS automáticos; somente simulação |
-| Plesk | Parcial / homologação pendente | XML API, ciclo, conciliação e FTP/FTPS; código local não publicado adiciona clientes isolados após pagamento e SSO do titular; upgrades e gestão avançada pendentes |
+| Plesk | Parcial / homologação pendente | XML API, ciclo, conciliação e FTP/FTPS; desenvolvimento da main adiciona clientes isolados após pagamento e SSO do titular; upgrades e gestão avançada pendentes |
 | DirectAdmin | Parcial / homologação pendente | Contas por pacote, ciclo, conciliação e acesso inicial privado; faltam SSO, upgrades e gestão avançada |
 | Enhance | Planejado | Driver nativo ausente |
 | Pterodactyl e jogos | Parcial / homologação pendente | Ciclo de servidores, planos, criação de contas pelo ADM ou após pagamento, energia via Client API do cliente; faltam console/SSO, backups, reinstalação, upgrades e validação real |
@@ -126,8 +126,8 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 | Anexos e antivírus | Parcial | Anexos criptografados, quotas por chamado/conta, autorização e integridade; sem antivírus/CDR/retencão automatizada |
 | IMAP, piping e respostas por e-mail | Planejado | Remetente sozinho não autentica o cliente |
 | Base de conhecimento | Implementado localmente | Publicação, rascunho, categoria e busca; texto simples |
-| Downloads e licenças de acesso | Planejado | Sem catálogo privado de arquivos |
-| Anúncios, incidentes e status page | Planejado | Sem acompanhamento de disponibilidade |
+| Downloads e licenças de acesso | Parcial | Arquivos privados criptografados, hash e acesso por serviço ativo; sem servidor de licenças/antivírus |
+| Anúncios, incidentes e status page | Parcial | Publicação agendada, histórico e estados de incidentes/manutenções; informação manual sem probes/medição de uptime |
 | Chat e canais adicionais | Parcial / homologação pendente | Chat IA Ollama com chave/modelo, pesquisa web mediada com fontes e consentimento; sem chat humano ao vivo ou homologação real |
 | Projetos e tarefas faturáveis | Planejado | Sem gestão de projetos |
 

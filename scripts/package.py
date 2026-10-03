@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Source-only release: never include runtime state, secrets, caches or dependencies."""
 from pathlib import Path
-import hashlib,zipfile
+import hashlib,zipfile,re
 ROOT=Path(__file__).resolve().parents[1]
-DEST=ROOT.parent/'lagospanel-1.3.0.zip'
+VERSION=re.search(r"'version'\s*=>\s*'([A-Za-z0-9][A-Za-z0-9.+-]*)'",(ROOT/'config/lagos.php').read_text()).group(1)
+DEST=ROOT.parent/f'lagospanel-{VERSION}.zip'
 exclude={'.git','.cache','node_modules','vendor','__pycache__','.phpunit.cache','.idea','.vscode'}
 with zipfile.ZipFile(DEST,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9)as z:
  for p in sorted(ROOT.rglob('*')):

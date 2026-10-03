@@ -1,4 +1,6 @@
-# Escopo real — 1.3.0
+# Escopo da base 1.3.0
+
+> A main inclui desenvolvimento posterior descrito em `DESENVOLVIMENTO.md` e `COMERCIAL-E-CONTEUDO.md`; os limites abaixo documentam a base estável.
 
 ## Direção aprovada
 

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -32,6 +33,9 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (DB::table('plesk_customer_requests')->exists()) {
+            throw new RuntimeException('Rollback bloqueado: preserve os vínculos e marcadores de envio Plesk.');
+        }
         Schema::dropIfExists('plesk_customer_requests');
     }
 };

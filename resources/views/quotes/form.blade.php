@@ -1,0 +1,9 @@
+@extends('layouts.panel')
+@section('title', 'Preparar orçamento')
+@section('content')
+<div class="card"><h2>Preparar orçamento</h2><p>Cobrança avulsa em BRL, com execução manual pela equipe. Não há reserva de produtos ou criação de serviço. Após disponibilizar ao cliente, conteúdo e preços ficam imutáveis; retire a proposta e crie outra para renegociar.</p>
+<form method="post" action="{{ $quote?->exists?route('admin.quotes.save',$quote):route('admin.quotes.create') }}">@csrf
+@if($quote?->exists)<input type="hidden" name="version" value="{{ $quote->version }}">@endif
+<div class="form-grid"><div class="field"><label>ID do cliente</label><input name="user_id" type="number" min="1" value="{{ old('user_id',$quote?->user_id) }}" required></div><div class="field"><label>Título</label><input name="title" maxlength="180" value="{{ old('title',$quote?->title) }}" required></div><div class="field"><label>Válido até ({{ config('app.timezone') }})</label><input type="date" name="valid_until" value="{{ old('valid_until',$quote?->valid_until?->format('Y-m-d')??today()->addDays(15)->format('Y-m-d')) }}" required></div><div class="field"><label>Dias para pagar após o aceite</label><input type="number" name="payment_days" min="1" max="90" value="{{ old('payment_days',$quote?->payment_days??7) }}" required></div></div>
+<div class="field"><label>Itens JSON — unit_minor em centavos, quantity inteira</label><textarea name="items_json" rows="10" maxlength="50000" required>{{ old('items_json',$quote?->exists?json_encode($quote->items,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE):'[{"name":"Serviço avulso","quantity":1,"unit_minor":10000}]') }}</textarea></div><div class="field"><label>Escopo, condições e prazo de execução manual</label><textarea name="terms" rows="8" maxlength="20000" required>{{ old('terms',$quote?->terms) }}</textarea></div><button class="btn btn-primary">Salvar rascunho</button></form></div>
+@endsection

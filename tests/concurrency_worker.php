@@ -7,6 +7,7 @@ use App\Jobs\RunOperation;
 use App\Models\AiThread;
 use App\Models\Connector;
 use App\Models\Operation;
+use App\Models\Quote;
 use App\Models\Service;
 use App\Models\Ticket;
 use App\Models\User;
@@ -16,6 +17,7 @@ use App\Services\Checkout;
 use App\Services\OrderLifecycle;
 use App\Services\Provisioning;
 use App\Services\PterodactylUsers;
+use App\Services\Quotes;
 use App\Services\SupportDesk;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Validation\ValidationException;
@@ -36,7 +38,13 @@ require __DIR__.'/../.cache/vendor/autoload.php';
 $app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 try {
-    if ($argv[1] === 'hosting-run') {
+    if ($argv[1] === 'quote-accept') {
+        $q = Quote::findOrFail((int) $argv[2]);
+        app(Quotes::class)->decide(User::findOrFail($q->user_id), $q, 'accept', 2);
+    } elseif ($argv[1] === 'quote-withdraw') {
+        $q = Quote::findOrFail((int) $argv[2]);
+        app(Quotes::class)->transition(User::findOrFail($q->author_id), $q, 'withdraw', 2);
+    } elseif ($argv[1] === 'hosting-run') {
         require __DIR__.'/FakeHosting.php';
         config(['lagos.native_provisioning' => true]);
         $op = Operation::with('service.connector')->findOrFail((int) $argv[2]);
@@ -119,7 +127,7 @@ try {
         app(Billing::class)->settle((int) $argv[2], 'test', $argv[3], 100, 'BRL');
     }echo "OK\n";
 } catch (HttpExceptionInterface $e) {
-    if ($e->getStatusCode() !== 422) {
+    if ($e->getStatusCode() !== 422 && ! ($e->getStatusCode() === 409 && in_array($argv[1], ['quote-accept', 'quote-withdraw'], true))) {
         throw $e;
     }
     echo "REJECTED\n";

@@ -1,7 +1,7 @@
 # LagosPanel
 
-> Código local posterior à release: [alterações ainda não publicadas](docs/DESENVOLVIMENTO.md). A conclusão de toda a matriz de paridade permanece pendente.
-**Versão 1.3.0 — distribuição principal.**
+> A `main` contém desenvolvimento consolidado **1.4.0-dev**, não uma nova release estável. [Escopo atual e atualização](docs/DESENVOLVIMENTO.md). A paridade integral permanece pendente.
+**Última release estável: 1.3.0.**
 
 
 Painel de clientes, cobrança, serviços e atendimento, com administração própria, integrações de hospedagem/jogos e assistente Ollama com pesquisa web. Aplicação independente sobre Laravel, mantendo a identidade visual do LagosPanel.
@@ -10,7 +10,17 @@ Painel de clientes, cobrança, serviços e atendimento, com administração pró
 
 > **Antes de operar com clientes reais:** esta distribuição não certifica integrações autenticadas ou infraestrutura de produção. Os testes automatizados passaram; o catálogo público Ollama foi consultado de verdade. Inferência/pesquisa autenticada, provisionamento real, pagamentos, SMTP externo e MySQL/MariaDB ainda precisam ser validados no ambiente do operador. Consulte [operação](docs/OPERACAO.md) e [escopo](docs/ESCOPO.md).
 
-## Novidades 1.3.0
+## Alterações na main
+
+- Clientes Plesk isolados após pagamento e acesso temporário do titular, com senha/2FA.
+- Orçamentos com aprovação/recusa, validade, revisão e conversão idempotente em fatura avulsa.
+- Avisos públicos, incidentes e manutenções com agendamento e histórico.
+- Downloads privados criptografados, gerais ou condicionados a serviço ativo de um produto.
+- Tema, CSS, imagens e componentes-base preservados; os novos módulos utilizam os componentes existentes.
+
+Leia [módulos comerciais e conteúdo](docs/COMERCIAL-E-CONTEUDO.md). Não substituem funções ainda ausentes da matriz.
+
+## Base da release 1.3.0
 
 DirectAdmin: contas individuais por pacote, criação após pagamento, suspensão/reativação, encerramento, conciliação e acesso inicial protegido. Plesk: assinaturas gerenciadas sob proprietário existente, plano por GUID, ciclo completo de cobrança/provisionamento e credenciais de publicação FTP/FTPS privadas — sem compartilhar login administrativo. [Configuração dos novos painéis](docs/DIRECTADMIN-E-PLESK.md).
 
@@ -77,7 +87,7 @@ Backup de banco, APP_KEY e arquivos privados; instale dependências do lockfile,
 
 ## Testes e problemas
 
-Nesta atualização: **341 testes PHP / 1832 asserções** e **20 cenários concorrentes**, incluindo 20 entregas duplicadas por novo provedor sem duplicar criação. Blade/routes compilados, lint e Composer audit aprovados. APIs externas simuladas conforme contratos documentados. Os relatórios de navegador da 1.2.0 continuam históricos, não foram repetidos nesta revisão.
+Na main: **413 testes PHP / 2.595 asserções**, **23 cenários concorrentes** e **40 verificações Chromium** dos módulos comerciais/conteúdo. APIs de provedores continuam simuladas conforme contratos documentados. Os relatórios anteriores de navegador são históricos; a evidência nova é `docs/BROWSER-COMMERCIAL-RESULTS.json`.
 
 ```bash
 composer install

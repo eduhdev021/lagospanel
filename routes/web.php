@@ -89,6 +89,7 @@ Route::post('/webhooks/stripe', [WebhookController::class, 'stripe'])->middlewar
 Route::post('/webhooks/mercadopago', [WebhookController::class, 'mercadoPago'])->middleware('throttle:120,1,lagos-webhook-mercadopago');
 
 require __DIR__.'/expansion.php';
+require __DIR__.'/commercial.php';
 foreach (Route::getRoutes() as $route) {
     if (str_starts_with($route->getName() ?? '', 'admin.')) {
         $route->middleware('permission');
