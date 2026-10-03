@@ -6,7 +6,7 @@ Contas e segurança,2FA obrigatório para equipe em produção,Implementado loca
 Contas e segurança,"Contatos, subcontas e organizações",Planejado,Não existe modelo de organizações/subcontas
 Contas e segurança,Campos personalizados e dados fiscais,Planejado,Não há cadastro fiscal completo
 Contas e segurança,Antifraude e avaliação de risco,Planejado,Não há MaxMind/FraudLabs ou motor próprio
-Contas e segurança,SSO/OAuth/OpenID e login social,Planejado,Sem SSO com provedores ou painéis
+Contas e segurança,SSO/OAuth/OpenID e login social,Planejado,Login social/OAuth/OpenID ausentes; SSO cPanel e Plesk possuem recortes próprios documentados
 Contas e segurança,"LGPD: exportação, retenção e anonimização",Planejado,Políticas legais precisam de validação específica
 Contas e segurança,Multitenancy e marcas independentes,Planejado,Não confundir papéis com isolamento entre empresas
 Catálogo e pedidos,Catálogo e edição de produtos,Implementado localmente,Preço e disponibilidade validados no servidor
@@ -55,7 +55,7 @@ Provisionamento,Conector HTTPS/JSON próprio,Homologação pendente,Contrato sim
 Provisionamento,Fila e reconciliação de resultado incerto,Parcial,Sem repetir criação cegamente; resolução operacional ainda manual
 Provisionamento,cPanel/WHM,Parcial / homologação pendente,"Ciclo WHM API 1, snapshots, conciliação e SSO temporário com senha/2FA; faltam WHM real, alteração de pacote e domínio próprio no checkout"
 Provisionamento,aaPanel,Parcial / homologação pendente,"Sites gerenciados via API clássica; sem contas isoladas, FTP/banco/quotas/SSL/DNS automáticos; somente simulação"
-Provisionamento,Plesk,Parcial / homologação pendente,"Assinaturas gerenciadas XML API, plano/GUID, ciclo e conciliação, FTP/FTPS privado; faltam clientes automáticos, SSO e gestão avançada"
+Provisionamento,Plesk,Parcial / homologação pendente,"XML API, ciclo, conciliação e FTP/FTPS; código local não publicado adiciona clientes isolados após pagamento e SSO do titular; upgrades e gestão avançada pendentes"
 Provisionamento,DirectAdmin,Parcial / homologação pendente,"Contas por pacote, ciclo, conciliação e acesso inicial privado; faltam SSO, upgrades e gestão avançada"
 Provisionamento,Enhance,Planejado,Driver nativo ausente
 Provisionamento,Pterodactyl e jogos,Parcial / homologação pendente,"Ciclo de servidores, planos, criação de contas pelo ADM ou após pagamento, energia via Client API do cliente; faltam console/SSO, backups, reinstalação, upgrades e validação real"

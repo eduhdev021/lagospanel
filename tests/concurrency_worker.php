@@ -1,6 +1,7 @@
 <?php
 
 use App\Jobs\AnswerAiTurn;
+use App\Jobs\PreparePleskCustomer;
 use App\Jobs\PreparePterodactylAccount;
 use App\Jobs\RunOperation;
 use App\Models\AiThread;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Tests\FakeAaPanel;
 use Tests\FakeHosting;
 use Tests\FakeOllama;
+use Tests\FakePleskCustomers;
 use Tests\FakePterodactyl;
 use Tests\FakePterodactylUsers;
 use Tests\FakeWhm;
@@ -40,6 +42,13 @@ try {
         $op = Operation::with('service.connector')->findOrFail((int) $argv[2]);
         FakeHosting::install(base_path('.cache/concurrent-'.$op->service->connector->driver.'.json'), $op->service);
         (new RunOperation($op->id))->handle();
+    } elseif ($argv[1] === 'plesk-purchase-customer') {
+        config(['lagos.native_provisioning' => true]);
+        FakePleskCustomers::install(base_path('.cache/concurrent-plesk-customers.json'));
+        $op = Operation::findOrFail((int) $argv[2]);
+        if ($op->status === 'processing') {
+            (new PreparePleskCustomer($op->id, $op->execution_token))->handle();
+        }
     } elseif ($argv[1] === 'ptero-purchase-account') {
         require __DIR__.'/FakePterodactylUsers.php';
         config(['lagos.native_provisioning' => true]);

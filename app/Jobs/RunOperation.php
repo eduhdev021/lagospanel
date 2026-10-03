@@ -85,6 +85,11 @@ class RunOperation implements ShouldQueue
 
                 return;
             }
+            if ($connector->driver === 'plesk' && $op->action === 'create' && ($service->provisioning['auto_customer'] ?? false) && empty($service->provisioning['owner_id'])) {
+                PreparePleskCustomer::dispatch($op->id, $this->token())->onConnection('database')->afterCommit();
+
+                return;
+            }
             $remote = match ($connector->driver) {
                 'json' => app(JsonDriver::class)->run($op),
                 'cpanel' => app(CpanelDriver::class)->run($op),

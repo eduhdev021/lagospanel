@@ -1,6 +1,6 @@
 # Matriz de evolução — WHMCS / Paymenter como referências
 
-**Escopo solicitado: todas as frentes de operação. Estado: 1.1.0.**
+**Escopo solicitado: todas as frentes de operação. Estado: base 1.3.0 + alterações locais não publicadas.**
 
 Esta é uma matriz de trabalho, não uma declaração de que o LagosPanel já possui tudo, nem um inventário exaustivo de marketplaces. Linhas incluem metas complementares propostas; não afirmam que cada concorrente oferece cada recurso nativamente. “Implementado localmente” significa o recorte descrito e seus testes, não aprovação de produção. “Homologação pendente” significa código/contrato presente, sem operação real comprovada.
 
@@ -17,7 +17,7 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 | Contatos, subcontas e organizações | Planejado | Não existe modelo de organizações/subcontas |
 | Campos personalizados e dados fiscais | Planejado | Não há cadastro fiscal completo |
 | Antifraude e avaliação de risco | Planejado | Não há MaxMind/FraudLabs ou motor próprio |
-| SSO/OAuth/OpenID e login social | Planejado | Sem SSO com provedores ou painéis |
+| SSO/OAuth/OpenID e login social | Planejado | Login social/OAuth/OpenID ausentes; SSO cPanel e Plesk possuem recortes próprios documentados |
 | LGPD: exportação, retenção e anonimização | Planejado | Políticas legais precisam de validação específica |
 | Multitenancy e marcas independentes | Planejado | Não confundir papéis com isolamento entre empresas |
 
@@ -86,7 +86,7 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 | Fila e reconciliação de resultado incerto | Parcial | Sem repetir criação cegamente; resolução operacional ainda manual |
 | cPanel/WHM | Parcial / homologação pendente | Ciclo WHM API 1, snapshots, conciliação e SSO temporário com senha/2FA; faltam WHM real, alteração de pacote e domínio próprio no checkout |
 | aaPanel | Parcial / homologação pendente | Sites gerenciados via API clássica; sem contas isoladas, FTP/banco/quotas/SSL/DNS automáticos; somente simulação |
-| Plesk | Parcial / homologação pendente | Assinaturas gerenciadas XML API, plano/GUID, ciclo e conciliação, FTP/FTPS privado; faltam clientes automáticos, SSO e gestão avançada |
+| Plesk | Parcial / homologação pendente | XML API, ciclo, conciliação e FTP/FTPS; código local não publicado adiciona clientes isolados após pagamento e SSO do titular; upgrades e gestão avançada pendentes |
 | DirectAdmin | Parcial / homologação pendente | Contas por pacote, ciclo, conciliação e acesso inicial privado; faltam SSO, upgrades e gestão avançada |
 | Enhance | Planejado | Driver nativo ausente |
 | Pterodactyl e jogos | Parcial / homologação pendente | Ciclo de servidores, planos, criação de contas pelo ADM ou após pagamento, energia via Client API do cliente; faltam console/SSO, backups, reinstalação, upgrades e validação real |

@@ -28,6 +28,7 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
     Route::get('/painel/faturas/{invoice}/pdf', [InvoiceDocumentController::class, 'download'])->middleware('throttle:10,1,lagos-invoice-pdf')->name('invoices.pdf');
     Route::post('/painel/servicos/{service}/energia', [NativeProvisioningController::class, 'power'])->middleware('throttle:5,1,lagos-ptero-power')->name('services.power');
     Route::post('/painel/servicos/{service}/acesso-cpanel', [NativeProvisioningController::class, 'session'])->middleware('throttle:3,1,lagos-native-session')->name('services.session');
+    Route::post('/painel/servicos/{service}/acesso-plesk', [NativeProvisioningController::class, 'pleskSession'])->middleware('throttle:3,1,lagos-native-session')->name('services.plesk-session');
     Route::post('/painel/servicos/{service}/acesso-inicial', [NativeProvisioningController::class, 'credentials'])->middleware('throttle:5,1,lagos-native-credentials')->name('services.credentials');
     Route::get('/painel/suporte/{ticket}', [SupportController::class, 'thread'])->name('tickets.show');
     Route::get('/painel/anexos/{attachment}', [SupportController::class, 'download'])->middleware('throttle:30,1,lagos-support-download')->name('tickets.download');
@@ -54,6 +55,7 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
         Route::get('/integracoes/ollama', [AiSettingsController::class, 'index'])->name('connectors.ai');
         Route::post('/integracoes/ollama', [AiSettingsController::class, 'save'])->name('connectors.ai.save');
         Route::post('/integracoes/ollama/modelos', [AiSettingsController::class, 'models'])->middleware('throttle:5,1,lagos-ai-models')->name('connectors.ai.models');
+        Route::get('/integracoes/{connector}/clientes-plesk', [NativeProvisioningController::class, 'pleskCustomers'])->name('connectors.plesk-customers');
         Route::get('/integracoes/{connector}/contas', [PterodactylAccountController::class, 'index'])->name('connectors.accounts');
         Route::post('/integracoes/{connector}/contas/criar-remota', [PterodactylAccountController::class, 'provision'])->middleware('throttle:6,1,lagos-ptero-users')->name('connectors.accounts.provision');
         Route::post('/integracoes/{connector}/contas/solicitacoes/{accountRequest}/conferir', [PterodactylAccountController::class, 'inspect'])->middleware('throttle:10,1,lagos-ptero-users-check')->name('connectors.accounts.inspect');

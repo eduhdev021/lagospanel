@@ -2,8 +2,9 @@
 
 namespace App\Provisioning;
 
+use App\Models\PleskCustomerRequest;
 use App\Models\Service;
-use DOMDocument;
+use App\Services\PleskCustomers;
 use DOMElement;
 use DOMXPath;
 
@@ -19,29 +20,8 @@ final class PleskDriver extends HostingDriver
     private function request(Service $s, string $action, string $body): DOMElement
     {
         $p = $this->config($s);
-        $xml = '<?xml version="1.0" encoding="UTF-8"?><packet version="1.6.9.1"><webspace><'.$action.'>'.$body.'</'.$action.'></webspace></packet>';
-        $r = $this->http()->withHeaders(['KEY' => $s->connector->token, 'Accept' => 'text/xml'])->withBody($xml, 'text/xml')->post($p['endpoint'].'/enterprise/control/agent.php');
-        $raw = $r->body();
-        if ($r->status() !== 200 || strlen($raw) > 1048576 || str_contains($raw, "\0") || preg_match('/<!DOCTYPE|<!ENTITY/i', $raw)) {
-            throw new ProtocolError('Resposta XML Plesk recusada.');
-        }
-        $old = libxml_use_internal_errors(true);
-        try {
-            $doc = new DOMDocument;
-            if (! $doc->loadXML($raw, LIBXML_NONET) || $doc->doctype) {
-                throw new ProtocolError('XML Plesk inválido.');
-            }
-        } finally {
-            libxml_clear_errors();
-            libxml_use_internal_errors($old);
-        }
-        $xp = new DOMXPath($doc);
-        $nodes = $xp->query('/packet/webspace/'.$action.'/result');
-        if ($nodes->length !== 1 || $xp->query('/packet/webspace/*')->length !== 1 || $xp->query('/packet/*')->length !== 1) {
-            throw new ProtocolError('Resposta Plesk ambígua.');
-        }
 
-        return $nodes->item(0);
+        return app(PleskXml::class)->request($s->connector, $p['endpoint'], 'webspace', $action, $body);
     }
 
     private function value(DOMElement $node, string $path): string
@@ -80,6 +60,58 @@ final class PleskDriver extends HostingDriver
         };
 
         return ['status' => $state, 'remote_id' => $id, 'checked_at' => $base['checked_at']];
+    }
+
+    private function sessionService(Service $original): Service
+    {
+        $s = $original->fresh();
+        if (! $s || $s->user_id !== $original->user_id || $s->status !== 'active' || ! $s->remote_id || $s->provisioning !== $original->provisioning || ! ($s->provisioning['auto_customer'] ?? false) || empty($s->provisioning['customer_request_id']) || $s->operations()->whereIn('status', ['pending', 'processing', 'review', 'reconciling'])->exists()) {
+            throw new ProtocolError('Acesso indisponível.');
+        }
+        $this->config($s);
+
+        return $s;
+    }
+
+    private function customer(Service $s): PleskCustomerRequest
+    {
+        $p = $s->provisioning;
+        $r = PleskCustomerRequest::findOrFail($p['customer_request_id']);
+        if ($r->user_id !== $s->user_id || $r->connector_id !== $s->connector_id || $r->endpoint !== $p['endpoint'] || $r->remote_id !== $p['owner_id']) {
+            throw new ProtocolError('Vínculo de cliente divergente.');
+        }
+        app(PleskCustomers::class)->verify($r);
+
+        return $r;
+    }
+
+    public function session(Service $original, string $ip): string
+    {
+        if (! filter_var($ip, FILTER_VALIDATE_IP)) {
+            throw new ProtocolError('IP inválido.');
+        }
+        $s = $this->sessionService($original);
+        $r = $this->customer($s);
+        if ($this->observe($s)['status'] !== 'active') {
+            throw new ProtocolError('Assinatura remota inativa.');
+        }
+        $s = $this->sessionService($original);
+        $result = app(PleskXml::class)->request($s->connector, $r->endpoint, 'server', 'create_session', '<login>'.self::esc($r->login).'</login><data><user_ip>'.base64_encode($ip).'</user_ip><source_server/></data>');
+        if (PleskXml::value($result, 'status') !== 'ok') {
+            throw new ProtocolError('Sessão recusada.');
+        }
+        $token = PleskXml::value($result, 'id');
+        if (! preg_match('/^[A-Za-z0-9_-]{20,256}$/D', $token)) {
+            throw new ProtocolError('Token de sessão inválido.');
+        }
+        $s = $this->sessionService($original);
+        $this->customer($s);
+        if ($this->observe($s)['status'] !== 'active') {
+            throw new ProtocolError('Assinatura remota inativa.');
+        }
+        $this->sessionService($original);
+
+        return $r->endpoint.'/enterprise/rsession_init.php?PLESKSESSID='.rawurlencode($token);
     }
 
     protected function mutate(Service $s, string $action, array $before): string

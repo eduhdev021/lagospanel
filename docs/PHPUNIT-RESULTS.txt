@@ -3,14 +3,14 @@ PHPUnit 11.5.56 by Sebastian Bergmann and contributors.
 Runtime:       PHP 8.4.26
 Configuration: /home/user/lagospanel-independent/phpunit.xml
 
-...............................................................  63 / 341 ( 18%)
-............................................................... 126 / 341 ( 36%)
-............................................................... 189 / 341 ( 55%)
-............................................................... 252 / 341 ( 73%)
-............................................................... 315 / 341 ( 92%)
-..........................                                      341 / 341 (100%)
+...............................................................  63 / 366 ( 17%)
+............................................................... 126 / 366 ( 34%)
+............................................................... 189 / 366 ( 51%)
+............................................................... 252 / 366 ( 68%)
+............................................................... 315 / 366 ( 86%)
+...................................................             366 / 366 (100%)
 
-Time: 00:08.903, Memory: 76.50 MB
+Time: 00:09.622, Memory: 78.50 MB
 
 Aa Panel (Tests\Feature\AaPanel)
  ✔ Create signed requests and bind numeric site id
@@ -257,6 +257,33 @@ Ollama (Tests\Feature\Ollama)
  ✔ Stale queue request is failed before new request and old job cannot send
  ✔ Same request key with different body conflicts
 
+Plesk Customers (Tests\Feature\PleskCustomers)
+ ✔ Unpaid checkout creates no customer or remote requests
+ ✔ Paid preparation binds verified customer before subscription
+ ✔ Timeout recovers by readback never resends
+ ✔ Absence after uncertain send does not retry creation
+ ✔ Existing login is not adopted
+ ✔ Customer identity drift blocks binding with data set #0
+ ✔ Customer identity drift blocks binding with data set #1
+ ✔ Customer identity drift blocks binding with data set #2
+ ✔ Customer identity drift blocks binding with data set #3
+ ✔ Mutation id must match readback
+ ✔ Disabled connector before send blocks creation
+ ✔ Stale customer execution cannot send
+ ✔ Customer is reused only after identity recheck
+ ✔ Sso is owner only private and reauthenticated
+ ✔ Shared owner can never receive sso
+ ✔ Pending operation blocks sso
+ ✔ Foreign mapping blocks sso
+ ✔ Customer drift blocks sso
+ ✔ Pause after session creation prevents token delivery
+ ✔ Invalid session token is not delivered
+ ✔ Auto mode and shared owner are mutually exclusive
+ ✔ Duplicate preparation jobs do not create twice
+ ✔ Synthetic unpaid operation cannot prepare customer
+ ✔ Admin can resume uncertain customer and view status without secrets
+ ✔ Fresh customer lease blocks parallel preparation
+
 Pterodactyl (Tests\Feature\Pterodactyl)
  ✔ Full lifecycle uses exact external identity and nonforce delete
  ✔ Duplicate delivery does not create twice
@@ -377,4 +404,4 @@ Web And Site (Tests\Feature\WebAndSite)
  ✔ Installer refuses existing users without modifying environment
  ✔ Installer token grant is required and expiry is enforced
 
-OK (341 tests, 1832 assertions)
+OK (366 tests, 2411 assertions)

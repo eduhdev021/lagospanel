@@ -22,7 +22,7 @@ final class HostingConfig
             throw ValidationException::withMessages(['hosting_config' => 'Plano inválido.']);
         }
         $rules = ['domain_suffix' => 'required|string|max:190', 'ip' => 'required|ip'];
-        $rules += $driver === 'directadmin' ? ['plan' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z0-9_.-]+$/D']] : ['plan_guid' => 'required|uuid', 'owner_id' => 'required|integer|min:1|max:2147483647'];
+        $rules += $driver === 'directadmin' ? ['plan' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z0-9_.-]+$/D']] : ['plan_guid' => 'required|uuid', 'auto_customer' => 'sometimes|boolean', 'owner_id' => ! empty($data['auto_customer']) ? 'prohibited' : 'required|integer|min:1|max:2147483647'];
         $v = Validator::make($data, $rules)->validate();
         $v['domain_suffix'] = strtolower($v['domain_suffix']);
         if (! str_contains($v['domain_suffix'], '.') || ! filter_var($v['domain_suffix'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) || filter_var($v['domain_suffix'], FILTER_VALIDATE_IP)) {
@@ -30,6 +30,10 @@ final class HostingConfig
         }
         if (isset($v['owner_id'])) {
             $v['owner_id'] = (int) $v['owner_id'];
+        }
+
+        if ($driver === 'plesk') {
+            $v['auto_customer'] = (bool) ($v['auto_customer'] ?? false);
         }
 
         return ['driver' => $driver] + $v;
@@ -41,6 +45,12 @@ final class HostingConfig
             throw ValidationException::withMessages(['product' => 'Plano inválido ou opções sem mapeamento.']);
         }
         $p = self::product($c->driver, ['hosting_config' => json_encode($product->provisioning)]);
+        if ($p['auto_customer'] ?? false) {
+            if (! $s->user->hasVerifiedEmail() || ! $c->active || ! config('lagos.native_provisioning')) {
+                throw ValidationException::withMessages(['product' => 'Conta automática exige e-mail verificado e integração ativa.']);
+            }
+            $p['owner_id'] = null;
+        }
         $prefix = $c->settings['prefix'] ?? '';
         $id = base_convert((string) $s->id, 10, 36);
         if (! preg_match('/^[a-z]{2}$/D', $prefix) || strlen($id) > 6) {

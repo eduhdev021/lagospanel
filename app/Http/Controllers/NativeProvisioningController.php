@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\RunOperation;
 use App\Models\Connector;
 use App\Models\Operation;
+use App\Models\PleskCustomerRequest;
 use App\Models\PterodactylControl;
 use App\Models\Service;
 use App\Models\User;
@@ -27,6 +28,13 @@ use Throwable;
 
 class NativeProvisioningController extends Controller
 {
+    public function pleskCustomers(Request $r, Connector $connector)
+    {
+        abort_unless($connector->driver === 'plesk' && $r->user()->hasPermission('customers.view'), 403);
+
+        return view('admin.plesk-customers', ['connector' => $connector, 'requests' => PleskCustomerRequest::with('user')->where('connector_id', $connector->id)->latest()->paginate(25)]);
+    }
+
     public function connector(Request $r, Connector $connector)
     {
         $v = $r->validate(['token' => 'nullable|string|min:16|max:2000', 'active' => 'sometimes|boolean']);
@@ -113,6 +121,20 @@ class NativeProvisioningController extends Controller
         return redirect()->away($url, 303)->header('Cache-Control', 'no-store, private')->header('Referrer-Policy', 'no-referrer');
     }
 
+    public function pleskSession(Request $r, Service $service)
+    {
+        $s = $this->confirmedService($r, $service, 'plesk');
+        try {
+            $url = app(PleskDriver::class)->session($s, $r->ip());
+        } catch (Throwable) {
+            Audit::record('service.session_failed', 'service:'.$s->id, [], $r->user()->id);
+            throw ValidationException::withMessages(['service' => 'Acesso Plesk não confirmado. Confira a conta isolada, o estado da assinatura e a integração.']);
+        }
+        Audit::record('service.session_created', 'service:'.$s->id, [], $r->user()->id);
+
+        return redirect()->away($url, 303)->header('Cache-Control', 'no-store, private')->header('Referrer-Policy', 'no-referrer');
+    }
+
     public function power(Request $r, Service $service)
     {
         $s = $this->confirmedService($r, $service, 'pterodactyl');
@@ -156,7 +178,7 @@ class NativeProvisioningController extends Controller
         DB::transaction(function () use ($operation, $r, $v) {
             $op = Operation::whereKey($operation->id)->lockForUpdate()->firstOrFail();
             $s = Service::whereKey($op->service_id)->lockForUpdate()->firstOrFail();
-            abort_unless($op->status === 'review' && $op->action === 'create' && ! $op->sent_at && ! $s->remote_id && $s->status !== 'cancelled' && ($s->provisioning['driver'] ?? '') === 'pterodactyl' && ($s->provisioning['auto_account'] ?? false) && empty($s->provisioning['remote_user_id']), 409);
+            abort_unless($op->status === 'review' && $op->action === 'create' && ! $op->sent_at && ! $s->remote_id && $s->status !== 'cancelled' && ((($s->provisioning['driver'] ?? '') === 'pterodactyl' && ($s->provisioning['auto_account'] ?? false) && empty($s->provisioning['remote_user_id'])) || (($s->provisioning['driver'] ?? '') === 'plesk' && ($s->provisioning['auto_customer'] ?? false) && empty($s->provisioning['owner_id']))), 409);
             $op->update(['status' => 'pending', 'execution_token' => null, 'error' => null]);
             RunOperation::dispatch($op->id)->onConnection('database')->afterCommit();
             Audit::record('operation.account_resumed', 'operation:'.$op->id, ['note' => $v['note']], $r->user()->id);

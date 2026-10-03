@@ -1,5 +1,6 @@
 # LagosPanel
 
+> Código local posterior à release: [alterações ainda não publicadas](docs/DESENVOLVIMENTO.md). A conclusão de toda a matriz de paridade permanece pendente.
 **Versão 1.3.0 — distribuição principal.**
 
 
