@@ -10,8 +10,15 @@
 #    database/   → seed SQL + utilitários
 #    public/     → docroot (montado por este instalador)
 #
-#  Uso (como root, dentro do clone):
+#  Instala em /var/www/lagospanel (mesmo padrão do Paymenter em /var/www).
+#
+#  Uso (como root):
+#    sudo git clone https://github.com/eduhdev021/lagospanel.git /var/www/lagospanel
+#    cd /var/www/lagospanel
 #    sudo ./install.sh --domain painel.seudominio.com.br --ssl
+#
+#  Rodou o clone em outro diretório? O instalador copia sozinho para
+#  /var/www/lagospanel. Diretório custom: --path /var/www/html
 # ════════════════════════════════════════════════════════════════
 set -euo pipefail
 
@@ -20,13 +27,14 @@ say() { echo "${PURPLE}▸${RESET} $*"; }
 ok()  { echo "${GREEN}✓${RESET} $*"; }
 die() { echo "ERRO: $*" >&2; exit 1; }
 
-DOMAIN="" DBPASS="" SSL=0 SEED="database/seed.sql.gz"
+DOMAIN="" DBPASS="" SSL=0 SEED="database/seed.sql.gz" TARGET="/var/www/lagospanel"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --domain)  DOMAIN="$2"; shift 2 ;;
     --db-pass) DBPASS="$2"; shift 2 ;;
     --ssl)     SSL=1; shift ;;
     --seed)    SEED="$2"; shift 2 ;;
+    --path)    TARGET="$2"; shift 2 ;;
     *) die "opção desconhecida: $1" ;;
   esac
 done
@@ -38,13 +46,27 @@ command -v apt-get > /dev/null || die "este instalador é para Ubuntu/Debian (ap
 [[ -f engine/lagospanel-engine.zip ]] || die "engine/lagospanel-engine.zip ausente"
 [[ -f "$SEED" ]] || die "seed não encontrado: $SEED"
 
+# reinstalação com wp-config existente → reutiliza a senha atual do banco
+if [[ -z "$DBPASS" && -f "$TARGET/public/wp-config.php" ]]; then
+  DBPASS="$(sed -n "s/^define( *'DB_PASSWORD', *'\([^']*\)'.*/\1/p" "$TARGET/public/wp-config.php" | head -1)"
+fi
 [[ -n "$DBPASS" ]] || DBPASS="$(head -c 24 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 20)"
 SCHEME="http"; [[ $SSL -eq 1 ]] && SCHEME="https"
 DBESC="${DBPASS//\'/\\\'}"
 
+# ── 0. Diretório de instalação (padrão Paymenter: /var/www) ─────
+if [[ "$(pwd -P)" != "$TARGET" ]]; then
+  say "Instalando em $TARGET (padrão /var/www, como o Paymenter)..."
+  mkdir -p "$TARGET"
+  tar -C . -cf - --exclude=./.git --exclude=./.dev --exclude=./public . | tar -C "$TARGET" -xf -
+  cd "$TARGET"
+fi
+ok "diretório: $TARGET"
+
 echo
 echo "${BOLD}${PURPLE}  LagosPanel — instalação de produção${RESET}"
-echo "  Domínio: $SCHEME://$DOMAIN"
+echo "  Domínio:    $SCHEME://$DOMAIN"
+echo "  Diretório:  $TARGET"
 echo
 
 # ── 1. Dependências ─────────────────────────────────────────────
@@ -206,6 +228,7 @@ echo
 echo "${BOLD}${GREEN}  Instalação concluída!${RESET}"
 echo
 echo "  Painel:      $URL"
+echo "  Diretório:   $TARGET (docroot: $TARGET/public)"
 echo "  Admin:       $URL/wp-admin/  (usuário: eduardo — troque a senha no 1º login!)"
 echo "  Banco:       lagospanel · usuário lagos · senha: $DBPASS"
 echo

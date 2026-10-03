@@ -43,10 +43,12 @@ O repositório contém **apenas o produto**. A engine entra empacotada em `engin
 Requisitos: Ubuntu/Debian limpo, domínio apontando para o servidor.
 
 ```bash
-git clone https://github.com/eduhdev021/lagospanel.git
-cd lagospanel
+sudo git clone https://github.com/eduhdev021/lagospanel.git /var/www/lagospanel
+cd /var/www/lagospanel
 sudo ./install.sh --domain painel.seudominio.com.br --ssl
 ```
+
+> Instala em `/var/www/lagospanel` — o mesmo padrão do Paymenter (`/var/www`). Rodou o clone em outro lugar? O `install.sh` copia sozinho para lá. Diretório custom: `--path /var/www/html`.
 
 O instalador instala nginx + MariaDB + PHP-FPM, importa o banco, monta o `public/`, gera o `wp-config.php` com chaves próprias, aplica as URLs do seu domínio, HTTPS (Let's Encrypt) e o cron. No fim, mostra as credenciais.
 
