@@ -8,18 +8,30 @@ Painel de billing da **Lagos Soluções** — loja, faturas, provisionamento aut
 
 ```
 lagospanel/
-├── app/                  # código do produto — plugin LagosPanel Core
-│   ├── lagos-core.php    # bootstrap do produto (v0.10.0)
-│   └── includes/         # gateways, módulos, admin, e-mails, relatórios...
-├── resources/            # tema LagosPanel (o que o cliente vê)
-├── engine/               # base WordPress empacotada (1 zip — como o vendor/ do Laravel)
+├── app/                      # LagosPanel Core (o produto)
+│   ├── lagos-core.php        # bootstrap
+│   ├── Admin/                # dashboard, clientes, auditoria, relatórios
+│   ├── Console/              # rotinas diárias (renovações, suspensões, câmbio)
+│   ├── Extensions/
+│   │   ├── Gateways/         # 9 gateways (Pix/MP, Stripe, PayPal, ...)
+│   │   └── Modules/          # 10 módulos (Pterodactyl, cPanel, ...)
+│   ├── Http/                 # API REST pública
+│   ├── Mail/                 # SMTP + tickets por e-mail (IMAP)
+│   ├── Security/             # login, 2FA, sessões
+│   ├── Services/             # loja, carrinho, afiliados, webhooks
+│   ├── Setup/                # CPTs, seed, páginas legais
+│   └── Support/              # helpers, i18n PT/EN, ícones, white-label
+├── resources/                # tema LagosPanel (views do cliente)
+├── engine/                   # base WordPress empacotada (como o vendor/ do Laravel)
 ├── database/
-│   ├── seed.sql.gz       # banco inicial (loja pronta, sem dados demo)
-│   ├── replace-url.php   # troca de URL segura (dados serializados)
-│   └── clean-demo.php    # utilitário: zera dados de demonstração
-├── public/               # docroot — montado pelo instalador (engine + app + resources)
-├── scripts/dev-server.php# servidor de desenvolvimento (php -S)
-├── install.sh            # instalador de produção (Ubuntu/Debian)
+│   ├── seed.sql.gz           # banco inicial (loja pronta, sem dados demo)
+│   ├── replace-url.php       # troca de URL segura (dados serializados)
+│   └── clean-demo.php        # utilitário: zera dados de demonstração
+├── public/                   # docroot — montado pelo install.sh ou scripts/dev-setup.sh
+├── scripts/
+│   ├── dev-server.php        # roteador do php -S (desenvolvimento)
+│   └── dev-setup.sh          # monta public/ + sobe MariaDB + servidor dev
+├── install.sh                # instalador de produção (Ubuntu/Debian)
 ├── README.md
 └── LICENSE.md
 ```

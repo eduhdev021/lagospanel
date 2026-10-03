@@ -6,3 +6,6 @@
 *.log
 .DS_Store
 .env
+
+# ambiente de desenvolvimento (banco, capturas, brand)
+.dev/

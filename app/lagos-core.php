@@ -17,29 +17,29 @@ define('LAGOS_CORE_VERSION', '0.10.0');
 define('LAGOS_CORE_DIR', plugin_dir_path(__FILE__));
 define('LAGOS_CORE_URL', plugin_dir_url(__FILE__));
 
-require_once LAGOS_CORE_DIR . 'includes/i18n.php';
-require_once LAGOS_CORE_DIR . 'includes/icons.php';
-require_once LAGOS_CORE_DIR . 'includes/post-types.php';
-require_once LAGOS_CORE_DIR . 'includes/helpers.php';
-require_once LAGOS_CORE_DIR . 'includes/auth.php';
-require_once LAGOS_CORE_DIR . 'includes/shortcodes.php';
-require_once LAGOS_CORE_DIR . 'includes/cart.php';
-require_once LAGOS_CORE_DIR . 'includes/rest-api.php';
-require_once LAGOS_CORE_DIR . 'includes/modules.php';
-require_once LAGOS_CORE_DIR . 'includes/security.php';
-require_once LAGOS_CORE_DIR . 'includes/smtp.php';
-require_once LAGOS_CORE_DIR . 'includes/affiliates.php';
-require_once LAGOS_CORE_DIR . 'includes/extras.php';
-require_once LAGOS_CORE_DIR . 'includes/gateways.php';
-require_once LAGOS_CORE_DIR . 'includes/cron.php';
-require_once LAGOS_CORE_DIR . 'includes/audit.php';
-require_once LAGOS_CORE_DIR . 'includes/admin-shell.php';
-require_once LAGOS_CORE_DIR . 'includes/whitelabel.php';
-require_once LAGOS_CORE_DIR . 'includes/reports.php';
-require_once LAGOS_CORE_DIR . 'includes/webhooks.php';
-require_once LAGOS_CORE_DIR . 'includes/tickets-email.php';
-require_once LAGOS_CORE_DIR . 'includes/admin.php';
-require_once LAGOS_CORE_DIR . 'includes/seed.php';
+require_once LAGOS_CORE_DIR . 'Support/i18n.php';
+require_once LAGOS_CORE_DIR . 'Support/icons.php';
+require_once LAGOS_CORE_DIR . 'Setup/post-types.php';
+require_once LAGOS_CORE_DIR . 'Support/helpers.php';
+require_once LAGOS_CORE_DIR . 'Security/auth.php';
+require_once LAGOS_CORE_DIR . 'Services/shortcodes.php';
+require_once LAGOS_CORE_DIR . 'Services/cart.php';
+require_once LAGOS_CORE_DIR . 'Http/rest-api.php';
+require_once LAGOS_CORE_DIR . 'Extensions/Modules/modules.php';
+require_once LAGOS_CORE_DIR . 'Security/security.php';
+require_once LAGOS_CORE_DIR . 'Mail/smtp.php';
+require_once LAGOS_CORE_DIR . 'Services/affiliates.php';
+require_once LAGOS_CORE_DIR . 'Support/extras.php';
+require_once LAGOS_CORE_DIR . 'Extensions/Gateways/gateways.php';
+require_once LAGOS_CORE_DIR . 'Console/cron.php';
+require_once LAGOS_CORE_DIR . 'Admin/audit.php';
+require_once LAGOS_CORE_DIR . 'Admin/admin-shell.php';
+require_once LAGOS_CORE_DIR . 'Support/whitelabel.php';
+require_once LAGOS_CORE_DIR . 'Admin/reports.php';
+require_once LAGOS_CORE_DIR . 'Services/webhooks.php';
+require_once LAGOS_CORE_DIR . 'Mail/tickets-email.php';
+require_once LAGOS_CORE_DIR . 'Admin/admin.php';
+require_once LAGOS_CORE_DIR . 'Setup/seed.php';
 
 /** Cria as páginas do painel na ativação */
 function lagos_create_pages() {
@@ -99,9 +99,9 @@ function lagos_create_legal_pages() {
         if (get_page_by_path($slug)) continue;
 
         if ($which === 'termos') {
-            $content = file_get_contents(LAGOS_CORE_DIR . 'includes/legal-termos.html');
+            $content = file_get_contents(LAGOS_CORE_DIR . 'Setup/legal-termos.html');
         } else {
-            $content = file_get_contents(LAGOS_CORE_DIR . 'includes/legal-privacidade.html');
+            $content = file_get_contents(LAGOS_CORE_DIR . 'Setup/legal-privacidade.html');
         }
         wp_insert_post([
             'post_type'    => 'page',
