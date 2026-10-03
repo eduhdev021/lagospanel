@@ -1,6 +1,7 @@
 <?php
 
 use App\Jobs\AnswerAiTurn;
+use App\Jobs\DeliverWebhook;
 use App\Jobs\PreparePleskCustomer;
 use App\Jobs\PreparePterodactylAccount;
 use App\Jobs\RunOperation;
@@ -19,7 +20,9 @@ use App\Services\Provisioning;
 use App\Services\PterodactylUsers;
 use App\Services\Quotes;
 use App\Services\SupportDesk;
+use App\Services\WebhookDestination;
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Tests\FakeAaPanel;
@@ -38,7 +41,32 @@ require __DIR__.'/../.cache/vendor/autoload.php';
 $app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 try {
-    if ($argv[1] === 'quote-accept') {
+    if ($argv[1] === 'outgoing-webhook') {
+        config(['lagos.outgoing_webhooks' => true]);
+        app()->instance(WebhookDestination::class, new class extends WebhookDestination
+        {
+            public function resolve(string $host): array
+            {
+                return ['93.184.216.34'];
+            }
+        });
+        Http::preventStrayRequests();
+        Http::fake(function ($request) {
+            $h = fopen(base_path('.cache/concurrent-outgoing-webhooks.json'), 'c+');
+            flock($h, LOCK_EX);
+            $state = json_decode(stream_get_contents($h), true) ?: ['posts' => 0];
+            $state['posts']++;
+            ftruncate($h, 0);
+            rewind($h);
+            fwrite($h, json_encode($state));
+            fflush($h);
+            flock($h, LOCK_UN);
+            fclose($h);
+
+            return Http::response('', 204);
+        });
+        (new DeliverWebhook((int) $argv[2]))->handle();
+    } elseif ($argv[1] === 'quote-accept') {
         $q = Quote::findOrFail((int) $argv[2]);
         app(Quotes::class)->decide(User::findOrFail($q->user_id), $q, 'accept', 2);
     } elseif ($argv[1] === 'quote-withdraw') {

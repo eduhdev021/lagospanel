@@ -90,6 +90,7 @@ Route::post('/webhooks/mercadopago', [WebhookController::class, 'mercadoPago'])-
 
 require __DIR__.'/expansion.php';
 require __DIR__.'/commercial.php';
+require __DIR__.'/outgoing-webhooks.php';
 foreach (Route::getRoutes() as $route) {
     if (str_starts_with($route->getName() ?? '', 'admin.')) {
         $route->middleware('permission');

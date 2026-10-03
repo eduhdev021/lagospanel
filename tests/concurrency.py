@@ -104,5 +104,12 @@ results.append({'test':'20 aceites simultâneos de orçamento geram uma única f
 qid=quote_ids[1];r=batch([('quote-accept',qid),('quote-withdraw',qid)])
 status=query(f"select status from quotes where id={qid}");iid=query(f"select invoice_id from quotes where id={qid}")
 results.append({'test':'Aceite e retirada concorrentes de orçamento têm um único vencedor sem fatura órfã','passed':sorted(x.returncode for x in r)==[0,2] and ((status=='accepted' and iid is not None)or(status=='withdrawn' and iid is None)) and query("select count(*) from invoices where type='quote'")==(2 if status=='accepted' else 1)})
+
+webhook=ROOT/'.cache/concurrent-outgoing-webhooks.json';webhook.unlink(missing_ok=True)
+setup=r"require '.cache/vendor/autoload.php';$a=require 'bootstrap/app.php';$a->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();App\Models\WebhookEndpoint::create(['name'=>'Race receiver','url'=>'https://receiver.example.com/hooks','secret'=>str_repeat('a',64),'events'=>['invoice.paid'],'active'=>true]);echo App\Models\Invoice::create(['user_id'=>1,'type'=>'deposit','total_minor'=>100,'snapshot'=>[],'due_date'=>today()])->id;"
+iid=int(run(['php','-r',setup]).stdout);r=batch([('credit',iid,'outgoing-webhook-payment')for _ in range(20)])
+results.append({'test':'20 notificações do mesmo pagamento produzem um único evento no outbox','passed':all(x.returncode==0 for x in r) and query('select count(*) from webhook_deliveries')==1 and query("select count(*) from payments where reference='outgoing-webhook-payment'")==1})
+did=query('select id from webhook_deliveries');r=batch([('outgoing-webhook',did)for _ in range(20)]);state=json.loads(webhook.read_text())
+results.append({'test':'20 jobs duplicados de webhook usam um lease e um único POST simulado','passed':all(x.returncode==0 for x in r) and state['posts']==1 and query('select count(*) from webhook_attempts')==1 and query(f"select status from webhook_deliveries where id={did}")=='delivered'})
 report={'database':'SQLite WAL / BEGIN IMMEDIATE','workers':20,'seconds':round(time.monotonic()-start,3),'results':results}
 (ROOT/'docs/CONCURRENCY-RESULTS.json').write_text(json.dumps(report,indent=2,ensure_ascii=False));print(json.dumps(report,indent=2,ensure_ascii=False));raise SystemExit(any(not r['passed']for r in results))

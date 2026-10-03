@@ -2,6 +2,10 @@
 
 Última release estável: **1.3.0**. Código da main: **1.4.0-dev**. Este documento descreve desenvolvimento posterior à base, não uma nova release nem a conclusão da paridade WHMCS/Paymenter. O visual existente foi mantido. Não houve deploy nem chamadas autenticadas a provedores reais.
 
+## Webhooks de saída
+
+Outbox transacional, assinatura HMAC, retry limitado, recuperação de workers, proteção contra destinos internos e acompanhamento no ADM. Contrato e limites: [WEBHOOKS-SAIDA.md](WEBHOOKS-SAIDA.md).
+
 ## Módulos comerciais e conteúdo
 
 Orçamentos com aceite e fatura única, avisos/incidentes/manutenções e downloads privados por serviço ativo. Consulte [COMERCIAL-E-CONTEUDO.md](COMERCIAL-E-CONTEUDO.md) para configuração, permissões, limites e testes.
@@ -38,10 +42,10 @@ Faça backup do banco, preserve a `APP_KEY`, instale as dependências do lockfil
 
 ## Evidência
 
-- **413 testes PHP / 2.595 assertions**, incluindo preparação Plesk, recuperação, identidade, autorização, sessão, administração e módulos comerciais/conteúdo.
-- **23 cenários multiprocesso** passando, incluindo 20 serviços pagos concorrentes convergindo em um cliente Plesk com um único POST simulado.
+- **464 testes PHP / 2.757 assertions**, incluindo preparação Plesk, recuperação, identidade, autorização, sessão, administração e módulos comerciais/conteúdo.
+- **25 cenários multiprocesso** passando, incluindo 20 serviços pagos concorrentes convergindo em um cliente Plesk com um único POST simulado.
 - Respostas XML e HTTP simuladas. Não são homologação de Plesk real, validação XSD ou pentest. O navegador foi exercitado nos módulos comerciais/conteúdo; não no SSO real Plesk.
-- **40 verificações Chromium** dos novos fluxos comerciais/conteúdo, incluindo três larguras de tela, sem erros JavaScript ou assets ausentes.
+- **13 verificações Chromium** dos webhooks nesta revisão; 40 verificações comerciais da revisão anterior continuam históricas. **9 testes Python** do receptor de referência.
 - Resultados atuais: `PHPUNIT-RESULTS.txt`, `CONCURRENCY-RESULTS.json` e `CONCURRENCY-RESULTS.txt`. Relatórios anteriores de navegador continuam históricos.
 
 ## Referências oficiais consultadas

@@ -1,0 +1,14 @@
+test_expired_or_future_signature (__main__.ReceiverTest.test_expired_or_future_signature) ... ok
+test_failed_handler_rolls_back_marker_and_allows_retry (__main__.ReceiverTest.test_failed_handler_rolls_back_marker_and_allows_retry) ... ok
+test_header_mismatch (__main__.ReceiverTest.test_header_mismatch) ... ok
+test_invalid_schema (__main__.ReceiverTest.test_invalid_schema) ... ok
+test_oversized_body (__main__.ReceiverTest.test_oversized_body) ... ok
+test_repeated_or_malformed_headers (__main__.ReceiverTest.test_repeated_or_malformed_headers) ... ok
+test_replay_deduplicates_business_effect (__main__.ReceiverTest.test_replay_deduplicates_business_effect) ... ok
+test_tampering (__main__.ReceiverTest.test_tampering) ... ok
+test_valid_event (__main__.ReceiverTest.test_valid_event) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.002s
+
+OK

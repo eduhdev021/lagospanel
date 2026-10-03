@@ -3,15 +3,16 @@ PHPUnit 11.5.56 by Sebastian Bergmann and contributors.
 Runtime:       PHP 8.4.26
 Configuration: /home/user/lagospanel-independent/phpunit.xml
 
-...............................................................  63 / 413 ( 15%)
-............................................................... 126 / 413 ( 30%)
-............................................................... 189 / 413 ( 45%)
-............................................................... 252 / 413 ( 61%)
-............................................................... 315 / 413 ( 76%)
-............................................................... 378 / 413 ( 91%)
-...................................                             413 / 413 (100%)
+...............................................................  63 / 464 ( 13%)
+............................................................... 126 / 464 ( 27%)
+............................................................... 189 / 464 ( 40%)
+............................................................... 252 / 464 ( 54%)
+............................................................... 315 / 464 ( 67%)
+............................................................... 378 / 464 ( 81%)
+............................................................... 441 / 464 ( 95%)
+.......................                                         464 / 464 (100%)
 
-Time: 00:12.118, Memory: 82.50 MB
+Time: 00:11.784, Memory: 84.50 MB
 
 Aa Panel (Tests\Feature\AaPanel)
  ✔ Create signed requests and bind numeric site id
@@ -306,6 +307,59 @@ Ollama (Tests\Feature\Ollama)
  ✔ Stale queue request is failed before new request and old job cannot send
  ✔ Same request key with different body conflicts
 
+Outgoing Webhooks (Tests\Feature\OutgoingWebhooks)
+ ✔ Outbox is atomic with domain transaction
+ ✔ Whitelist and minimal encrypted payload
+ ✔ Capture is idempotent for same audit record
+ ✔ Subscription and disabled endpoint filter
+ ✔ Signed delivery and duplicate job
+ ✔ Http response policy with data set #0
+ ✔ Http response policy with data set #1
+ ✔ Http response policy with data set #2
+ ✔ Http response policy with data set #3
+ ✔ Http response policy with data set #4
+ ✔ Http response policy with data set #5
+ ✔ Http response policy with data set #6
+ ✔ Http response policy with data set #7
+ ✔ Http response policy with data set #8
+ ✔ Network failure is retryable without exception leak
+ ✔ Backoff budget and event identity are stable
+ ✔ Future retry does not send early
+ ✔ Global pause preserves pending outbox
+ ✔ Disabled destination cancels delivery without http
+ ✔ Unsafe destination url rejected with data set #0
+ ✔ Unsafe destination url rejected with data set #1
+ ✔ Unsafe destination url rejected with data set #2
+ ✔ Unsafe destination url rejected with data set #3
+ ✔ Unsafe destination url rejected with data set #4
+ ✔ Unsafe destination url rejected with data set #5
+ ✔ Unsafe destination url rejected with data set #6
+ ✔ Unsafe destination url rejected with data set #7
+ ✔ Unsafe destination url rejected with data set #8
+ ✔ Private or reserved dns blocked with data set #0
+ ✔ Private or reserved dns blocked with data set #1
+ ✔ Private or reserved dns blocked with data set #2
+ ✔ Private or reserved dns blocked with data set #3
+ ✔ Private or reserved dns blocked with data set #4
+ ✔ Private or reserved dns blocked with data set #5
+ ✔ Private or reserved dns blocked with data set #6
+ ✔ Private or reserved dns blocked with data set #7
+ ✔ Disable during dns resolution blocks send
+ ✔ Stale lease cannot finalize new execution
+ ✔ Active lease is not reclaimed
+ ✔ Interrupted attempt is reclaimed and audited
+ ✔ Dispatcher finds pending and stale work
+ ✔ Admin creation shows secret once and never flashes it
+ ✔ Wrong password blocks configuration
+ ✔ Read only operator cannot change webhooks
+ ✔ Clients cannot access webhook data
+ ✔ Manual retry preserves event and history
+ ✔ Response limit cannot mark delivery complete
+ ✔ Rollback preserves outbox
+ ✔ Http transport pins dns and disables proxy and redirects
+ ✔ Destination url drift during dns cannot bypass pinning
+ ✔ Totp required and replay rejected
+
 Plesk Customers (Tests\Feature\PleskCustomers)
  ✔ Unpaid checkout creates no customer or remote requests
  ✔ Paid preparation binds verified customer before subscription
@@ -454,4 +508,4 @@ Web And Site (Tests\Feature\WebAndSite)
  ✔ Installer refuses existing users without modifying environment
  ✔ Installer token grant is required and expiry is enforced
 
-OK (413 tests, 2595 assertions)
+OK (464 tests, 2757 assertions)

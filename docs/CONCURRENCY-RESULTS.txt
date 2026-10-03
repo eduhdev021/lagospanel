@@ -1,7 +1,7 @@
 {
   "database": "SQLite WAL / BEGIN IMMEDIATE",
   "workers": 20,
-  "seconds": 47.313,
+  "seconds": 48.339,
   "results": [
     {
       "test": "20 processos creditam depósitos sem perder atualizações",
@@ -93,6 +93,14 @@
     },
     {
       "test": "Aceite e retirada concorrentes de orçamento têm um único vencedor sem fatura órfã",
+      "passed": true
+    },
+    {
+      "test": "20 notificações do mesmo pagamento produzem um único evento no outbox",
+      "passed": true
+    },
+    {
+      "test": "20 jobs duplicados de webhook usam um lease e um único POST simulado",
       "passed": true
     }
   ]

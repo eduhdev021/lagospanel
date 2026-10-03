@@ -1,6 +1,7 @@
 @extends('layouts.panel')
 @section('title','Integrações')
 @section('content')
+<div class="card"><a class="btn btn-ghost" href="{{ route('admin.webhooks.index') }}">Webhooks de saída e entregas</a></div>
 <p><a class="btn btn-ghost" href="{{ route('admin.connectors.ai') }}">Configurar chat Ollama e modelos</a></p>
 <div class="card"><h3>Integrações de provisionamento</h3><p class="muted">Conector JSON próprio e driver nativo cPanel/WHM API 1. Credenciais são criptografadas. Testes locais simulados não substituem homologação no provedor.</p><p class="muted">aaPanel: chave API, whitelist de IP e HTTPS na porta configurada. Gerencia sites, não cria contas isoladas de cliente; não fornece login administrativo.</p><p class="muted">DirectAdmin: Login Key e usuário, HTTPS 2222/443. Plesk: secret key XML API, HTTPS 8443/443; assinaturas sob proprietário existente, sem compartilhar login administrativo.</p><p>Chamadas nativas: <strong>{{ config('lagos.native_provisioning')?'Liberadas pela configuração local':'Bloqueadas pela configuração local' }}</strong>. Configure somente endpoints e servidores autorizados.</p>
 @if(auth()->user()->hasPermission('integrations.manage'))

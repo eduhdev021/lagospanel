@@ -1,0 +1,59 @@
+{
+  "fixture": "Isolated SQLite; outgoing sending globally disabled",
+  "results": [
+    {
+      "test": "Admin abre webhooks",
+      "passed": true
+    },
+    {
+      "test": "Criação protegida sem cache",
+      "passed": true
+    },
+    {
+      "test": "Sem Referer na página da chave",
+      "passed": true
+    },
+    {
+      "test": "Chave mostrada na criação",
+      "passed": true
+    },
+    {
+      "test": "Chave não reaparece na listagem",
+      "passed": true
+    },
+    {
+      "test": "Envio global permanece pausado",
+      "passed": true
+    },
+    {
+      "test": "Desativação pela interface",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow horizontal 390",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow horizontal 768",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow horizontal 1440",
+      "passed": true
+    },
+    {
+      "test": "Cliente não acessa configuração",
+      "passed": true
+    },
+    {
+      "test": "Sem erros JavaScript",
+      "passed": true
+    },
+    {
+      "test": "Sem assets ausentes",
+      "passed": true
+    }
+  ],
+  "js_errors": [],
+  "failed_assets": []
+}

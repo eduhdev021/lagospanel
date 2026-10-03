@@ -91,7 +91,7 @@ Atendimento e conteúdo,Chat e canais adicionais,Parcial / homologação pendent
 Atendimento e conteúdo,Projetos e tarefas faturáveis,Planejado,Sem gestão de projetos
 Plataforma e operação,API pública com tokens e escopos,Parcial,"Leitura de serviços/faturas e criação de ticket, somente do dono"
 Plataforma e operação,API administrativa e SDK,Planejado,Sem compatibilidade com APIs de outros painéis
-Plataforma e operação,Webhooks de saída e event bus público,Planejado,Sem assinaturas/retries de eventos para terceiros
+Plataforma e operação,Webhooks de saída e event bus público,Parcial,"Eventos selecionados com outbox, HMAC, retry, lease e histórico; payload mínimo e receptor de referência, sem barramento/SDK genérico"
 Plataforma e operação,SDK de extensões e marketplace,Planejado,Contrato JSON não é SDK completo
 Plataforma e operação,Auditoria de ações,Parcial,Eventos de aplicação; não é ledger inviolável
 Plataforma e operação,"Observabilidade, métricas e alertas",Planejado,Logs/diagnóstico básicos não substituem monitoramento

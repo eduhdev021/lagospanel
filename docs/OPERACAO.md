@@ -101,3 +101,7 @@ Inclui DirectAdmin e Plesk no fluxo nativo. Não há migration nova (15 no total
 Aplique as duas migrations pendentes (17 no total) após backup compatível. Preserve APP_KEY e `storage/app/private/downloads` junto ao banco; perder a chave impede decifrar arquivos. As migrations novas bloqueiam rollback com registros. Permissões `bulletins.view/manage` e `downloads.view/manage` devem ser atribuídas às funções da equipe; orçamentos utilizam `billing.view/manage`. Nenhuma permissão nova é concedida automaticamente a papéis existentes. Administrador principal mantém acesso total.
 
 Orçamentos não reservam produtos nem provisionam recursos automaticamente. Downloads não são escaneados por antivírus; a equipe deve verificar o material antes da publicação. Avisos/status são registros manuais, não monitoramento. Consulte `COMERCIAL-E-CONTEUDO.md` e `DESENVOLVIMENTO.md`.
+
+## Webhooks de saída (main em desenvolvimento)
+
+Instalação nova tem 18 migrations. Aplique a migration 000015 depois de backup e preserve APP_KEY. Leia `WEBHOOKS-SAIDA.md` antes de habilitar `OUTGOING_WEBHOOKS_ENABLED=true`; o padrão é false. Destinos ativos gravam eventos mesmo com envio global pausado. Configure cron a cada minuto e worker database. O job tem timeout 30 s e lease 2 min; HTTP 10 s. Falhas devem ser acompanhadas no ADM. Não há transporte exatamente uma vez; o destinatário precisa deduplicar UUIDs.

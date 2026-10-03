@@ -137,7 +137,7 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 |---|---|---|
 | API pública com tokens e escopos | Parcial | Leitura de serviços/faturas e criação de ticket, somente do dono |
 | API administrativa e SDK | Planejado | Sem compatibilidade com APIs de outros painéis |
-| Webhooks de saída e event bus público | Planejado | Sem assinaturas/retries de eventos para terceiros |
+| Webhooks de saída e event bus público | Parcial | Eventos selecionados com outbox, HMAC, retry, lease e histórico; payload mínimo e receptor de referência, sem barramento/SDK genérico |
 | SDK de extensões e marketplace | Planejado | Contrato JSON não é SDK completo |
 | Auditoria de ações | Parcial | Eventos de aplicação; não é ledger inviolável |
 | Observabilidade, métricas e alertas | Planejado | Logs/diagnóstico básicos não substituem monitoramento |

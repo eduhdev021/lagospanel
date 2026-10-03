@@ -12,6 +12,8 @@ Painel de clientes, cobrança, serviços e atendimento, com administração pró
 
 ## Alterações na main
 
+- Webhooks de saída assinados com outbox persistente, histórico, retentativas e receptor de referência. [Configuração e contrato](docs/WEBHOOKS-SAIDA.md).
+
 - Clientes Plesk isolados após pagamento e acesso temporário do titular, com senha/2FA.
 - Orçamentos com aprovação/recusa, validade, revisão e conversão idempotente em fatura avulsa.
 - Avisos públicos, incidentes e manutenções com agendamento e histórico.
@@ -87,7 +89,7 @@ Backup de banco, APP_KEY e arquivos privados; instale dependências do lockfile,
 
 ## Testes e problemas
 
-Na main: **413 testes PHP / 2.595 asserções**, **23 cenários concorrentes** e **40 verificações Chromium** dos módulos comerciais/conteúdo. APIs de provedores continuam simuladas conforme contratos documentados. Os relatórios anteriores de navegador são históricos; a evidência nova é `docs/BROWSER-COMMERCIAL-RESULTS.json`.
+Na main: **464 testes PHP / 2.757 asserções**, **25 cenários concorrentes**, **9 testes Python do receptor** e **13 verificações Chromium** dos webhooks. As 40 verificações Chromium comerciais são da revisão anterior. APIs de provedores continuam simuladas conforme contratos documentados. Os relatórios anteriores de navegador são históricos; a evidência nova é `docs/BROWSER-WEBHOOKS-RESULTS.json`.
 
 ```bash
 composer install

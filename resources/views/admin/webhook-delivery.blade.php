@@ -1,0 +1,8 @@
+@extends('layouts.panel')
+@section('title','Entrega de webhook #'.$delivery->id)
+@section('content')
+<div class="card"><h2>{{ $delivery->event_type }}</h2><p style="overflow-wrap:anywhere">ID estável: {{ $delivery->event_id }} · Destino: {{ $delivery->endpoint->name }}</p><p>Estado: {{ $delivery->status }} · Tentativas: {{ $delivery->attempts }}/{{ $delivery->max_attempts }} · Próxima: {{ $delivery->next_attempt_at?->format('d/m/Y H:i:s')??'—' }}</p><p>2xx significa aceitação HTTP, não confirmação de processamento de negócio. Falhas de rede podem ocorrer depois de o destinatário processar: deduplicação é obrigatória.</p>
+<div class="table-wrap"><table><thead><tr><th>Tentativa</th><th>Início</th><th>Resultado</th><th>HTTP</th></tr></thead><tbody>@foreach($attempts as $attempt)<tr><td>{{ $attempt->number }}</td><td>{{ $attempt->started_at->format('d/m/Y H:i:s') }}</td><td>{{ $attempt->outcome }}</td><td>{{ $attempt->http_status??'—' }}</td></tr>@endforeach</tbody></table></div>{{ $attempts->links('layouts.pagination') }}
+@if(auth()->user()->hasPermission('integrations.manage')&&in_array($delivery->status,['failed','cancelled'],true)&&$delivery->endpoint->active&&$delivery->attempts<100)<form method="post" action="{{ route('admin.webhooks.retry',$delivery) }}">@csrf<div class="field"><label>Motivo da retentativa</label><textarea name="note" minlength="10" maxlength="500" required></textarea></div>@include('admin.webhook-confirm')<label><input type="checkbox" name="ack" value="1" required> Conferi o destino e sua deduplicação; autorizo até cinco novas tentativas.</label><button class="btn btn-primary">Autorizar retentativa</button></form>@endif
+</div>
+@endsection

@@ -9,7 +9,7 @@ final class AdminPermissions
     public static function forRoute(string $name, string $method = 'GET'): string
     {
         $module = explode('.', $name)[1] ?? '';
-        $module = ['quotes' => 'billing', 'invoices' => 'billing', 'reviews' => 'billing', 'users' => 'customers', 'tickets' => 'support', 'connectors' => 'integrations'][$module] ?? $module;
+        $module = ['webhooks' => 'integrations', 'quotes' => 'billing', 'invoices' => 'billing', 'reviews' => 'billing', 'users' => 'customers', 'tickets' => 'support', 'connectors' => 'integrations'][$module] ?? $module;
         if ($module === 'team') {
             return 'team.manage';
         }
