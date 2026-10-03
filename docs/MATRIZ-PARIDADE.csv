@@ -1,0 +1,105 @@
+Área,Recurso-alvo,Estado no LagosPanel alpha.8,Evidência / limite
+Contas e segurança,"Cadastro, confirmação e recuperação",Implementado localmente,Testes de domínio e Chromium; e-mail externo pendente
+Contas e segurança,2FA e códigos de recuperação,Implementado localmente,"Replay, limite de tentativas, expiração e uso único testados"
+Contas e segurança,Papéis e permissões de equipe,Implementado localmente,Leitura/alteração por módulo; sem delegar autoridade superior
+Contas e segurança,2FA obrigatório para equipe em produção,Implementado localmente,Middleware e teste de exigência; operação externa pendente
+Contas e segurança,"Contatos, subcontas e organizações",Planejado,Não existe modelo de organizações/subcontas
+Contas e segurança,Campos personalizados e dados fiscais,Planejado,Não há cadastro fiscal completo
+Contas e segurança,Antifraude e avaliação de risco,Planejado,Não há MaxMind/FraudLabs ou motor próprio
+Contas e segurança,SSO/OAuth/OpenID e login social,Planejado,Sem SSO com provedores ou painéis
+Contas e segurança,"LGPD: exportação, retenção e anonimização",Planejado,Políticas legais precisam de validação específica
+Contas e segurança,Multitenancy e marcas independentes,Planejado,Não confundir papéis com isolamento entre empresas
+Catálogo e pedidos,Catálogo e edição de produtos,Implementado localmente,Preço e disponibilidade validados no servidor
+Catálogo e pedidos,Carrinho multiproduto persistente,Implementado localmente,Uma fatura; snapshots; reenvios não duplicam nem apagam carrinho novo
+Catálogo e pedidos,Opções configuráveis com preço,Parcial,Seleções e cobrança prontas; mapeamento de recursos depende do driver
+Catálogo e pedidos,Estoque e reservas com expiração,Implementado localmente,Reservas novas; concorrência sem overselling e devolução única
+Catálogo e pedidos,Limite por cliente e quantidade,Implementado localmente,Serviços pendentes/ativos contam no limite
+Catálogo e pedidos,Quantidade separada por serviço,Implementado localmente,Uma instância de serviço por unidade
+Catálogo e pedidos,Quantidade combinada em um serviço,Planejado,Ainda não implementada
+Catálogo e pedidos,Múltiplos planos/preços por produto,Planejado,Hoje cada produto tem um ciclo
+Catálogo e pedidos,Ciclos de cobrança adicionais,Implementado localmente,Diário a trienal e pagamento único; regras de calendário testadas
+Catálogo e pedidos,"Categorias, imagens e ordenação comercial",Parcial,Descrição/slug ativos; taxonomia e imagens por produto faltam
+Catálogo e pedidos,"Bundles, addons e produtos dependentes",Planejado,Sem motor de composição
+Catálogo e pedidos,Cotações e aprovação comercial,Planejado,Sem modelo de orçamento
+Catálogo e pedidos,Cupons fixos e percentuais,Implementado localmente,Primeira fatura; limites global e por cliente
+Catálogo e pedidos,Cupons recorrentes e elegibilidade avançada,Planejado,"Sem recorrência, segmentação ou regras combinadas"
+Catálogo e pedidos,Upgrades/downgrades e prorrata,Planejado,Não há alteração proporcional automática
+Catálogo e pedidos,Configurações remotas após upgrade,Planejado,Depende dos drivers e da reconciliação
+Financeiro,Faturas e registros de pagamento,Implementado localmente,"BRL, quitação integral e idempotência"
+Financeiro,"Carteira, recargas e pagamentos internos",Implementado localmente,Uma moeda; saldos e concorrência testados
+Financeiro,Renovações e lembretes,Implementado localmente,Fila deduplicada e verificação antes de enviar
+Financeiro,Conciliação de recebimentos excepcionais,Parcial,Registro e conclusão manual; sem estorno automático
+Financeiro,Cancelamento de pedido não pago,Implementado localmente,Libera reservas registradas; bloqueia pagamento vencido
+Financeiro,Relatórios e exportação CSV,Parcial,Indicadores básicos; não são lucro nem contabilidade fiscal
+Financeiro,Faturas PDF e layout fiscal,Parcial,"PDF não fiscal privado, itens/valores do snapshot e cadastro atual; sem emissão fiscal ou assinatura"
+Financeiro,Múltiplas moedas e câmbio,Planejado,Precisa de preços/carteiras por moeda e snapshots de câmbio
+Financeiro,"Impostos, VAT e regras territoriais",Planejado,Não implementado
+Financeiro,Documentos fiscais brasileiros,Planejado,Integração fiscal e validação legal necessárias
+Financeiro,Pagamentos parciais e sobrepagamentos,Planejado,Capturas incompatíveis vão para conciliação
+Financeiro,Estornos totais/parciais e chargebacks,Planejado,Sem API de reembolso e ledger de reversões
+Financeiro,Débito recorrente e assinaturas no gateway,Planejado,Checkout atual não equivale a assinatura automática
+Financeiro,"Cobrança por uso, medição e excedentes",Planejado,Sem coletor de uso tarifável
+Financeiro,"Juros, multas e tolerâncias por produto",Planejado,Políticas avançadas ausentes
+Financeiro,Afiliados e comissões,Planejado,Sem motor de comissão/pagamento
+Gateways,Stripe,Homologação pendente,Checkout e webhook implementados; contrato simulado
+Gateways,Mercado Pago,Homologação pendente,Preferência e consulta autenticada; contrato simulado
+Gateways,Confirmação manual,Implementado localmente,Conferência por operador autorizado e registro auditado
+Gateways,PayPal,Planejado,Adaptador independente ainda não portado
+Gateways,Mollie,Planejado,Adaptador independente ainda não implementado
+Gateways,Pix direto e boletos,Planejado,Capacidade depende de PSP/banco e homologação
+Gateways,"Asaas, Efí, PagBank e Pagar.me",Planejado,Integrações próprias a especificar e homologar
+Gateways,Adquirentes internacionais adicionais,Planejado,Inventário depende dos países/contratos
+Gateways,Criptoativos,Planejado,"Risco, câmbio e conformidade precisam ser definidos"
+Provisionamento,Serviços manuais,Implementado localmente,Pagamento não finge criar infraestrutura
+Provisionamento,Conector HTTPS/JSON próprio,Homologação pendente,Contrato simulado; não é adaptador nativo
+Provisionamento,Fila e reconciliação de resultado incerto,Parcial,Sem repetir criação cegamente; resolução operacional ainda manual
+Provisionamento,cPanel/WHM,Parcial / homologação pendente,"Ciclo de conta WHM API 1, snapshots e conciliação testados com simulação; faltam WHM real, SSO, alteração de pacote e domínio próprio no checkout"
+Provisionamento,aaPanel,Parcial / homologação pendente,"Sites gerenciados via API clássica; sem contas isoladas, FTP/banco/quotas/SSL/DNS automáticos; somente simulação"
+Provisionamento,Plesk,Planejado,Driver nativo ausente
+Provisionamento,DirectAdmin,Planejado,Driver nativo ausente
+Provisionamento,Enhance,Planejado,Driver nativo ausente
+Provisionamento,Pterodactyl e jogos,Parcial / homologação pendente,"Ciclo de servidores, planos, contas previamente vinculadas e consultas de instalação; faltam usuário automático, energia/console/SSO e provedor real"
+Provisionamento,Proxmox,Planejado,Implementação própria via API ou licença válida para reutilização
+Provisionamento,Virtualizor,Planejado,Driver nativo ausente
+Provisionamento,VirtFusion,Planejado,Driver nativo ausente
+Provisionamento,Convoy,Planejado,Driver nativo ausente
+Provisionamento,SolusVM,Planejado,Driver nativo ausente
+Provisionamento,"Cloud: AWS, DigitalOcean e Hetzner",Planejado,"Contas, custos, quotas e drivers a homologar"
+Provisionamento,"Capacidade, localização e IPAM",Planejado,Sem alocação automática completa
+Provisionamento,"Backups, reinstalação e console",Planejado,Depende das capacidades e permissões dos provedores
+Provisionamento,Licenciamento de software,Planejado,Sem servidor de licenças/revogações
+Domínios e certificados,Catálogo TLD e preços por operação,Planejado,Sem registro/transferência/renovação nativos
+Domínios e certificados,Busca de disponibilidade e IDN,Planejado,Disponibilidade não pode ser inferida de consulta DNS
+Domínios e certificados,"Registro, transferência e renovação",Planejado,Exige registrador e conta de revenda
+Domínios e certificados,Enom e OpenSRS,Planejado,Drivers e credenciais de teste necessários
+Domínios e certificados,ResellerClub e Namecheap,Planejado,Drivers e credenciais de teste necessários
+Domínios e certificados,Registro.br e outros registradores,Planejado,Validar modalidade de integração e condições disponíveis
+Domínios e certificados,"Contatos, EPP, locks e nameservers",Planejado,Capacidades específicas por registrador
+Domínios e certificados,Zona DNS e DNSSEC,Planejado,Separar autoridade DNS da titularidade do domínio
+Domínios e certificados,"Expiração, resgate e sincronização",Planejado,Regras/custos precisam de confirmação autoritativa
+Domínios e certificados,SSL e validação de domínio,Planejado,Não há emissão/renovação de certificados
+Atendimento e conteúdo,Tickets e respostas,Implementado localmente,"Cliente/equipe, notas internas, histórico paginado e fechamento/reabertura; isolamento e escape testados"
+Atendimento e conteúdo,Respostas prontas,Implementado localmente,"Biblioteca da equipe, edição versionada e inserção em rascunho sem envio automático; texto simples"
+Atendimento e conteúdo,Departamentos avançados e equipes,Parcial,Categorias técnicas/financeiras simples; sem ACL por departamento
+Atendimento e conteúdo,"SLA, atribuição e prioridades",Parcial,"Metas em horas corridas, prioridades, responsáveis e filtros; faltam calendário comercial, escalonamento e relatório histórico"
+Atendimento e conteúdo,Anexos e antivírus,Parcial,"Anexos criptografados, quotas por chamado/conta, autorização e integridade; sem antivírus/CDR/retencão automatizada"
+Atendimento e conteúdo,"IMAP, piping e respostas por e-mail",Planejado,Remetente sozinho não autentica o cliente
+Atendimento e conteúdo,Base de conhecimento,Implementado localmente,"Publicação, rascunho, categoria e busca; texto simples"
+Atendimento e conteúdo,Downloads e licenças de acesso,Planejado,Sem catálogo privado de arquivos
+Atendimento e conteúdo,"Anúncios, incidentes e status page",Planejado,Sem acompanhamento de disponibilidade
+Atendimento e conteúdo,Chat e canais adicionais,Parcial / homologação pendente,"Chat IA Ollama com chave/modelo, pesquisa web mediada com fontes e consentimento; sem chat humano ao vivo ou homologação real"
+Atendimento e conteúdo,Projetos e tarefas faturáveis,Planejado,Sem gestão de projetos
+Plataforma e operação,API pública com tokens e escopos,Parcial,"Leitura de serviços/faturas e criação de ticket, somente do dono"
+Plataforma e operação,API administrativa e SDK,Planejado,Sem compatibilidade com APIs de outros painéis
+Plataforma e operação,Webhooks de saída e event bus público,Planejado,Sem assinaturas/retries de eventos para terceiros
+Plataforma e operação,SDK de extensões e marketplace,Planejado,Contrato JSON não é SDK completo
+Plataforma e operação,Auditoria de ações,Parcial,Eventos de aplicação; não é ledger inviolável
+Plataforma e operação,"Observabilidade, métricas e alertas",Planejado,Logs/diagnóstico básicos não substituem monitoramento
+Plataforma e operação,Fila e cron,Implementado localmente,Banco transacional; supervisor externo necessário
+Plataforma e operação,Backups e restauração,Planejado,Procedimentos descritos; restore operacional não homologado
+Plataforma e operação,Alta disponibilidade e failover,Planejado,Sem evidência em infraestrutura distribuída
+Plataforma e operação,Importação da instalação anterior,Planejado,Campos preparados não constituem importador
+Plataforma e operação,Importação WHMCS/Paymenter,Planejado,Mapeamento e conciliação precisam ser construídos
+Plataforma e operação,Localização e acessibilidade completas,Parcial,pt-BR/BRL e mobile; sem auditoria WCAG integral
+Plataforma e operação,CI automatizado,Parcial,"Workflow escrito; suites executadas localmente, não no GitHub"
+Plataforma e operação,Benchmark comparativo reproduzível,Planejado,Sem prova de superioridade

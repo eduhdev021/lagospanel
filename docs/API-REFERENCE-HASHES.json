@@ -1,0 +1,12 @@
+{
+  "retrieved_on": "2026-10-03",
+  "note": "Hashes of retrieved reference bodies, not signatures or a live-provider certification. Pterodactyl references use branch 1.0-develop.",
+  "files": {
+    "Server.php": "09dd3206ec8c18970f12c4c4c3bcbb0c2e703848c955ee24eb074acb41410163",
+    "ServerController.php": "5c46af5b4b68e052c8d90044f2896c5e8a0142e68d6a0b87a8496e377936edba",
+    "ServerManagementController.php": "b5f0f00a9c799859cf49f60a0cef71e179383eef1885b641b18e305cf06d872e",
+    "ServerTransformer.php": "8e874e8a1c1392c9fca6c90928512be6d213c4f4551c1f86012b15a4f8f83086",
+    "api-application.php": "d8b46e038e4ac9e5e86a3e6fe2833323703bfefa18a6377200aec668dd69d752",
+    "whm-current.json": "532f690f910d8b8d9d1536d5bf699d99d62a5cbb7c6cb6e6fe1ed06d61d16407"
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "results": [
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/faturas/12",
+      "passed": true
+    },
+    {
+      "test": "Download é PDF real com nome seguro",
+      "passed": true
+    },
+    {
+      "test": "PDF preserva acentos, total e último item em múltiplas páginas",
+      "passed": true
+    },
+    {
+      "test": "PDF identifica documento não fiscal e não executa HTML",
+      "passed": true
+    },
+    {
+      "test": "Renderização de todas as páginas PDF",
+      "passed": true
+    },
+    {
+      "test": "PDF autenticado não permite cache",
+      "passed": true
+    },
+    {
+      "test": "PDF de outro titular retorna 404",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/suporte/modelos",
+      "passed": true
+    },
+    {
+      "test": "Modelo salvo pela equipe",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/suporte/6",
+      "passed": true
+    },
+    {
+      "test": "Inserção preserva rascunho e trata HTML como texto",
+      "passed": true
+    },
+    {
+      "test": "Inserção não envia mensagem",
+      "passed": true
+    },
+    {
+      "test": "Atendimento sem overflow móvel",
+      "passed": true
+    },
+    {
+      "test": "Envio explícito registra resposta",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/suporte/modelos/2/editar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/suporte/6",
+      "passed": true
+    },
+    {
+      "test": "Modelo desativado sai do seletor",
+      "passed": true
+    },
+    {
+      "test": "URL antiga não carrega modelo desativado",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/suporte/modelos",
+      "passed": true
+    },
+    {
+      "test": "Equipe somente leitura não recebe formulário",
+      "passed": true
+    },
+    {
+      "test": "Permissão de suporte não autoriza PDF financeiro",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/suporte/6",
+      "passed": true
+    },
+    {
+      "test": "Cliente recebe texto escapado, sem biblioteca",
+      "passed": true
+    },
+    {
+      "test": "Sem erros JavaScript",
+      "passed": true
+    }
+  ],
+  "javascript_errors": [],
+  "pdf_pages": 3,
+  "external_providers": "none"
+}

@@ -1,0 +1,8 @@
+@extends('layouts.panel')
+@section('title', 'Cupons')
+@section('content')
+<div class="card"><h3>Novo cupom</h3><p class="muted">Desconto sobre a primeira fatura, incluindo instalação. Não altera o preço das renovações.</p>@if(auth()->user()->hasPermission('coupons.manage'))
+<form method="post" action="{{ route('admin.coupons.create') }}">@csrf<div class="form-grid"><div class="field"><label>Código</label><input name="code" type="text" required maxlength="40"></div><div class="field"><label>Tipo</label><select name="kind"><option value="percent">Percentual</option><option value="fixed">Valor fixo</option></select></div><div class="field"><label>Desconto (%)</label><input name="percent" type="number" min="1" max="100"></div><div class="field"><label>Desconto fixo (R$)</label><input name="fixed" type="text"></div><div class="field"><label>Limite por cliente (opcional)</label><input name="per_user_limit" type="number" min="1"></div><div class="field"><label>Limite de usos (vazio = ilimitado)</label><input name="max_uses" type="number" min="1"></div><div class="field"><label>Expira em (opcional)</label><input name="expires_at" type="datetime-local"></div></div><button class="btn btn-primary">Criar cupom</button></form>
+@endif
+</div><div class="card"><div class="table-wrap"><table><thead><tr><th>Código</th><th>Desconto</th><th>Usos</th><th>Expiração</th></tr></thead><tbody>@foreach($coupons as $c)<tr><td>{{ $c->code }}</td><td>{{ $c->kind==='fixed'?brl($c->fixed_minor):$c->percent.'%' }}</td><td>{{ $c->uses }} / {{ $c->max_uses??'∞' }}</td><td>{{ $c->expires_at?->format('d/m/Y H:i')??'Sem prazo' }}</td></tr>@endforeach</tbody></table></div></div>{{ $coupons->links('layouts.pagination') }}
+@endsection

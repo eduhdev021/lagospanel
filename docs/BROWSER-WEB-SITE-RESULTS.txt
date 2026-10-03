@@ -1,0 +1,21 @@
+PASS HTTP /entrar
+PASS HTTP /admin/configuracoes
+PASS Nome, cadastro e logo salvos pelo ADM
+PASS Logo é recurso local com MIME seguro
+PASS Configurações sem overflow móvel
+PASS Teste de e-mail com modo log é explícito
+PASS Cadastro desativado também no servidor
+PASS Marca e contato aparecem na loja, sem convite de cadastro
+PASS Configuração reversível sem trocar assets
+PASS HTTP /admin/integracoes/ollama
+PASS Pesquisa habilitada com chave oculta
+PASS HTTP /entrar
+PASS HTTP /painel/chat
+PASS Pesquisa tem consulta e consentimento próprios
+PASS Harness pesquisa e gera resposta em fila
+PASS Fontes da busca aparecem com URL e proteção de referência
+PASS HTML do modelo continua inerte
+PASS Fontes persistem sem JavaScript de atualização
+PASS Estado não expõe chave nem trechos brutos
+PASS Exclusão remove fontes da conversa
+PASS Sem erros JavaScript

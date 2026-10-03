@@ -1,0 +1,71 @@
+{
+  "database": "SQLite WAL / BEGIN IMMEDIATE",
+  "workers": 20,
+  "seconds": 28.95,
+  "results": [
+    {
+      "test": "20 processos creditam depósitos sem perder atualizações",
+      "passed": true
+    },
+    {
+      "test": "Replay concorrente não duplica pagamentos ou saldo",
+      "passed": true
+    },
+    {
+      "test": "Uma referência não quita duas faturas concorrentes",
+      "passed": true
+    },
+    {
+      "test": "20 tentativas de gasto não deixam saldo negativo",
+      "passed": true
+    },
+    {
+      "test": "20 compradores competem por 3 unidades sem overselling",
+      "passed": true
+    },
+    {
+      "test": "20 expirações concorrentes devolvem estoque uma única vez",
+      "passed": true
+    },
+    {
+      "test": "Pagamento e cancelamento concorrentes têm um único vencedor",
+      "passed": true
+    },
+    {
+      "test": "20 gravações concorrentes respeitam quota de 10 MiB e rollback de respostas rejeitadas",
+      "passed": true
+    },
+    {
+      "test": "Fechamentos e respostas concorrentes não ressuscitam chamado encerrado",
+      "passed": true
+    },
+    {
+      "test": "20 chamados simultâneos respeitam quota compartilhada por conta (2 MiB no teste)",
+      "passed": true
+    },
+    {
+      "test": "20 entregas duplicadas do job criam uma só conta no WHM simulado",
+      "passed": true
+    },
+    {
+      "test": "20 solicitações e 20 jobs de suspensão produzem uma mutação remota simulada",
+      "passed": true
+    },
+    {
+      "test": "20 entregas de job aaPanel criam um único site simulado",
+      "passed": true
+    },
+    {
+      "test": "20 entregas Pterodactyl criam um único servidor simulado",
+      "passed": true
+    },
+    {
+      "test": "20 envios com mesma chave de mensagem enfileiram uma inferência e debitam uma cota",
+      "passed": true
+    },
+    {
+      "test": "20 jobs duplicados de IA produzem uma única chamada Ollama simulada",
+      "passed": true
+    }
+  ]
+}

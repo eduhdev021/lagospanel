@@ -1,0 +1,6 @@
+PASS: ZIP extraído em duas pastas isoladas, sem dependências/runtime de origem.
+PASS: Composer --no-dev pelo install.sh e prepare-web.sh.
+PASS: CLI com 13 migrations e zero usuários/produtos/conectores/configuração IA/site.
+PASS: instalação web completa, primeiro administrador e sessão em banco.
+PASS: seis guardas reais do instalador, inclusive recuperação de falha parcial.
+SQLite/PHP 8.4.26. MySQL, SMTP, TLS externo e provedores reais não homologados.

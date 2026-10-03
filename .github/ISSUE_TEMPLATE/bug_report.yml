@@ -1,0 +1,46 @@
+name: Relatar problema
+description: Informe um erro reproduzível no LagosPanel.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: "Não envie tokens, senhas, .env, dados de clientes ou detalhes de vulnerabilidades. Para segurança, procure o mantenedor por canal privado."
+  - type: input
+    id: version
+    attributes:
+      label: Versão do LagosPanel
+      placeholder: "1.0.0 / commit"
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Ambiente
+      description: Sistema, PHP, banco e versão do provedor envolvido. Não informe credenciais.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos para reproduzir
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Resultado esperado e resultado observado
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Mensagem ou log sanitizado
+      description: Remova segredos, URLs com credenciais e informações pessoais antes de enviar.
+      render: text
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacidade
+      options:
+        - label: Revisei o relato e não incluí credenciais nem dados de clientes.
+          required: true

@@ -1,0 +1,132 @@
+PHPUnit 11.5.56 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.26
+Configuration: /home/user/lagospanel-independent/phpunit.xml
+
+...............................................................  63 / 111 ( 56%)
+................................................                111 / 111 (100%)
+
+Time: 00:03.029, Memory: 60.50 MB
+
+Aa Panel (Tests\Feature\AaPanel)
+ ✔ Create signed requests and bind numeric site id
+ ✔ Lifecycle preserves files and never sends database or ftp delete flags
+ ✔ Existing matching site is not adopted
+ ✔ Foreign marker or path blocks remote changes
+ ✔ Uninstalled php prevents creation
+ ✔ Api error is not absence or success
+ ✔ Malformed and saturated lists cannot prove absence
+ ✔ Mutation response alone does not activate
+ ✔ Unrequested resources require review
+ ✔ Timeout does not retry or expose api key
+ ✔ Confirmation uses remote site id not local username
+ ✔ Global switch and payment gate prevent outbound calls
+ ✔ Pause after probe prevents mutation
+ ✔ Aapanel never reveals server login as customer credential
+ ✔ Connector and product validation
+ ✔ Tls redirect policy and signature are enforced
+ ✔ Manual product edit and nonce directory are safe
+
+Native Provisioning (Tests\Feature\NativeProvisioning)
+ ✔ Native creation checks contract and keeps credentials out of url and logs
+ ✔ Snapshot is not rewritten when product package changes
+ ✔ Existing account is never adopted automatically
+ ✔ Identity mismatch blocks mutation
+ ✔ Http 200 with failed metadata is not success
+ ✔ Malformed lookup is not treated as absence
+ ✔ Global switch blocks all native requests
+ ✔ Inactive connector blocks native requests
+ ✔ Changed endpoint is not silently used for existing service
+ ✔ Unpaid account cannot be created even by direct enqueue
+ ✔ Timeout keeps durable secret and does not retry
+ ✔ Post mutation state must match before local activation
+ ✔ Suspend unsuspend and terminate use correct whm fields
+ ✔ Already suspended account does not receive another mutation
+ ✔ Unknown remote username is not used
+ ✔ Reconciliation inspects without changing local service
+ ✔ Manual confirmation after uncertain creation requires authoritative identity
+ ✔ Manual retry only queues and never immediately mutates remote
+ ✔ Existing account blocks creation retry
+ ✔ Reconciliation requires both permissions and explicit acknowledgement
+ ✔ Credential disclosure requires owner password and is not flashed
+ ✔ Credentials require fresh totp and cannot be read when suspended
+ ✔ Connector creation validates origin and never flashes token
+ ✔ Rotation does not change driver or endpoint
+ ✔ Remote termination needs explicit confirmation
+ ✔ Stale worker cannot overwrite a replacement claim
+ ✔ Interrupted claim only moves to review after five minutes
+ ✔ Conflicting operation is rejected instead of silently ignored
+ ✔ Empty native schema roundtrip and downgrade guard
+ ✔ Error state and redirect do not send secrets to another origin
+ ✔ Pausing connector after probe prevents mutation
+ ✔ Whm requests enforce tls and disable redirects
+ ✔ Reference cannot be reused for another service
+ ✔ Unmapped options cannot be charged for a native product
+
+Ollama (Tests\Feature\Ollama)
+ ✔ Admin can save hidden key discover models and select available model
+ ✔ Invalid model cannot be forged and connection rotation clears catalog
+ ✔ Catalog failure is sanitized and does not replace existing models
+ ✔ Readonly integrations cannot change key or query models
+ ✔ Customer cannot access administrative ai settings
+ ✔ Http private network and url credentials are denied by default
+ ✔ Chat uses selected model and stores encrypted text without executing html
+ ✔ Duplicate request and job do not duplicate inference
+ ✔ One pending request per user even across threads
+ ✔ Daily quota survives conversation deletion
+ ✔ Messages require consent and reject oversized input
+ ✔ Other user cannot read send poll or delete thread
+ ✔ Pause or rotation before processing prevents http
+ ✔ Pause during inference prevents late publication
+ ✔ Deletion during inference does not recreate conversation
+ ✔ Tool calls fail closed without retry
+ ✔ History is limited to own thread and successful exchanges
+ ✔ Tls redirect and bearer policy
+ ✔ Config disabled chat keeps human support link and no http
+ ✔ Connection timeout is not logged as raw provider error or retried
+ ✔ Stale queue request is failed before new request and old job cannot send
+ ✔ Same request key with different body conflicts
+
+Pterodactyl (Tests\Feature\Pterodactyl)
+ ✔ Full lifecycle uses exact external identity and nonforce delete
+ ✔ Duplicate delivery does not create twice
+ ✔ Installation is not prematurely active and poll only reads
+ ✔ Stale poll cannot finalize newer execution
+ ✔ Checkout without explicit user mapping rolls back
+ ✔ Invalid and unlimited plan resources are rejected
+ ✔ Owner email mismatch blocks all mutations
+ ✔ Admin remote owner is rejected
+ ✔ Global pause blocks network
+ ✔ Endpoint change blocks network
+ ✔ Wrong remote identity or resources prevents suspend
+ ✔ Uncertain network failure is sanitized without auto retry
+ ✔ Delete requires explicit confirmation and credentials are not exposed
+ ✔ Account mapping is unique and authorized
+ ✔ Manual reconciliation can confirm installed server
+ ✔ Tls policy and malformed 404 cannot prove absence
+ ✔ Failed installation is not activated or recreated by poll
+ ✔ Creation response and readback ids must match
+
+Web And Site (Tests\Feature\WebAndSite)
+ ✔ Any model receives search context without tool calling or key leak
+ ✔ Normal message does not search
+ ✔ Search failure is explicit without fabricated sources
+ ✔ Local inference key is not reused for cloud search
+ ✔ Explicit search consent query limit and enabled flag
+ ✔ Search is idempotent and changing query conflicts
+ ✔ Pause after search prevents inference
+ ✔ Source urls exclude unsafe schemes credentials and local targets
+ ✔ Search key is hidden and requires cloud key for custom origin
+ ✔ Site settings update brand and block public registration
+ ✔ Site configuration permission and stale edit protection
+ ✔ Smtp password is encrypted never rendered and transport requires tls
+ ✔ Long lived configuration restores original mail when switching to inherit
+ ✔ Installer rearm preserves application key and failed database fingerprint
+ ✔ Installer requires https in production
+ ✔ Upload svg is refused and png is served with safe headers
+ ✔ Environment writer preserves password characters and rejects newline injection
+ ✔ Installer is not publicly available by default
+ ✔ Installer refuses existing users without modifying environment
+ ✔ Installer token grant is required and expiry is enforced
+
+OK (111 tests, 440 assertions)

@@ -1,0 +1,35 @@
+PASS HTTP /entrar
+PASS HTTP /painel/suporte
+PASS Chamado urgente com meta de duas horas
+PASS Download preserva conteúdo
+PASS Anexo não pode executar no navegador
+PASS Suporte móvel e nome longo sem overflow
+PASS Histórico individual
+PASS Fechamento remove formulário de resposta
+PASS Reabertura restaura atendimento
+PASS HTTP /entrar
+PASS HTTP /admin/suporte/5
+PASS Atribuição pela interface
+PASS Nota interna identificada
+PASS Equipe pode baixar nota
+PASS Resposta pública limpa prazo
+PASS Atendimento administrativo móvel sem overflow
+PASS HTTP /entrar
+PASS HTTP /admin/suporte?mine=1&priority=urgent
+PASS Filtro por responsável encontra ticket
+PASS HTTP /entrar
+PASS HTTP /admin/suporte/5
+PASS Somente leitura vê notas sem formulários
+PASS RBAC impede alteração por POST
+PASS HTTP /entrar
+PASS Outro cliente não lê chamado
+PASS Outro cliente não baixa anexo
+PASS HTTP /painel
+PASS HTTP /entrar
+PASS HTTP /painel/suporte/5
+PASS Cliente vê resposta mas nunca nota interna
+PASS Dono também não baixa anexo interno
+PASS Administração continua restrita
+PASS Sem exceções JavaScript
+PASS Sem assets ausentes
+34 passed / 0 failed

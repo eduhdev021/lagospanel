@@ -1,0 +1,32 @@
+[
+  {
+    "path": "public/assets/panel.css",
+    "sha256": "994af1735212e1651ce42f3bfaac4ff3380312f7253cbd873ee214a60ad6046d",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/panel.js",
+    "sha256": "afe3644b13040a6715f26e92b1981a6eb610aa4cbae0e29e55113ba91dee1089",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/img/favicon.png",
+    "sha256": "47911953ed220d903a31232856a865a9c5ea52872f1a064cdff23f83bfab88b4",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/img/logo-lagos-solucoes.png",
+    "sha256": "9f1014c6fab2c762d2f97e30c193eb9847a5a63433d04830512acbd2b45ce1ad",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/img/logo-painel-branca.png",
+    "sha256": "7d17459782a83fcc32bbc499dd8bc6b90c4c2d3a67a2b011f245ecf2940eb71c",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/img/logo-painel.png",
+    "sha256": "d5ea7f4534f4fadd0338838245da430bb42685981aee9ec96ce47c92e94c9863",
+    "unchanged": true
+  }
+]

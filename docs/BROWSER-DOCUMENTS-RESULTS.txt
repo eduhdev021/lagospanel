@@ -1,0 +1,29 @@
+warning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.
+PASS HTTP /entrar
+PASS HTTP /painel/faturas/12
+PASS Download é PDF real com nome seguro
+PASS PDF preserva acentos, total e último item em múltiplas páginas
+PASS PDF identifica documento não fiscal e não executa HTML
+PASS Renderização de todas as páginas PDF
+PASS PDF autenticado não permite cache
+PASS PDF de outro titular retorna 404
+PASS HTTP /entrar
+PASS HTTP /admin/suporte/modelos
+PASS Modelo salvo pela equipe
+PASS HTTP /admin/suporte/6
+PASS Inserção preserva rascunho e trata HTML como texto
+PASS Inserção não envia mensagem
+PASS Atendimento sem overflow móvel
+PASS Envio explícito registra resposta
+PASS HTTP /admin/suporte/modelos/2/editar
+PASS HTTP /admin/suporte/6
+PASS Modelo desativado sai do seletor
+PASS URL antiga não carrega modelo desativado
+PASS HTTP /entrar
+PASS HTTP /admin/suporte/modelos
+PASS Equipe somente leitura não recebe formulário
+PASS Permissão de suporte não autoriza PDF financeiro
+PASS HTTP /entrar
+PASS HTTP /painel/suporte/6
+PASS Cliente recebe texto escapado, sem biblioteca
+PASS Sem erros JavaScript

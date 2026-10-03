@@ -1,0 +1,7 @@
+@extends('layouts.panel')
+@section('title', 'Meu carrinho')
+@section('content')
+<div class="card"><h2>Revise seu pedido</h2><p class="muted">O estoque só é reservado ao finalizar. Valores e opções são conferidos no servidor.</p>@forelse($items as $item)<div class="ticket-message"><h3>{{ $item->product->name }}</h3>@if(isset($quotes[$item->id]['error']))<p class="alert alert-danger">{{ $quotes[$item->id]['error'] }}</p>@else @foreach($quotes[$item->id]['configuration'] as $c)<p>{{ $c['name'] }}: {{ $c['label'] }}</p>@endforeach <strong>{{ brl($quotes[$item->id]['total_minor']) }}</strong>@endif
+<div class="payment-actions"><form class="inline-form" method="post" action="{{ route('cart.update',$item) }}">@csrf<input type="number" name="quantity" min="1" max="10" value="{{ $item->quantity }}" aria-label="Quantidade"><button class="btn btn-ghost btn-sm">Atualizar</button></form><form method="post" action="{{ route('cart.remove',$item) }}">@csrf<button class="btn btn-danger btn-sm">Remover</button></form></div></div>@empty<p>Seu carrinho está vazio.</p>@endforelse
+@if($items->isNotEmpty())<h2>Subtotal: {{ brl($total) }}</h2><form method="post" action="{{ route('cart.checkout') }}">@csrf<input type="hidden" name="request_key" value="{{ (string) Str::uuid() }}"><div class="field"><label>Cupom</label><input name="coupon" type="text" maxlength="40"></div><button class="btn btn-primary">Finalizar pedido</button></form>@endif <br><a href="{{ route('store') }}">Continuar comprando →</a></div>
+@endsection

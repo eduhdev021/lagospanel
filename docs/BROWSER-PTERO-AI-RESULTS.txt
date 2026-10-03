@@ -1,0 +1,33 @@
+PASS HTTP /entrar
+PASS HTTP /admin/integracoes
+PASS Pterodactyl cadastrado com chave oculta
+PASS Tela de vínculos acessível pelo ADM
+PASS Conta remota vinculada
+PASS HTTP /admin/produtos
+PASS Plano Pterodactyl salvo
+PASS HTTP /entrar
+PASS HTTP /loja
+PASS HTTP /loja?page=2
+PASS Pedido de jogo gera cobrança correta
+PASS HTTP /entrar
+PASS HTTP /admin/faturas
+PASS HTTP /admin/servicos
+PASS Instalação assíncrona não ativa prematuramente
+PASS Consulta posterior ativa sem criar novamente
+PASS Pterodactyl suspended
+PASS Pterodactyl active
+PASS Pterodactyl cancelled
+PASS HTTP /admin/integracoes/ollama
+PASS Chave Ollama salva sem ser revelada
+PASS Catálogo consultado via controlador com transporte simulado
+PASS Modelo selecionado e chat habilitado
+PASS HTTP /entrar
+PASS Chat explica IA, privacidade e suporte humano
+PASS Mensagem aparece na fila
+PASS Worker responde com modelo configurado
+PASS Atualização automática segura sem executar HTML
+PASS Chat sem overflow móvel
+PASS Exclusão disponível ao titular
+PASS Conversa excluída indisponível
+PASS Cliente não acessa chave/configuração ADM
+PASS Sem erros JavaScript

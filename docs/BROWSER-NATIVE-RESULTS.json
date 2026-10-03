@@ -1,0 +1,122 @@
+{
+  "results": [
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/integracoes",
+      "passed": true
+    },
+    {
+      "test": "Driver WHM cadastrado sem exibir token",
+      "passed": true
+    },
+    {
+      "test": "Bloqueio global visível",
+      "passed": true
+    },
+    {
+      "test": "Integrações sem overflow móvel",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/produtos",
+      "passed": true
+    },
+    {
+      "test": "Pacote nativo salvo",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /loja",
+      "passed": true
+    },
+    {
+      "test": "HTTP /loja?page=2",
+      "passed": true
+    },
+    {
+      "test": "Pedido nativo gera fatura",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/faturas",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/servicos",
+      "passed": true
+    },
+    {
+      "test": "Worker nativo ativa serviço via contrato simulado",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/servicos",
+      "passed": true
+    },
+    {
+      "test": "Cliente recupera credencial inicial autenticado",
+      "passed": true
+    },
+    {
+      "test": "Credenciais sem overflow móvel",
+      "passed": true
+    },
+    {
+      "test": "Link aponta para cPanel configurado",
+      "passed": true
+    },
+    {
+      "test": "Senha não aparece na listagem",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/servicos",
+      "passed": true
+    },
+    {
+      "test": "Ciclo remoto suspended",
+      "passed": true
+    },
+    {
+      "test": "Ciclo remoto active",
+      "passed": true
+    },
+    {
+      "test": "Ciclo remoto cancelled",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/operacoes",
+      "passed": true
+    },
+    {
+      "test": "Sem exceções JavaScript",
+      "passed": true
+    },
+    {
+      "test": "Sem assets ausentes",
+      "passed": true
+    }
+  ],
+  "js_errors": [],
+  "failed_assets": []
+}

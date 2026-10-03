@@ -1,0 +1,30 @@
+{
+    "results": [
+        {
+            "test": "Existing real administrator blocks preparation without changing .env",
+            "passed": true
+        },
+        {
+            "test": "Unknown nonempty database is not migrated or deleted",
+            "passed": true
+        },
+        {
+            "test": "Migration failure retains own fingerprint, zero users and original environment",
+            "passed": true
+        },
+        {
+            "test": "Rearming expired partial installation preserves database identity",
+            "passed": true
+        },
+        {
+            "test": "Retry completes partial real migrations with one administrator",
+            "passed": true
+        },
+        {
+            "test": "Duplicate finish cannot overwrite environment or create another administrator",
+            "passed": true
+        }
+    ],
+    "database": "real SQLite, isolated installation",
+    "MySQL": "not homologated"
+}

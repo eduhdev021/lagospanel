@@ -1,0 +1,222 @@
+{
+  "results": [
+    {
+      "test": "HTTP /loja",
+      "passed": true
+    },
+    {
+      "test": "Catálogo renderiza produtos",
+      "passed": true
+    },
+    {
+      "test": "POST sem CSRF é bloqueado",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "Login cliente@lagos.test",
+      "passed": true
+    },
+    {
+      "test": "HTTP /loja",
+      "passed": true
+    },
+    {
+      "test": "Pedido abre fatura",
+      "passed": true
+    },
+    {
+      "test": "Preço calculado no servidor",
+      "passed": true
+    },
+    {
+      "test": "Saldo insuficiente não paga",
+      "passed": true
+    },
+    {
+      "test": "Cliente não acessa admin",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/suporte",
+      "passed": true
+    },
+    {
+      "test": "Ticket criado",
+      "passed": true
+    },
+    {
+      "test": "XSS não executa",
+      "passed": true
+    },
+    {
+      "test": "XSS aparece como texto",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow horizontal 390",
+      "passed": true
+    },
+    {
+      "test": "Menu móvel abre 390",
+      "passed": true
+    },
+    {
+      "test": "Esc fecha menu 390",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel",
+      "passed": true
+    },
+    {
+      "test": "Sem overflow horizontal 768",
+      "passed": true
+    },
+    {
+      "test": "Menu móvel abre 768",
+      "passed": true
+    },
+    {
+      "test": "Esc fecha menu 768",
+      "passed": true
+    },
+    {
+      "test": "Tema escuro",
+      "passed": true
+    },
+    {
+      "test": "Tema persiste",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "Login admin@lagos.test",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/produtos",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/faturas",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/servicos",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/clientes",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/suporte",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/cupons",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/integracoes",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/operacoes",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/auditoria",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/faturas",
+      "passed": true
+    },
+    {
+      "test": "Admin registra recebimento",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/servicos",
+      "passed": true
+    },
+    {
+      "test": "Admin ativa serviço manual",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/produtos",
+      "passed": true
+    },
+    {
+      "test": "Admin cria produto",
+      "passed": true
+    },
+    {
+      "test": "HTTP /registrar",
+      "passed": true
+    },
+    {
+      "test": "Cadastro exige confirmação",
+      "passed": true
+    },
+    {
+      "test": "Link confirma conta",
+      "passed": true
+    },
+    {
+      "test": "Outra conta não lê fatura",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel",
+      "passed": true
+    },
+    {
+      "test": "HTTP /esqueci-senha",
+      "passed": true
+    },
+    {
+      "test": "Recuperação retorna mensagem genérica",
+      "passed": true
+    },
+    {
+      "test": "Redefinição funciona",
+      "passed": true
+    },
+    {
+      "test": "Token de redefinição não reutilizável",
+      "passed": true
+    },
+    {
+      "test": "Nenhuma exceção JavaScript",
+      "passed": true
+    },
+    {
+      "test": "Nenhum recurso visual ausente",
+      "passed": true
+    }
+  ],
+  "js_errors": [],
+  "failed_assets": []
+}

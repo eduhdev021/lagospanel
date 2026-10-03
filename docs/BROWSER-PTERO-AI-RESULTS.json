@@ -1,0 +1,138 @@
+{
+  "results": [
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/integracoes",
+      "passed": true
+    },
+    {
+      "test": "Pterodactyl cadastrado com chave oculta",
+      "passed": true
+    },
+    {
+      "test": "Tela de vínculos acessível pelo ADM",
+      "passed": true
+    },
+    {
+      "test": "Conta remota vinculada",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/produtos",
+      "passed": true
+    },
+    {
+      "test": "Plano Pterodactyl salvo",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /loja",
+      "passed": true
+    },
+    {
+      "test": "HTTP /loja?page=2",
+      "passed": true
+    },
+    {
+      "test": "Pedido de jogo gera cobrança correta",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/faturas",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/servicos",
+      "passed": true
+    },
+    {
+      "test": "Instalação assíncrona não ativa prematuramente",
+      "passed": true
+    },
+    {
+      "test": "Consulta posterior ativa sem criar novamente",
+      "passed": true
+    },
+    {
+      "test": "Pterodactyl suspended",
+      "passed": true
+    },
+    {
+      "test": "Pterodactyl active",
+      "passed": true
+    },
+    {
+      "test": "Pterodactyl cancelled",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/integracoes/ollama",
+      "passed": true
+    },
+    {
+      "test": "Chave Ollama salva sem ser revelada",
+      "passed": true
+    },
+    {
+      "test": "Catálogo consultado via controlador com transporte simulado",
+      "passed": true
+    },
+    {
+      "test": "Modelo selecionado e chat habilitado",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "Chat explica IA, privacidade e suporte humano",
+      "passed": true
+    },
+    {
+      "test": "Mensagem aparece na fila",
+      "passed": true
+    },
+    {
+      "test": "Worker responde com modelo configurado",
+      "passed": true
+    },
+    {
+      "test": "Atualização automática segura sem executar HTML",
+      "passed": true
+    },
+    {
+      "test": "Chat sem overflow móvel",
+      "passed": true
+    },
+    {
+      "test": "Exclusão disponível ao titular",
+      "passed": true
+    },
+    {
+      "test": "Conversa excluída indisponível",
+      "passed": true
+    },
+    {
+      "test": "Cliente não acessa chave/configuração ADM",
+      "passed": true
+    },
+    {
+      "test": "Sem erros JavaScript",
+      "passed": true
+    }
+  ],
+  "javascript_errors": [],
+  "external_providers": "Simulados; catálogo via CLI controller + Http::fake, lifecycle e inferência via workers interceptados"
+}

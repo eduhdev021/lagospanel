@@ -1,0 +1,1 @@
+(function(){'use strict';try{if(localStorage.getItem('lagos-theme')==='dark')document.body.classList.add('theme-dark');document.querySelectorAll('[data-theme-toggle]').forEach(function(el){el.addEventListener('click',function(){localStorage.setItem('lagos-theme',document.body.classList.contains('theme-dark')?'dark':'light');});});}catch(e){} })();

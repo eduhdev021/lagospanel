@@ -1,0 +1,1 @@
+@foreach($files as $file)<p><a class="btn btn-ghost btn-sm" style="max-width:100%;white-space:normal;overflow-wrap:anywhere" href="{{ route($admin?'admin.tickets.download':'tickets.download',$file) }}">Baixar {{ $file->filename }}</a> <small>{{ number_format($file->size/1024,1,',','.') }} KiB</small></p>@endforeach

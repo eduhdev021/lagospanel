@@ -1,0 +1,109 @@
+{
+  "results": [
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/integracoes",
+      "passed": true
+    },
+    {
+      "test": "aaPanel cadastrado sem campos WHM",
+      "passed": true
+    },
+    {
+      "test": "Chave aaPanel não exibida",
+      "passed": true
+    },
+    {
+      "test": "Integrações móveis sem overflow",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/produtos",
+      "passed": true
+    },
+    {
+      "test": "Produto aaPanel salvo",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /loja",
+      "passed": true
+    },
+    {
+      "test": "HTTP /loja?page=2",
+      "passed": true
+    },
+    {
+      "test": "Fatura aaPanel pelo preço contratado",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/faturas",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/servicos",
+      "passed": true
+    },
+    {
+      "test": "Criação de site confirmada pelo worker",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/servicos",
+      "passed": true
+    },
+    {
+      "test": "Cliente vê site gerenciado sem login de administrador",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/servicos",
+      "passed": true
+    },
+    {
+      "test": "aaPanel suspended",
+      "passed": true
+    },
+    {
+      "test": "aaPanel active",
+      "passed": true
+    },
+    {
+      "test": "Encerramento informa preservação de arquivos",
+      "passed": true
+    },
+    {
+      "test": "aaPanel cancelled",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/operacoes",
+      "passed": true
+    },
+    {
+      "test": "Sem exceções JavaScript",
+      "passed": true
+    }
+  ],
+  "js_errors": []
+}

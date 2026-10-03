@@ -1,0 +1,142 @@
+{
+  "results": [
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/suporte",
+      "passed": true
+    },
+    {
+      "test": "Chamado urgente com meta de duas horas",
+      "passed": true
+    },
+    {
+      "test": "Download preserva conteúdo",
+      "passed": true
+    },
+    {
+      "test": "Anexo não pode executar no navegador",
+      "passed": true
+    },
+    {
+      "test": "Suporte móvel e nome longo sem overflow",
+      "passed": true
+    },
+    {
+      "test": "Histórico individual",
+      "passed": true
+    },
+    {
+      "test": "Fechamento remove formulário de resposta",
+      "passed": true
+    },
+    {
+      "test": "Reabertura restaura atendimento",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/suporte/5",
+      "passed": true
+    },
+    {
+      "test": "Atribuição pela interface",
+      "passed": true
+    },
+    {
+      "test": "Nota interna identificada",
+      "passed": true
+    },
+    {
+      "test": "Equipe pode baixar nota",
+      "passed": true
+    },
+    {
+      "test": "Resposta pública limpa prazo",
+      "passed": true
+    },
+    {
+      "test": "Atendimento administrativo móvel sem overflow",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/suporte?mine=1&priority=urgent",
+      "passed": true
+    },
+    {
+      "test": "Filtro por responsável encontra ticket",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/suporte/5",
+      "passed": true
+    },
+    {
+      "test": "Somente leitura vê notas sem formulários",
+      "passed": true
+    },
+    {
+      "test": "RBAC impede alteração por POST",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "Outro cliente não lê chamado",
+      "passed": true
+    },
+    {
+      "test": "Outro cliente não baixa anexo",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/suporte/5",
+      "passed": true
+    },
+    {
+      "test": "Cliente vê resposta mas nunca nota interna",
+      "passed": true
+    },
+    {
+      "test": "Dono também não baixa anexo interno",
+      "passed": true
+    },
+    {
+      "test": "Administração continua restrita",
+      "passed": true
+    },
+    {
+      "test": "Sem exceções JavaScript",
+      "passed": true
+    },
+    {
+      "test": "Sem assets ausentes",
+      "passed": true
+    }
+  ],
+  "js_errors": [],
+  "failed_assets": []
+}

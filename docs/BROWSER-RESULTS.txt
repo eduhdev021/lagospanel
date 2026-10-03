@@ -1,0 +1,55 @@
+PASS HTTP /loja
+PASS Catálogo renderiza produtos
+PASS POST sem CSRF é bloqueado
+PASS HTTP /entrar
+PASS Login cliente@lagos.test
+PASS HTTP /loja
+PASS Pedido abre fatura
+PASS Preço calculado no servidor
+PASS Saldo insuficiente não paga
+PASS Cliente não acessa admin
+PASS HTTP /painel/suporte
+PASS Ticket criado
+PASS XSS não executa
+PASS XSS aparece como texto
+PASS HTTP /painel
+PASS HTTP /painel
+PASS Sem overflow horizontal 390
+PASS Menu móvel abre 390
+PASS Esc fecha menu 390
+PASS HTTP /painel
+PASS Sem overflow horizontal 768
+PASS Menu móvel abre 768
+PASS Esc fecha menu 768
+PASS Tema escuro
+PASS Tema persiste
+PASS HTTP /entrar
+PASS Login admin@lagos.test
+PASS HTTP /admin
+PASS HTTP /admin/produtos
+PASS HTTP /admin/faturas
+PASS HTTP /admin/servicos
+PASS HTTP /admin/clientes
+PASS HTTP /admin/suporte
+PASS HTTP /admin/cupons
+PASS HTTP /admin/integracoes
+PASS HTTP /admin/operacoes
+PASS HTTP /admin/auditoria
+PASS HTTP /admin/faturas
+PASS Admin registra recebimento
+PASS HTTP /admin/servicos
+PASS Admin ativa serviço manual
+PASS HTTP /admin/produtos
+PASS Admin cria produto
+PASS HTTP /registrar
+PASS Cadastro exige confirmação
+PASS Link confirma conta
+PASS Outra conta não lê fatura
+PASS HTTP /painel
+PASS HTTP /esqueci-senha
+PASS Recuperação retorna mensagem genérica
+PASS Redefinição funciona
+PASS Token de redefinição não reutilizável
+PASS Nenhuma exceção JavaScript
+PASS Nenhum recurso visual ausente
+54 passed / 0 failed

@@ -1,0 +1,9 @@
+@extends('layouts.panel')
+@section('title', 'Serviços')
+@section('content')
+@forelse($services as $s)<div class="card"><div class="row-between"><h3>#{{ $s->id }} — {{ $s->name }}</h3><span class="badge badge-{{ $s->status }}">{{ status_label($s->status) }}</span></div><p>{{ $s->user->name }} · {{ $s->connector?->name??'Ativação manual' }} · {{ brl($s->price_minor) }}</p>@if($s->cancellation_requested_at)<p class="alert alert-warning">Cancelamento solicitado: {{ $s->cancellation_reason }}</p>@endif @if($s->status!=='cancelled')@if(auth()->user()->hasPermission('services.manage'))
+<form method="post" action="{{ route('admin.services.action',$s) }}">@csrf<div class="form-grid"><div class="field"><label>Ação</label><select name="status"><option value="active">Ativar / reativar</option><option value="suspended">Suspender</option><option value="cancelled">Encerrar serviço</option></select></div><div class="field"><label>Justificativa / referência</label><input name="note" type="text" required minlength="5" maxlength="500"></div></div>@if(in_array($s->connector?->driver,['cpanel','aapanel','pterodactyl'],true))<label><input type="checkbox" name="confirm_termination" value="1"> {{ $s->connector->driver==='aapanel'?'Autorizo remover a configuração do site aaPanel, preservando arquivos.':'Ao encerrar, autorizo a exclusão permanente do recurso e dos dados no provedor.' }}</label><p class="muted" style="overflow-wrap:anywhere">@if($s->connector->driver==='pterodactyl')Servidor: {{ $s->remote_id??'aguardando instalação' }} · Egg: {{ $s->provisioning['egg']??'—' }} · {{ $s->provisioning['external_id']??'Sem snapshot' }}@else Conta: {{ $s->native_username }} · {{ $s->provisioning['domain']??'Sem snapshot' }}@endif</p>@endif<button class="btn btn-ghost btn-sm">Confirmar ação</button></form>
+@endif
+@endif</div>@empty<div class="card">Nenhum serviço.</div>@endforelse
+{{ $services->links('layouts.pagination') }}
+@endsection

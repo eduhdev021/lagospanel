@@ -1,0 +1,1 @@
+<div class="table-wrap"><table><thead><tr><th>Data</th><th>Evento</th><th>Objeto</th><th>Ator</th></tr></thead><tbody>@forelse($events as $event)<tr><td>{{ $event->created_at }}</td><td>{{ $event->event }}</td><td>{{ $event->subject }}</td><td>{{ $event->user_id??'Sistema' }}</td></tr>@empty<tr><td colspan="4">Nenhum evento.</td></tr>@endforelse</tbody></table></div>

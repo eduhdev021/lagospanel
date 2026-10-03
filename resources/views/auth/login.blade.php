@@ -1,0 +1,5 @@
+@extends('layouts.public')
+@section('title', 'Entrar')
+@section('content')
+<div class="auth-wrap"><div class="auth-card"><h1 class="auth-title">Bem-vindo de volta</h1><p class="auth-sub">Entre na sua conta LagosPanel.</p><form action="{{ route('login') }}" method="post">@csrf<div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="username"></div><div class="field"><label for="password">Senha</label><input id="password" name="password" type="password" required autocomplete="current-password"></div><div class="field check-line"><input id="remember" type="checkbox" name="remember" value="1"><label for="remember">Manter conectado</label></div><button class="btn btn-primary btn-block">Entrar</button></form><p class="auth-alt"><a href="{{ route('password.request') }}">Esqueci minha senha</a></p><p class="auth-alt">Ainda não tem conta? <a href="{{ route('register') }}">Cadastre-se</a></p></div></div>
+@endsection

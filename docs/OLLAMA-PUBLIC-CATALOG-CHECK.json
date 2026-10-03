@@ -1,0 +1,9 @@
+{
+    "endpoint": "https:\/\/ollama.com\/api\/tags",
+    "transport": "real HTTPS through LagosPanel Ollama driver",
+    "authentication": "none, public catalog only",
+    "model_count": 17,
+    "result": "passed",
+    "inference_tested": false,
+    "search_tested": false
+}

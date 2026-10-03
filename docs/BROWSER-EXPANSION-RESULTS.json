@@ -1,0 +1,214 @@
+{
+  "results": [
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/produtos",
+      "passed": true
+    },
+    {
+      "test": "Produto criado: Alpha2 Config 9eb286cd",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/produtos",
+      "passed": true
+    },
+    {
+      "test": "Produto criado: Alpha2 Base 9eb286cd",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/produtos/11/opcoes",
+      "passed": true
+    },
+    {
+      "test": "Grupo de opção criado",
+      "passed": true
+    },
+    {
+      "test": "Valor configurável cadastrado",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/cupons",
+      "passed": true
+    },
+    {
+      "test": "Cupom fixo criado",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/conhecimento",
+      "passed": true
+    },
+    {
+      "test": "Artigo publicado",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/equipe",
+      "passed": true
+    },
+    {
+      "test": "Função granular criada",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/equipe?page=1",
+      "passed": true
+    },
+    {
+      "test": "Função atribuída",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /loja",
+      "passed": true
+    },
+    {
+      "test": "Item no carrinho 11",
+      "passed": true
+    },
+    {
+      "test": "HTTP /loja",
+      "passed": true
+    },
+    {
+      "test": "Item no carrinho 12",
+      "passed": true
+    },
+    {
+      "test": "Subtotal multiproduto correto",
+      "passed": true
+    },
+    {
+      "test": "Carrinho móvel sem overflow",
+      "passed": true
+    },
+    {
+      "test": "Cupom e opções calculados na fatura",
+      "passed": true
+    },
+    {
+      "test": "Configuração aparece na fatura",
+      "passed": true
+    },
+    {
+      "test": "Prazo de reserva visível",
+      "passed": true
+    },
+    {
+      "test": "Cancelamento antes do pagamento",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/api",
+      "passed": true
+    },
+    {
+      "test": "Token exibido após criação",
+      "passed": true
+    },
+    {
+      "test": "API aceita token e retorna dados",
+      "passed": true
+    },
+    {
+      "test": "API não permite escopo não concedido",
+      "passed": true
+    },
+    {
+      "test": "Token não reaparece após recarregar",
+      "passed": true
+    },
+    {
+      "test": "Revogação efetiva",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/faturas",
+      "passed": true
+    },
+    {
+      "test": "Operador somente leitura sem botão financeiro",
+      "passed": true
+    },
+    {
+      "test": "Menu não exibe produtos administrativos",
+      "passed": true
+    },
+    {
+      "test": "Permissão bloqueia POST com CSRF válido",
+      "passed": true
+    },
+    {
+      "test": "Operador bloqueado nas integrações",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/produtos/11/editar",
+      "passed": true
+    },
+    {
+      "test": "Cancelamento restitui estoque",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/relatorios",
+      "passed": true
+    },
+    {
+      "test": "CSV de faturas é baixado",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/conciliacao",
+      "passed": true
+    },
+    {
+      "test": "Administração móvel sem overflow",
+      "passed": true
+    },
+    {
+      "test": "HTTP /conhecimento?q=9eb286cd",
+      "passed": true
+    },
+    {
+      "test": "Busca abre artigo publicado",
+      "passed": true
+    },
+    {
+      "test": "Artigo escapa HTML",
+      "passed": true
+    },
+    {
+      "test": "Sem exceções JavaScript",
+      "passed": true
+    },
+    {
+      "test": "Sem assets ausentes",
+      "passed": true
+    }
+  ],
+  "js_errors": [],
+  "failed_assets": []
+}

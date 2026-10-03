@@ -1,0 +1,2 @@
+<p><small>Prioridade: {{ \App\Services\SupportDesk::LABELS[$t->priority] ?? $t->priority }} · Meta de resposta: {{ $t->sla_hours }} horas corridas</small></p>
+@if($t->response_due_at)<p><span class="badge {{ $t->response_due_at->isPast()?'badge-overdue':'' }}">{{ $t->response_due_at->isPast()?'Prazo ultrapassado':'Resposta prevista' }}: {{ $t->response_due_at->format('d/m/Y H:i') }} UTC</span></p>@endif

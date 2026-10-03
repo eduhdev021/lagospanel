@@ -1,0 +1,17 @@
+LagosPanel 1.0.0-alpha.7 — instalação limpa do ZIP em diretório isolado.
+PHP 8.4.26 / Composer 2.10.3 / SQLite / ambiente local.
+
+PASS: dependências reinstaladas pelo composer.lock, sem vendor pré-copiado.
+PASS: scripts/install.sh -- composer --no-dev; chave gerada somente quando vazia.
+PASS: banco SQLite novo; doze migrations aplicadas.
+PASS: templates Blade compilados.
+PASS: lagos:doctor (APP_KEY, banco, fila persistente e autoload).
+PASS: config:cache e route:cache.
+PASS: rollback/reaplicação da migration Pterodactyl/IA no banco vazio isolado.
+PASS: HTTP /loja=200 pelo kernel; users=0; versão 1.0.0-alpha.7.
+PASS: chamadas nativas desabilitadas por padrão.
+PASS: ai_settings=0 e pterodactyl_accounts=0; nenhuma chave, conta remota ou IA pré-habilitada.
+PASS: PDF %PDF- de regressão gerado com dependências de produção; dados fictícios em memória, sem persistir usuário/fatura.
+
+Empacotamento final: somente relatórios de entrega atualizados após a instalação; fontes executáveis do ZIP final comparadas byte a byte à instalação validada.
+Não é restore operacional nem homologação Pterodactyl/Wings/Ollama/aaPanel/WHM, TLS, SMTP, jogos ou MySQL/MariaDB.

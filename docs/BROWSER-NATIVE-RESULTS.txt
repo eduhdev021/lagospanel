@@ -1,0 +1,30 @@
+PASS HTTP /entrar
+PASS HTTP /admin/integracoes
+PASS Driver WHM cadastrado sem exibir token
+PASS Bloqueio global visível
+PASS Integrações sem overflow móvel
+PASS HTTP /admin/produtos
+PASS Pacote nativo salvo
+PASS HTTP /entrar
+PASS HTTP /loja
+PASS HTTP /loja?page=2
+PASS Pedido nativo gera fatura
+PASS HTTP /entrar
+PASS HTTP /admin/faturas
+PASS HTTP /admin/servicos
+PASS Worker nativo ativa serviço via contrato simulado
+PASS HTTP /entrar
+PASS HTTP /painel/servicos
+PASS Cliente recupera credencial inicial autenticado
+PASS Credenciais sem overflow móvel
+PASS Link aponta para cPanel configurado
+PASS Senha não aparece na listagem
+PASS HTTP /entrar
+PASS HTTP /admin/servicos
+PASS Ciclo remoto suspended
+PASS Ciclo remoto active
+PASS Ciclo remoto cancelled
+PASS HTTP /admin/operacoes
+PASS Sem exceções JavaScript
+PASS Sem assets ausentes
+29 passed / 0 failed

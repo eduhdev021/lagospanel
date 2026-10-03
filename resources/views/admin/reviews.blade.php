@@ -1,0 +1,7 @@
+@extends('layouts.panel')
+@section('title','Conciliação de recebimentos')
+@section('content')
+<div class="card"><p>Pagamentos confirmados pelo provedor que não puderam ser aplicados automaticamente. Confira recebimento, fatura e eventual devolução no provedor antes de encerrar a análise.</p><p class="muted">Encerrar uma análise não quita faturas, não credita saldo e não executa estornos. O retorno do webhook permanece com erro para permitir novas tentativas do provedor.</p></div>
+@forelse($reviews as $review)<div class="card"><h3>#{{ $review->id }} · {{ $review->gateway }} · {{ $review->status==='open'?'Análise pendente':'Análise encerrada' }}</h3><p>Referência: {{ $review->reference }} · Fatura informada: {{ $review->provider_invoice_ref }}</p><p>{{ $review->currency }} {{ number_format($review->amount_minor/100,2,',','.') }}</p><p class="preserve">{{ $review->reason }}</p>@if($review->status==='open'&&auth()->user()->hasPermission('billing.manage'))<form method="post" action="{{ route('admin.reviews.resolve',$review) }}">@csrf<div class="field"><label>Resultado e referência da conferência externa</label><textarea name="resolution" required minlength="10" maxlength="1000"></textarea></div><button class="btn btn-ghost btn-sm">Registrar conclusão manual</button></form>@else<p class="preserve">{{ $review->resolution }}</p>@endif</div>@empty<div class="card">Nenhum recebimento pendente de análise.</div>@endforelse
+{{ $reviews->links('layouts.pagination') }}
+@endsection

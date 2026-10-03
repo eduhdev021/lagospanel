@@ -1,0 +1,90 @@
+{
+  "results": [
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/configuracoes",
+      "passed": true
+    },
+    {
+      "test": "Nome, cadastro e logo salvos pelo ADM",
+      "passed": true
+    },
+    {
+      "test": "Logo é recurso local com MIME seguro",
+      "passed": true
+    },
+    {
+      "test": "Configurações sem overflow móvel",
+      "passed": true
+    },
+    {
+      "test": "Teste de e-mail com modo log é explícito",
+      "passed": true
+    },
+    {
+      "test": "Cadastro desativado também no servidor",
+      "passed": true
+    },
+    {
+      "test": "Marca e contato aparecem na loja, sem convite de cadastro",
+      "passed": true
+    },
+    {
+      "test": "Configuração reversível sem trocar assets",
+      "passed": true
+    },
+    {
+      "test": "HTTP /admin/integracoes/ollama",
+      "passed": true
+    },
+    {
+      "test": "Pesquisa habilitada com chave oculta",
+      "passed": true
+    },
+    {
+      "test": "HTTP /entrar",
+      "passed": true
+    },
+    {
+      "test": "HTTP /painel/chat",
+      "passed": true
+    },
+    {
+      "test": "Pesquisa tem consulta e consentimento próprios",
+      "passed": true
+    },
+    {
+      "test": "Harness pesquisa e gera resposta em fila",
+      "passed": true
+    },
+    {
+      "test": "Fontes da busca aparecem com URL e proteção de referência",
+      "passed": true
+    },
+    {
+      "test": "HTML do modelo continua inerte",
+      "passed": true
+    },
+    {
+      "test": "Fontes persistem sem JavaScript de atualização",
+      "passed": true
+    },
+    {
+      "test": "Estado não expõe chave nem trechos brutos",
+      "passed": true
+    },
+    {
+      "test": "Exclusão remove fontes da conversa",
+      "passed": true
+    },
+    {
+      "test": "Sem erros JavaScript",
+      "passed": true
+    }
+  ],
+  "javascript_errors": [],
+  "external_network": "simulated search and inference; log mail"
+}

@@ -1,0 +1,27 @@
+PASS HTTP /entrar
+PASS HTTP /admin/integracoes
+PASS aaPanel cadastrado sem campos WHM
+PASS Chave aaPanel não exibida
+PASS Integrações móveis sem overflow
+PASS HTTP /admin/produtos
+PASS Produto aaPanel salvo
+PASS HTTP /entrar
+PASS HTTP /loja
+PASS HTTP /loja?page=2
+PASS Fatura aaPanel pelo preço contratado
+PASS HTTP /entrar
+PASS HTTP /admin/faturas
+PASS HTTP /admin/servicos
+PASS Criação de site confirmada pelo worker
+PASS HTTP /entrar
+PASS HTTP /painel/servicos
+PASS Cliente vê site gerenciado sem login de administrador
+PASS HTTP /entrar
+PASS HTTP /admin/servicos
+PASS aaPanel suspended
+PASS aaPanel active
+PASS Encerramento informa preservação de arquivos
+PASS aaPanel cancelled
+PASS HTTP /admin/operacoes
+PASS Sem exceções JavaScript
+26 passed / 0 failed

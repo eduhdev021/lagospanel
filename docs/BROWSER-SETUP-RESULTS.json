@@ -1,0 +1,67 @@
+{
+  "results": [
+    {
+      "test": "Site fechado durante instalação",
+      "passed": true
+    },
+    {
+      "test": "Assistente exige chave privada",
+      "passed": true
+    },
+    {
+      "test": "CSRF bloqueia conclusão sem sessão",
+      "passed": true
+    },
+    {
+      "test": "Chave autoriza etapas sem ir na URL",
+      "passed": true
+    },
+    {
+      "test": "Instalador sem overflow móvel",
+      "passed": true
+    },
+    {
+      "test": "Instalação web concluída",
+      "passed": true
+    },
+    {
+      "test": "Senha não aparece no resultado",
+      "passed": true
+    },
+    {
+      "test": "Instalador bloqueado após concluir",
+      "passed": true
+    },
+    {
+      "test": "Chave consumida e bloqueio persistente",
+      "passed": true
+    },
+    {
+      "test": "Administrador criado consegue entrar",
+      "passed": true
+    },
+    {
+      "test": "Configuração do site disponível após instalar",
+      "passed": true
+    },
+    {
+      "test": "13 migrations e somente um administrador",
+      "passed": true
+    },
+    {
+      "test": "Senha persistida como hash, não texto",
+      "passed": true
+    },
+    {
+      "test": "Sessão final funciona com banco",
+      "passed": true
+    },
+    {
+      "test": "Sem erros JavaScript no instalador",
+      "passed": true
+    }
+  ],
+  "javascript_errors": [],
+  "database": "SQLite real, pasta de instalação isolada",
+  "production_TLS": "não homologado; HTTP loopback apenas no teste"
+}

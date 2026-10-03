@@ -1,0 +1,53 @@
+PASS HTTP /entrar
+PASS HTTP /admin/produtos
+PASS Produto criado: Alpha2 Config 9eb286cd
+PASS HTTP /admin/produtos
+PASS Produto criado: Alpha2 Base 9eb286cd
+PASS HTTP /admin/produtos/11/opcoes
+PASS Grupo de opção criado
+PASS Valor configurável cadastrado
+PASS HTTP /admin/cupons
+PASS Cupom fixo criado
+PASS HTTP /admin/conhecimento
+PASS Artigo publicado
+PASS HTTP /admin/equipe
+PASS Função granular criada
+PASS HTTP /admin/equipe?page=1
+PASS Função atribuída
+PASS HTTP /entrar
+PASS HTTP /loja
+PASS Item no carrinho 11
+PASS HTTP /loja
+PASS Item no carrinho 12
+PASS Subtotal multiproduto correto
+PASS Carrinho móvel sem overflow
+PASS Cupom e opções calculados na fatura
+PASS Configuração aparece na fatura
+PASS Prazo de reserva visível
+PASS Cancelamento antes do pagamento
+PASS HTTP /painel/api
+PASS Token exibido após criação
+PASS API aceita token e retorna dados
+PASS API não permite escopo não concedido
+PASS Token não reaparece após recarregar
+PASS Revogação efetiva
+PASS HTTP /entrar
+PASS HTTP /admin/faturas
+PASS Operador somente leitura sem botão financeiro
+PASS Menu não exibe produtos administrativos
+PASS Permissão bloqueia POST com CSRF válido
+PASS Operador bloqueado nas integrações
+PASS HTTP /painel
+PASS HTTP /entrar
+PASS HTTP /admin/produtos/11/editar
+PASS Cancelamento restitui estoque
+PASS HTTP /admin/relatorios
+PASS CSV de faturas é baixado
+PASS HTTP /admin/conciliacao
+PASS Administração móvel sem overflow
+PASS HTTP /conhecimento?q=9eb286cd
+PASS Busca abre artigo publicado
+PASS Artigo escapa HTML
+PASS Sem exceções JavaScript
+PASS Sem assets ausentes
+52 passed / 0 failed

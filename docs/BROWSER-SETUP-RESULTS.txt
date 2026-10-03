@@ -1,0 +1,15 @@
+PASS Site fechado durante instalação
+PASS Assistente exige chave privada
+PASS CSRF bloqueia conclusão sem sessão
+PASS Chave autoriza etapas sem ir na URL
+PASS Instalador sem overflow móvel
+PASS Instalação web concluída
+PASS Senha não aparece no resultado
+PASS Instalador bloqueado após concluir
+PASS Chave consumida e bloqueio persistente
+PASS Administrador criado consegue entrar
+PASS Configuração do site disponível após instalar
+PASS 13 migrations e somente um administrador
+PASS Senha persistida como hash, não texto
+PASS Sessão final funciona com banco
+PASS Sem erros JavaScript no instalador
