@@ -53,6 +53,8 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
         Route::post('/integracoes/ollama', [AiSettingsController::class, 'save'])->name('connectors.ai.save');
         Route::post('/integracoes/ollama/modelos', [AiSettingsController::class, 'models'])->middleware('throttle:5,1,lagos-ai-models')->name('connectors.ai.models');
         Route::get('/integracoes/{connector}/contas', [PterodactylAccountController::class, 'index'])->name('connectors.accounts');
+        Route::post('/integracoes/{connector}/contas/criar-remota', [PterodactylAccountController::class, 'provision'])->middleware('throttle:6,1,lagos-ptero-users')->name('connectors.accounts.provision');
+        Route::post('/integracoes/{connector}/contas/solicitacoes/{accountRequest}/conferir', [PterodactylAccountController::class, 'inspect'])->middleware('throttle:10,1,lagos-ptero-users-check')->name('connectors.accounts.inspect');
         Route::post('/integracoes/{connector}/contas', [PterodactylAccountController::class, 'create'])->name('connectors.accounts.create');
         Route::post('/integracoes/{connector}', [NativeProvisioningController::class, 'connector'])->name('connectors.update');
         Route::post('/operacoes/{operation}/conciliar', [NativeProvisioningController::class, 'inspect'])->middleware('throttle:10,1,lagos-native-review')->name('operations.reconcile');

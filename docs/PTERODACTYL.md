@@ -1,17 +1,17 @@
-# Pterodactyl — Application API (alpha.7)
+# Pterodactyl — Application API (1.1.0)
 
 ## O que está implementado
 
 Provisionamento de servidores de jogos após pagamento, recursos por plano, consulta, suspensão, reativação e remoção. Confirmação por leitura e conciliação de estados incertos, além de acompanhamento de instalação em fila. **Não houve teste em Pterodactyl/Wings real.** Compatibilidade com uma versão específica deve ser homologada pelo operador.
 
-Este recorte exige **conta de cliente já existente no Pterodactyl**, vinculada explicitamente pelo administrador. Não cria ou apaga usuários remotos. Não compartilha a Application Key com clientes. Cliente acessa o painel Pterodactyl com suas próprias credenciais; não há SSO, Client API, console, SFTP, energia, reinstalação, backups ou troca de plano controlados pelo LagosPanel. Recursos disponíveis diretamente no Pterodactyl continuam sendo administrados lá.
+Este recorte exige **conta de cliente vinculada antes do checkout**. Na 1.1.0, o ADM pode criar uma conta remota e obter o vínculo automaticamente após conferência; também pode vincular uma conta já existente. Veja [criação de contas](PTERODACTYL-CONTAS.md). Não apaga usuários remotos. Não compartilha a Application Key com clientes. Cliente acessa o painel Pterodactyl com suas próprias credenciais; não há SSO, Client API, console, SFTP, energia, reinstalação, backups ou troca de plano controlados pelo LagosPanel. Recursos disponíveis diretamente no Pterodactyl continuam sendo administrados lá.
 
 ## Configurar
 
 1. Prepare Pterodactyl, Wings, localização, nós, alocações livres, egg, imagem e variáveis. Faça backup e use recursos de homologação descartáveis. Mantenha produto indisponível na loja até concluir os testes.
 2. Gere uma **Application API Key**, não Client API Key. Exija apenas leitura de usuários e leitura/alteração de servidores necessárias aos endpoints utilizados; confirme as ACLs na versão instalada. Restrinja IPs/tráfego no firewall/proxy. TLS válido é obrigatório, incluindo em portas próprias. O destino deve ser uma origem, sem `/api`, usuário, query ou fragmento.
 3. ADM → Integrações: escolha Pterodactyl, origem HTTPS e chave. Confirme chamadas e habilite a integração. Chave fica criptografada com `APP_KEY`; a rotação não altera endpoint/identidade dos serviços existentes.
-4. Em **Contas Pterodactyl**, informe ID do cliente LagosPanel e ID do usuário Pterodactyl. Confira que pertencem à mesma pessoa. O e-mail remoto deve ser igual ao email do cliente capturado no pedido, e `root_admin` remoto deve ser falso. São conferidos antes de cada observação/mutação. A tela salva o vínculo, mas não o valida remotamente naquele momento.
+4. Em **Contas Pterodactyl**, crie a conta remota pelo novo formulário ou, para uma conta existente, informe ID do cliente LagosPanel e ID do usuário Pterodactyl. Confira que pertencem à mesma pessoa. O e-mail remoto deve ser igual ao email do cliente capturado no pedido, e `root_admin` remoto deve ser falso. São conferidos antes de cada observação/mutação. A tela salva o vínculo, mas não o valida remotamente naquele momento.
 5. O vínculo é único por integração/cliente e integração/ID remoto; não pode ser sobrescrito pela tela. Mudanças de identidade exigem planejamento operacional, sem adulterar snapshots. Equipe precisa de `integrations.view/manage` conforme ação e `customers.view` para consultar/vincular contas.
 6. Em Produto, escolha a integração e preencha o JSON de plano. Exemplo (ajuste ao seu egg, não é configuração universal):
 

@@ -71,7 +71,7 @@ try {
     $rejected = true;
 }unlink($badMigration);
 $state = $service->state();
-checkGuard('Migration failure retains own fingerprint, zero users and original environment', $rejected && isset($state['database_fingerprint']) && ! User::exists() && hash_file('sha256', $env) === $before && DB::table('migrations')->count() === 13);
+checkGuard('Migration failure retains own fingerprint, zero users and original environment', $rejected && isset($state['database_fingerprint']) && ! User::exists() && hash_file('sha256', $env) === $before && DB::table('migrations')->count() === count(glob($root.'/database/migrations/*.php')));
 $state['expires_at'] = time() - 1;
 file_put_contents(config('setup.state_path'), json_encode($state));
 $key = $service->prepare();
@@ -86,4 +86,4 @@ try {
     $rejected = true;
 }
 checkGuard('Duplicate finish cannot overwrite environment or create another administrator', $rejected && hash_file('sha256', $env) === $before && User::count() === 1);
-echo json_encode(['results' => $results, 'database' => 'real SQLite, isolated installation', 'MySQL' => 'not homologated'],JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL;
+echo json_encode(['results' => $results, 'database' => 'real SQLite, isolated installation', 'MySQL' => 'not homologated'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL;

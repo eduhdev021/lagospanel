@@ -1,4 +1,4 @@
-# Instalação pelo navegador — alpha.8
+# Instalação pelo navegador — 1.1.0
 
 ## Servidor antes do assistente
 
@@ -37,4 +37,4 @@ Configure SMTP e integrações no ADM, worker `queue:work --tries=3 --timeout=75
 
 ## Verificação executada
 
-Navegador real + SQLite em aplicação extraída separadamente: autorização, CSRF, mobile, instalação completa, bloqueio e login/sessão em banco. Também testados banco desconhecido preservado, usuários existentes, migration que falha após 13 migrations, rearmamento, recuperação e conclusão duplicada. PHPUnit cobre isolamento `:memory:`, chave preservada e HTTPS em produção. **MySQL/MariaDB, TLS real, SMTP externo e deploy de produção ainda não homologados.**
+Navegador real + SQLite em aplicação extraída separadamente: autorização, CSRF, mobile, instalação completa, bloqueio e login/sessão em banco. Também testados banco desconhecido preservado, usuários existentes, migration que falha após as migrations versionadas, rearmamento, recuperação e conclusão duplicada. PHPUnit cobre isolamento `:memory:`, chave preservada e HTTPS em produção. **MySQL/MariaDB, TLS real, SMTP externo e deploy de produção ainda não homologados.**

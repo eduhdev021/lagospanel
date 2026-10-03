@@ -1,4 +1,4 @@
-Área,Recurso-alvo,Estado no LagosPanel alpha.8,Evidência / limite
+Área,Recurso-alvo,Estado no LagosPanel 1.1.0,Evidência / limite
 Contas e segurança,"Cadastro, confirmação e recuperação",Implementado localmente,Testes de domínio e Chromium; e-mail externo pendente
 Contas e segurança,2FA e códigos de recuperação,Implementado localmente,"Replay, limite de tentativas, expiração e uso único testados"
 Contas e segurança,Papéis e permissões de equipe,Implementado localmente,Leitura/alteração por módulo; sem delegar autoridade superior
@@ -58,7 +58,7 @@ Provisionamento,aaPanel,Parcial / homologação pendente,"Sites gerenciados via 
 Provisionamento,Plesk,Planejado,Driver nativo ausente
 Provisionamento,DirectAdmin,Planejado,Driver nativo ausente
 Provisionamento,Enhance,Planejado,Driver nativo ausente
-Provisionamento,Pterodactyl e jogos,Parcial / homologação pendente,"Ciclo de servidores, planos, contas previamente vinculadas e consultas de instalação; faltam usuário automático, energia/console/SSO e provedor real"
+Provisionamento,Pterodactyl e jogos,Parcial / homologação pendente,"Ciclo de servidores, planos, consultas de instalação e criação de contas pelo ADM com vínculo conferido; faltam criação no checkout, energia/console/SSO e validação real"
 Provisionamento,Proxmox,Planejado,Implementação própria via API ou licença válida para reutilização
 Provisionamento,Virtualizor,Planejado,Driver nativo ausente
 Provisionamento,VirtFusion,Planejado,Driver nativo ausente
@@ -101,5 +101,5 @@ Plataforma e operação,Alta disponibilidade e failover,Planejado,Sem evidência
 Plataforma e operação,Importação da instalação anterior,Planejado,Campos preparados não constituem importador
 Plataforma e operação,Importação WHMCS/Paymenter,Planejado,Mapeamento e conciliação precisam ser construídos
 Plataforma e operação,Localização e acessibilidade completas,Parcial,pt-BR/BRL e mobile; sem auditoria WCAG integral
-Plataforma e operação,CI automatizado,Parcial,"Workflow escrito; suites executadas localmente, não no GitHub"
+Plataforma e operação,CI automatizado,Parcial,"Workflow ativo; execução no GitHub aprovada na 1.0.0, acompanhar cada commit posterior"
 Plataforma e operação,Benchmark comparativo reproduzível,Planejado,Sem prova de superioridade

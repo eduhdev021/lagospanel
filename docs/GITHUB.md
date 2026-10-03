@@ -1,8 +1,8 @@
-# Distribuição principal 1.0.0
+# Distribuição principal
 
 Repositório: https://github.com/eduhdev021/lagospanel
 
-O titular autorizou substituir o histórico da **main** por um único commit raiz do projeto atual, após preservar uma cópia local completa para recuperação. Publicação com force-with-lease protege contra apagar atualizações concorrentes não revisadas. A versão é 1.0.0, com release não marcada como prévia e canal de Issues para problemas.
+O titular autorizou substituir o histórico da **main** por um único commit raiz do projeto atual, após preservar uma cópia local completa para recuperação. Publicação com force-with-lease protege contra apagar atualizações concorrentes não revisadas. A base 1.0.0 foi publicada sem marcação de prévia e com canal de Issues. Atualizações posteriores, incluindo 1.1.0, acrescentam commits normalmente; não repetem a substituição do histórico.
 
 Backup externo ao fonte: `lagospanel-historico-antes-1.0.0.bundle`, com main anterior e tags então existentes. A cópia contém histórico completo e foi verificada com git bundle verify. Não é incorporada ao pacote nem à nova árvore Git.
 

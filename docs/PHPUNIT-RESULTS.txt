@@ -3,12 +3,13 @@ PHPUnit 11.5.56 by Sebastian Bergmann and contributors.
 Runtime:       PHP 8.4.26
 Configuration: /home/user/lagospanel-independent/phpunit.xml
 
-...............................................................  63 / 249 ( 25%)
-............................................................... 126 / 249 ( 50%)
-............................................................... 189 / 249 ( 75%)
-............................................................    249 / 249 (100%)
+...............................................................  63 / 268 ( 23%)
+............................................................... 126 / 268 ( 47%)
+............................................................... 189 / 268 ( 70%)
+............................................................... 252 / 268 ( 94%)
+................                                                268 / 268 (100%)
 
-Time: 00:05.927, Memory: 74.50 MB
+Time: 00:05.513, Memory: 74.50 MB
 
 Aa Panel (Tests\Feature\AaPanel)
  ✔ Create signed requests and bind numeric site id
@@ -224,6 +225,27 @@ Pterodactyl (Tests\Feature\Pterodactyl)
  ✔ Failed installation is not activated or recreated by poll
  ✔ Creation response and readback ids must match
 
+Pterodactyl Users (Tests\Feature\PterodactylUsers)
+ ✔ Admin creates non admin without local password and links after two reads
+ ✔ Automatic link unblocks existing pterodactyl checkout
+ ✔ Integration manager without customer permission cannot create
+ ✔ Repeated create and inspect do not send another request
+ ✔ Timeout after provider commit can be reconciled without recreation
+ ✔ Sent request with absent result is never reposted
+ ✔ Preflight failure does not mark sent and can retry safely
+ ✔ Preexisting external identity is not adopted before any send
+ ✔ Remote admin or email mismatch prevents linking
+ ✔ Second read must have same remote id after timeout
+ ✔ Pause after mutation prevents late binding
+ ✔ Superseded execution cannot publish or reclaim new execution token
+ ✔ Changed local email after post blocks binding
+ ✔ Remote conflict and secrets in provider error are not exposed
+ ✔ Recent processing blocks duplicates but stale work can be inspected
+ ✔ Existing manual mapping is not overwritten
+ ✔ Client and read only staff cannot create or inspect
+ ✔ Global switch and unverified client block creation
+ ✔ Request cannot be inspected under another connector
+
 Support (Tests\Feature\Support)
  ✔ Creation snapshots priority and deadline and ignores forged assignment
  ✔ Private attachment is encrypted and download is exact and non executable
@@ -277,4 +299,4 @@ Web And Site (Tests\Feature\WebAndSite)
  ✔ Installer refuses existing users without modifying environment
  ✔ Installer token grant is required and expiry is enforced
 
-OK (249 tests, 1100 assertions)
+OK (268 tests, 1288 assertions)

@@ -1,0 +1,12 @@
+PASS Tela de contas com criação e vínculo manual
+PASS CSRF bloqueia criação sem token
+PASS Criação HTTP e vínculo automático após leitura
+PASS Chave e senha local ausentes do HTML
+PASS Reenvio do formulário não duplica usuário
+PASS Timeout após criação mostra revisão sem vínculo falso
+PASS Timeout preserva tentativa, mas não libera conta local
+PASS Conferência recupera conta sem repetir POST
+PASS Ambos os vínculos confirmados em banco
+PASS Aviso de senha via provedor sem promessa de entrega
+PASS Tela sem overflow móvel
+PASS Nenhum erro JavaScript

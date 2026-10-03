@@ -3,6 +3,7 @@
 use App\Jobs\AnswerAiTurn;
 use App\Jobs\RunOperation;
 use App\Models\AiThread;
+use App\Models\Connector;
 use App\Models\Service;
 use App\Models\Ticket;
 use App\Models\User;
@@ -11,6 +12,7 @@ use App\Services\Billing;
 use App\Services\Checkout;
 use App\Services\OrderLifecycle;
 use App\Services\Provisioning;
+use App\Services\PterodactylUsers;
 use App\Services\SupportDesk;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Validation\ValidationException;
@@ -18,6 +20,7 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Tests\FakeAaPanel;
 use Tests\FakeOllama;
 use Tests\FakePterodactyl;
+use Tests\FakePterodactylUsers;
 use Tests\FakeWhm;
 
 if (getenv('LAGOS_TEST_MODE') !== '1') {
@@ -28,7 +31,22 @@ require __DIR__.'/../.cache/vendor/autoload.php';
 $app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 try {
-    if ($argv[1] === 'ptero-run') {
+    if ($argv[1] === 'ptero-user') {
+        require __DIR__.'/FakePterodactylUsers.php';
+        config(['lagos.native_provisioning' => true]);
+        FakePterodactylUsers::install(base_path('.cache/concurrent-ptero-users.json'));
+        try {
+            $r = app(PterodactylUsers::class)->create(Connector::findOrFail((int) $argv[2]), User::findOrFail(1), ['first_name' => 'Concurrent', 'last_name' => 'User'], 1);
+            if ($r->status !== 'done') {
+                exit(3);
+            }
+        } catch (HttpExceptionInterface $e) {
+            if ($e->getStatusCode() !== 409) {
+                throw $e;
+            }echo "BUSY\n";
+            exit(2);
+        }
+    } elseif ($argv[1] === 'ptero-run') {
         require __DIR__.'/FakePterodactyl.php';
         config(['lagos.native_provisioning' => true]);
         FakePterodactyl::install(base_path('.cache/concurrent-ptero.json'), 41, 'concurrent@example.test');

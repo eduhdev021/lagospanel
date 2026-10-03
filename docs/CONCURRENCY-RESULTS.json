@@ -1,7 +1,7 @@
 {
   "database": "SQLite WAL / BEGIN IMMEDIATE",
   "workers": 20,
-  "seconds": 28.95,
+  "seconds": 25.683,
   "results": [
     {
       "test": "20 processos creditam depósitos sem perder atualizações",
@@ -65,6 +65,10 @@
     },
     {
       "test": "20 jobs duplicados de IA produzem uma única chamada Ollama simulada",
+      "passed": true
+    },
+    {
+      "test": "20 solicitações de conta Pterodactyl produzem um POST e um vínculo, sem duplicar usuário remoto",
       "passed": true
     }
   ]

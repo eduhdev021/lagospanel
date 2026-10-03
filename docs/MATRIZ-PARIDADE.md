@@ -1,6 +1,6 @@
 # Matriz de evolução — WHMCS / Paymenter como referências
 
-**Escopo solicitado: todas as frentes de operação. Estado: 1.0.0-alpha.8.**
+**Escopo solicitado: todas as frentes de operação. Estado: 1.1.0.**
 
 Esta é uma matriz de trabalho, não uma declaração de que o LagosPanel já possui tudo, nem um inventário exaustivo de marketplaces. Linhas incluem metas complementares propostas; não afirmam que cada concorrente oferece cada recurso nativamente. “Implementado localmente” significa o recorte descrito e seus testes, não aprovação de produção. “Homologação pendente” significa código/contrato presente, sem operação real comprovada.
 
@@ -89,7 +89,7 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 | Plesk | Planejado | Driver nativo ausente |
 | DirectAdmin | Planejado | Driver nativo ausente |
 | Enhance | Planejado | Driver nativo ausente |
-| Pterodactyl e jogos | Parcial / homologação pendente | Ciclo de servidores, planos, contas previamente vinculadas e consultas de instalação; faltam usuário automático, energia/console/SSO e provedor real |
+| Pterodactyl e jogos | Parcial / homologação pendente | Ciclo de servidores, planos, consultas de instalação e criação de contas pelo ADM com vínculo conferido; faltam criação no checkout, energia/console/SSO e validação real |
 | Proxmox | Planejado | Implementação própria via API ou licença válida para reutilização |
 | Virtualizor | Planejado | Driver nativo ausente |
 | VirtFusion | Planejado | Driver nativo ausente |
@@ -147,7 +147,7 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 | Importação da instalação anterior | Planejado | Campos preparados não constituem importador |
 | Importação WHMCS/Paymenter | Planejado | Mapeamento e conciliação precisam ser construídos |
 | Localização e acessibilidade completas | Parcial | pt-BR/BRL e mobile; sem auditoria WCAG integral |
-| CI automatizado | Parcial | Workflow escrito; suites executadas localmente, não no GitHub |
+| CI automatizado | Parcial | Workflow ativo; execução no GitHub aprovada na 1.0.0, acompanhar cada commit posterior |
 | Benchmark comparativo reproduzível | Planejado | Sem prova de superioridade |
 
 **104 linhas de escopo acompanhadas.** Novas integrações e versões exigirão revisar esta matriz; linhas planejadas não são funcionalidades instaladas.

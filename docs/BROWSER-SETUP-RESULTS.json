@@ -45,7 +45,7 @@
       "passed": true
     },
     {
-      "test": "13 migrations e somente um administrador",
+      "test": "Migrations versionadas e somente um administrador",
       "passed": true
     },
     {

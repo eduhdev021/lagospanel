@@ -1,6 +1,6 @@
 # Operação e corte para produção
 
-Esta distribuição é **1.0.0**. A publicação estável não substitui validação operacional: consulte as limitações de `ESCOPO.md` antes de operar com clientes reais.
+Esta distribuição é **1.1.0**. A publicação estável não substitui validação operacional: consulte as limitações de `ESCOPO.md` antes de operar com clientes reais.
 
 ## Preparação
 
@@ -82,3 +82,8 @@ Mantenha worker persistente na fila `default`. Pterodactyl consulta instalação
 Monitorar `ai_turns` queued/processing paradas. Ao enviar nova mensagem, pendências locais do mesmo usuário com mais de cinco minutos são encerradas como falha, sem reenviar; resultados atrasados ficam bloqueados. Exclusão da conversa não cancela uma inferência já enviada e não apaga dados retidos pelo provedor/backups. Cotas e criptografia não substituem LGPD, retenção ou controle de custo no provedor.
 
 Agora há sete suites de navegador no modo opt-in. Fixtures só em demonstração LOCAL; nunca em produção. Consulte `PTERODACTYL.md` e `OLLAMA.md` para configuração, contratos e homologação.
+
+
+## Atualização 1.1.0
+
+Executar a migration `2026_10_03_000011_pterodactyl_account_requests` antes de usar a nova tela de contas. Ela adiciona o histórico/controle de solicitações, sem alterar vínculos existentes nem executar chamadas externas. Para criação de usuários pelo ADM, a Application Key precisa também de permissão de escrita em usuários. Chamadas nativas continuam desabilitadas por padrão. Leia `PTERODACTYL-CONTAS.md`.

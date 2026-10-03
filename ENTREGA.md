@@ -1,34 +1,28 @@
-# LagosPanel — 1.0.0
+# LagosPanel 1.1.0 — contas Pterodactyl pelo ADM
 
-## Implementado nesta etapa
+## Implementado
 
-**Pesquisa na internet pelo harness:** a aplicação pesquisa via Ollama Web Search e entrega trechos/fontes ao modelo; não exige tool calling nativo. Chave de pesquisa no ADM, consulta pública e consentimento por mensagem, fontes privadas por titular, limites e falhas explícitas. Sem navegação autônoma ou ações administrativas da IA.
+- Criação de usuário remoto em ADM → Integrações → Contas Pterodactyl, com confirmação explícita do operador.
+- Cliente precisa de e-mail verificado; chave com leitura/escrita de usuários, integração ativa e chave global de chamadas nativas habilitada.
+- Usuário remoto sempre não administrador. Nome/e-mail são enviados; senha do LagosPanel nunca é enviada. Pterodactyl cuida da definição de senha/convite; SMTP remoto precisa funcionar.
+- Vínculo só é salvo após conferir identidade por external_id e por ID remoto. A contratação existente passa a funcionar com esse vínculo, sem preenchimento manual do ID.
+- Controle persistente por cliente/integração, trava concorrente e identificador de execução. Após envio, somente consultas: falha ou timeout não repetem o POST de criação.
+- Botão de conferência para resultados incertos; proteção contra conta privilegiada, identidade trocada, vínculo ocupado, integração pausada e execução substituída.
+- Vínculo manual continua disponível. Visual/arquivos-base preservados.
 
-**Instalador pelo navegador:** chave temporária preparada pelo operador, requisitos, SQLite/MySQL, primeiro administrador, banco vazio, proteção de APP_KEY, retomada de tentativa parcial e bloqueio após conclusão. Requer servidor/domínio/HTTPS preparados.
+## Verificação desta revisão
 
-**Configuração pelo ADM:** nome, URL, logo, contato, cadastro e SMTP com senha criptografada/teste de e-mail, permissões e controle de versão. Mantidos os seis assets visuais originais, sem troca de tema.
+- 268 testes PHP, 1288 asserções (19 novos testes).
+- 17 cenários concorrentes com até 20 processos; novo cenário confirmou um único POST/vínculo para 20 solicitações.
+- 12 novas verificações Chromium: formulário HTTP real, CSRF, criação, duplicação, timeout, conferência e mobile. Provedor simulado via Http::fake, sem interceptar os POSTs do navegador.
+- 15 verificações de instalação pelo navegador e seis guardas do instalador repetidas numa cópia extraída do ZIP; 14 migrations concluídas em SQLite.
+- Testes anteriores de navegador permanecem como evidência histórica; não alegamos que todos foram reexecutados.
+- Nenhuma conta criada em Pterodactyl real, nenhuma mensagem SMTP externa nem deploy em servidor real.
 
-**Publicação 1.0.0:** nova base principal em `eduhdev021/lagospanel`, com um único commit raiz na main, conforme autorização do titular. Backup completo anterior preservado separadamente. Tags anteriores não foram autorizadas para remoção. Problemas podem ser relatados por Issues. Detalhes em `docs/GITHUB.md`.
+## Atualizar
 
-## Verificação local
+Backup de banco + APP_KEY + arquivos privados, dependências pelo lockfile, `php artisan migrate --force`, atualização dos caches utilizados e restart dos workers. Nova migration cria somente `pterodactyl_account_requests`, com vínculos existentes preservados. Não recrie APP_KEY e não execute o instalador sobre dados existentes.
 
-| Verificação | Resultado |
-|---|---|
-| PHPUnit | 249 testes, 1100 asserções |
-| Chromium | 292 verificações em nove suítes, inclusive 15 do instalador |
-| Concorrência | 16 cenários, até 20 processos |
-| Guardas adicionais do instalador | 6 casos em SQLite real isolado |
-| Composer | Manifesto validado; audit sem advisories/abandonados no momento da execução |
-| Visual | Seis hashes originais preservados |
+## Ainda falta
 
-Relatórios em `docs/*RESULTS*`, `COMPOSER-AUDIT.json`, `VISUAL-ASSETS.json`. Busca, inferência, gateways e painéis remotos foram simulados. O instalador foi exercitado com SQLite real; e-mail apenas em modo log/fakes. Não há homologação de MySQL/MariaDB, SMTP externo, Ollama Cloud, Pterodactyl/Wings ou demais provedores reais, nem auditoria externa/carga sustentada/restore de produção.
-
-Durante o desenvolvimento, um teste de instalador mal isolado afetou a configuração da demonstração fictícia local. A regressão foi corrigida e coberta por teste; o ambiente de demonstração foi recriado em banco separado, sem sobrescrever o anterior. Os testes atuais isolam `.env`, chave de instalação, locks e bancos em diretórios temporários. Nenhum banco de usuário externo foi conectado.
-
-## Instalar e operar
-
-Leia `README.md`, `docs/INSTALACAO-WEB.md`, `docs/CONFIGURACOES-SITE.md` e `docs/OLLAMA.md`. ZIP é **fonte**, sem credenciais/dados/vendor; Composer instala as dependências do lockfile. Instalação nova não cria conta/senha padrão. Para atualizar a versão independente, backup + migrations + restart dos workers; nunca recriar APP_KEY nem usar o assistente sobre dados existentes.
-
-## O que não está concluído
-
-Publicada como 1.0.0 por decisão do titular; isso não estabelece paridade total com WHMCS/Paymenter nem homologação de produção. Faltam Plesk/DirectAdmin, VPS/cloud, registradores, SSO/upgrades, financeiro avançado/multimoeda/impostos/prorrata/estornos, automações avançadas de suporte, importadores e homologação operacional. Consulte `docs/ESCOPO.md` e a matriz de 104 linhas. Esta etapa não importa os dados do sistema anterior nem habilita integrações reais automaticamente.
+Criação de conta disparada pelo próprio checkout, energia/console, SSO, backups, reinstalação e upgrades continuam pendentes, assim como as demais frentes de `ESCOPO.md`. Esta entrega fecha a criação de contas pelo ADM, não toda a integração Pterodactyl.

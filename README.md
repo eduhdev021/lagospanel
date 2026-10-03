@@ -1,6 +1,6 @@
 # LagosPanel
 
-**Versão 1.0.0 — distribuição principal.**
+**Versão 1.1.0 — distribuição principal.**
 
 Painel de clientes, cobrança, serviços e atendimento, com administração própria, integrações de hospedagem/jogos e assistente Ollama com pesquisa web. Aplicação independente sobre Laravel, mantendo a identidade visual do LagosPanel.
 
@@ -15,6 +15,7 @@ Painel de clientes, cobrança, serviços e atendimento, com administração pró
 - Faturas/PDF não fiscal, carteira e pagamentos em BRL; rotinas de renovação e cobrança.
 - Tickets, prioridades, responsáveis, notas internas, anexos privados, base de conhecimento e respostas prontas.
 - Provisionamento cPanel/WHM, aaPanel e Pterodactyl nos recortes documentados; conector HTTPS/JSON próprio.
+- Criação de usuários Pterodactyl pelo ADM, vínculo automático após conferência e recuperação de resultado incerto sem repetir a criação. Não é criação automática no checkout.
 - Integrações Stripe e Mercado Pago, desativadas por padrão até configuração e validação operacional.
 - Chat Ollama com chave e modelo no ADM, conversas privadas, fila e consentimento.
 - Pesquisa web mediada pelo painel, com consulta pública e fontes, sem depender de tool calling nativo do modelo.
@@ -68,7 +69,7 @@ Backup de banco, APP_KEY e arquivos privados; instale dependências do lockfile,
 
 ## Testes e problemas
 
-Base validada: **249 testes PHP / 1100 asserções**, 292 verificações de navegador e 16 cenários concorrentes; seis verificações adicionais de instalação em SQLite real. O CI também passou após corrigir a configuração do PHPUnit em clones limpos. Os relatórios discriminam transporte simulado e chamadas reais, sem equipará-los.
+Nesta atualização: **268 testes PHP / 1288 asserções**, **17 cenários concorrentes** e **12 verificações novas de navegador** para criação de contas Pterodactyl. As chamadas de criação foram simuladas; nenhum usuário foi criado em um provedor real. Relatórios das versões anteriores, incluindo 292 verificações de navegador, continuam identificados como evidência anterior — não foram todos reexecutados nesta etapa. Detalhes em [PTERODACTYL-CONTAS.md](docs/PTERODACTYL-CONTAS.md).
 
 ```bash
 composer install

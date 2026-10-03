@@ -1,0 +1,54 @@
+{
+  "results": [
+    {
+      "test": "Tela de contas com criação e vínculo manual",
+      "passed": true
+    },
+    {
+      "test": "CSRF bloqueia criação sem token",
+      "passed": true
+    },
+    {
+      "test": "Criação HTTP e vínculo automático após leitura",
+      "passed": true
+    },
+    {
+      "test": "Chave e senha local ausentes do HTML",
+      "passed": true
+    },
+    {
+      "test": "Reenvio do formulário não duplica usuário",
+      "passed": true
+    },
+    {
+      "test": "Timeout após criação mostra revisão sem vínculo falso",
+      "passed": true
+    },
+    {
+      "test": "Timeout preserva tentativa, mas não libera conta local",
+      "passed": true
+    },
+    {
+      "test": "Conferência recupera conta sem repetir POST",
+      "passed": true
+    },
+    {
+      "test": "Ambos os vínculos confirmados em banco",
+      "passed": true
+    },
+    {
+      "test": "Aviso de senha via provedor sem promessa de entrega",
+      "passed": true
+    },
+    {
+      "test": "Tela sem overflow móvel",
+      "passed": true
+    },
+    {
+      "test": "Nenhum erro JavaScript",
+      "passed": true
+    }
+  ],
+  "javascript_errors": [],
+  "provider": "Http::fake only; real HTTP application, CSRF, database and browser"
+}
