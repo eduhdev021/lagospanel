@@ -10,7 +10,7 @@ Construído para competir com WHMCS e Paymenter: mais moderno, mais rápido e bi
 |-------|------|-------------|
 | Site público | `/` | — |
 | Loja | `/loja/` | — |
-| Área do cliente | `/painel/` | `cliente@lagos.com` / `cliente123` |
+| Área do cliente | `/painel/` | cadastre-se em `/registrar/` (o pacote de produção vem sem dados demo) |
 | Cadastro | `/registrar/` | — |
 | Administração WP | `/wp-admin/` | `eduardo` / `LagosPanel#2026` |
 
@@ -151,7 +151,7 @@ O que você (Eduardo) precisa providenciar no servidor:
 5. **Cron real do sistema** (recomendado): `define('DISABLE_WP_CRON', true);` no wp-config + `0 3 * * * curl -s https://seusite.com.br/wp-cron.php` no crontab
 6. **Backups diários** do banco (MariaDB dump) e dos arquivos `wp-content/uploads`
 7. **Revisar os textos legais** (Termos e Privacidade já vêm prontos e editáveis — validar com advogado)
-8. Trocar as senhas de demonstração (`eduardo` e `cliente@lagos.com`) e remover o que não usar
+8. Trocar a senha do admin (`eduardo`) no primeiro login e configurar SMTP/gateways/módulos
 
 ## 📦 Deploy no servidor
 

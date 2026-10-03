@@ -50,7 +50,7 @@ say "Instalando dependências (nginx, MariaDB, PHP-FPM)..."
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq nginx mariadb-server php-fpm php-mysql php-curl php-mbstring \
-    php-xml php-zip unzip curl cron > /dev/null
+    php-xml php-zip php-imap unzip curl > /dev/null
 PHPVER="$(php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;')"
 ok "nginx + MariaDB + PHP $PHPVER"
 
@@ -58,49 +58,29 @@ ok "nginx + MariaDB + PHP $PHPVER"
 say "Criando banco 'lagospanel' e usuário 'lagos'..."
 mysql -e "CREATE DATABASE IF NOT EXISTS lagospanel CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 mysql -e "CREATE USER IF NOT EXISTS 'lagos'@'localhost' IDENTIFIED BY '${DBPASS//\'/\\\'}';"
-# em re-instalação o usuário já existe: garante a senha atual
-mysql -e "ALTER USER 'lagos'@'localhost' IDENTIFIED BY '${DBPASS//\'/\\\'}';" 2>/dev/null \
-  || mysql -e "SET PASSWORD FOR 'lagos'@'localhost' = PASSWORD('${DBPASS//\'/\\\'}');" 2>/dev/null || true
 mysql -e "GRANT ALL PRIVILEGES ON lagospanel.* TO 'lagos'@'localhost'; FLUSH PRIVILEGES;"
 say "Importando seed (isso pode demorar um pouco)..."
 zcat "$SEED" | mysql lagospanel
 ok "banco importado"
 
-# ── 3. wp-config.php (ANTES das URLs: o replace-url usa o wp-load) ──
+# ── 3. URLs do seed → domínio real ──────────────────────────────
+say "Ajustando URLs ($SEED → https://$DOMAIN)..."
+if [[ -f deploy/replace-url.php ]]; then
+  php deploy/replace-url.php "https://$DOMAIN" || true
+else
+  mysql lagospanel -e "UPDATE wp_options SET option_value='https://$DOMAIN' WHERE option_name IN ('home','siteurl');"
+fi
+ok "URLs atualizadas"
+
+# ── 4. wp-config.php ────────────────────────────────────────────
 say "Configurando wp-config.php..."
-SCHEME="http"; [[ $SSL -eq 1 ]] && SCHEME="https"
 sed -i "s/^define( *'DB_USER'.*/define( 'DB_USER', 'lagos' );/" public/wp-config.php
 sed -i "s/^define( *'DB_PASSWORD'.*/define( 'DB_PASSWORD', '$DBPASS' );/" public/wp-config.php
 sed -i "s/^define( *'DB_HOST'.*/define( 'DB_HOST', 'localhost' );/" public/wp-config.php
-# o wp-config usa bloco de URL dinâmica (dev): fixa o scheme de produção,
-# troca o fallback de CLI (localhost:8080) e desliga o debug
-sed -i "s/\$lagos_scheme = 'https';/\$lagos_scheme = '$SCHEME';/" public/wp-config.php
-sed -i "s#define('WP_HOME', 'http://localhost:8080');#define('WP_HOME', '$SCHEME://$DOMAIN');#" public/wp-config.php
-sed -i "s#define('WP_SITEURL', 'http://localhost:8080');#define('WP_SITEURL', '$SCHEME://$DOMAIN');#" public/wp-config.php
-sed -i "s/define('WP_DEBUG', true);/define('WP_DEBUG', false);/" public/wp-config.php
+sed -i "s/^define( *'WP_HOME'.*/define( 'WP_HOME', 'https:\/\/$DOMAIN' );/" public/wp-config.php
 grep -q "DISABLE_WP_CRON" public/wp-config.php || \
   echo "define( 'DISABLE_WP_CRON', true );" >> public/wp-config.php
 ok "wp-config.php pronto"
-
-# ── 4. URLs do seed → domínio real (serializado-safe) ───────────
-say "Ajustando URLs do seed para $SCHEME://$DOMAIN ..."
-PREFIX="$(sed -n "s/^[[:space:]]*\$table_prefix[[:space:]]*=[[:space:]]*'\([^']*\)'.*/\1/p" public/wp-config.php | head -1)"
-[[ -n "$PREFIX" ]] || PREFIX="wp_"
-OLDURL="$(mysql -N lagospanel -e "SELECT option_value FROM ${PREFIX}options WHERE option_name='home' LIMIT 1;" 2>/dev/null || true)"
-if [[ -n "$OLDURL" && -f deploy/replace-url.php && "$OLDURL" != "$SCHEME://$DOMAIN" ]]; then
-  cp deploy/replace-url.php public/replace-url.php
-  POUT="$(php public/replace-url.php "$OLDURL" "$SCHEME://$DOMAIN" 2>&1 || true)"
-  rm -f public/replace-url.php
-  if [[ "$POUT" != *"Database Error"* && "$POUT" != *"error-page"* ]]; then
-    echo "$POUT" | grep -E "^[0-9]+ (opções|options)" || true
-  else
-    say "replace-url não conectou — aplicando UPDATE direto nas opções"
-    mysql lagospanel -e "UPDATE ${PREFIX}options SET option_value='$SCHEME://$DOMAIN' WHERE option_name IN ('home','siteurl');" || true
-  fi
-else
-  mysql lagospanel -e "UPDATE ${PREFIX}options SET option_value='$SCHEME://$DOMAIN' WHERE option_name IN ('home','siteurl');" || true
-fi
-ok "URLs atualizadas"
 
 # ── 5. Chaves de segurança + dono dos arquivos ──────────────────
 SALT="$(curl -fsS https://api.wordpress.org/secret-key/1.1/salt/ 2>/dev/null || true)"
@@ -151,30 +131,25 @@ NGINX
 ln -sf /etc/nginx/sites-available/lagospanel /etc/nginx/sites-enabled/lagospanel
 rm -f /etc/nginx/sites-enabled/default
 nginx -t > /dev/null 2>&1 || { nginx -t; die "config nginx inválida"; }
+systemctl reload nginx
 systemctl enable --now php${PHPVER}-fpm mariadb nginx > /dev/null 2>&1 || true
-# recarrega (ou sobe, se ainda não estiver rodando — ex.: container sem systemd)
-systemctl reload nginx 2>/dev/null || nginx -s reload 2>/dev/null || nginx 2>/dev/null || true
 ok "nginx + PHP-FPM ativos"
 
 # ── 7. Cron (WP-Cron real, fora do request) ─────────────────────
 say "Agendando WP-Cron (a cada 5 min)..."
-if command -v crontab > /dev/null 2>&1; then
-  ( crontab -l 2>/dev/null | grep -v "wp-cron.php.*${DOMAIN}" || true; \
-    echo "*/5 * * * * curl -fsS ${SCHEME}://${DOMAIN}/wp-cron.php > /dev/null 2>&1" ) | crontab -
-  ok "cron instalado"
-else
-  say "crontab indisponível — agende manualmente: */5 * * * * curl -fsS ${SCHEME}://${DOMAIN}/wp-cron.php"
-fi
+( crontab -l 2>/dev/null | grep -v "wp-cron.php.*${DOMAIN}"; \
+  echo "*/5 * * * * curl -fsS https://${DOMAIN}/wp-cron.php > /dev/null 2>&1" ) | crontab -
+ok "cron instalado"
 
 # ── 8. HTTPS opcional ───────────────────────────────────────────
-URL="$SCHEME://$DOMAIN"
+URL="http://$DOMAIN"
 if [[ $SSL -eq 1 ]]; then
   say "Instalando certificado Let's Encrypt..."
   apt-get install -y -qq certbot python3-certbot-nginx > /dev/null
   if certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email -q; then
     ok "HTTPS ativo (Let's Encrypt)"
     URL="https://$DOMAIN"
-    mysql lagospanel -e "UPDATE ${PREFIX}options SET option_value='https://$DOMAIN' WHERE option_name IN ('home','siteurl');" || true
+    mysql lagospanel -e "UPDATE wp_options SET option_value='https://$DOMAIN' WHERE option_name IN ('home','siteurl');"
   else
     echo "  ⚠ certbot falhou (aponte o DNS antes de rodar com --ssl); painel no HTTP por enquanto"
   fi
@@ -191,5 +166,5 @@ echo "  Próximos passos:"
 echo "   1. Troque as senhas demo (admin e cliente@lagos.com)"
 echo "   2. Configurações → SMTP + gateways (Mercado Pago, Stripe...)"
 echo "   3. Conexões → módulos reais (Pterodactyl, cPanel...)"
-echo "   4. (Opcional) Zerar dados de demonstração: cp deploy/clean-demo.php public/ && php public/clean-demo.php --yes"
+echo "   4. Rodar deploy/clean-demo.php se quiser zerar os dados de demonstração"
 echo

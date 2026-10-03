@@ -11,7 +11,7 @@
  * Mantém: produtos da loja, base de conhecimento, downloads, incidentes,
  * páginas, admin (eduardo) e todas as configurações.
  */
-if (PHP_SAPI !== 'cli') exit("Somente CLI.\n");
+if (PHP_SAPI !== 'CLI') exit("Somente CLI.\n");
 if (!file_exists(__DIR__ . '/wp-load.php')) exit("Rode este script na raiz do WordPress (onde fica o wp-load.php).\n");
 require __DIR__ . '/wp-load.php';
 $executar = in_array('--yes', $argv, true);
