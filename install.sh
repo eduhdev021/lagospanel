@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 # ════════════════════════════════════════════════════════════════
-#  LagosPanel — Instalador de produção (Ubuntu/Debian)
+#  LagosPanel — Instalador de produção (v0.11)
 #  © 2026 Lagos Soluções — Todos os direitos reservados.
 #
-#  Uso (dentro da pasta do projeto, como root):
-#    ./install.sh --domain painel.seudominio.com.br
+#  Layout do repositório (estilo Paymenter):
+#    app/        → código do produto (plugin LagosPanel Core)
+#    resources/  → tema LagosPanel
+#    engine/     → base WordPress empacotada (1 zip — igual ao vendor/ do Laravel)
+#    database/   → seed SQL + utilitários
+#    public/     → docroot (montado por este instalador)
 #
-#  Opções:
-#    --domain   DOMÍNIO        (obrigatório) domínio do painel
-#    --db-pass  SENHA          senha do banco (gerada se omitida)
-#    --ssl                     instala Let's Encrypt (certbot) ao final
-#    --import   ARQUIVO.sql.gz importa um banco em vez do seed do deploy/
+#  Uso (como root, dentro do clone):
+#    sudo ./install.sh --domain painel.seudominio.com.br --ssl
 # ════════════════════════════════════════════════════════════════
 set -euo pipefail
 
@@ -19,30 +20,31 @@ say() { echo "${PURPLE}▸${RESET} $*"; }
 ok()  { echo "${GREEN}✓${RESET} $*"; }
 die() { echo "ERRO: $*" >&2; exit 1; }
 
-DOMAIN="" DBPASS="" SSL=0 IMPORT=""
+DOMAIN="" DBPASS="" SSL=0 SEED="database/seed.sql.gz"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --domain)  DOMAIN="$2"; shift 2 ;;
     --db-pass) DBPASS="$2"; shift 2 ;;
     --ssl)     SSL=1; shift ;;
-    --import)  IMPORT="$2"; shift 2 ;;
+    --seed)    SEED="$2"; shift 2 ;;
     *) die "opção desconhecida: $1" ;;
   esac
 done
 
 [[ -n "$DOMAIN" ]] || die "informe --domain painel.seudominio.com.br"
 [[ $EUID -eq 0 ]] || die "rode como root (sudo ./install.sh)"
-[[ -f public/wp-config.php ]] || die "execute dentro da pasta do projeto (com public/ e deploy/)"
 command -v apt-get > /dev/null || die "este instalador é para Ubuntu/Debian (apt)"
+[[ -d app && -d resources ]] || die "execute na raiz do clone (com app/, resources/, engine/)"
+[[ -f engine/lagospanel-engine.zip ]] || die "engine/lagospanel-engine.zip ausente"
+[[ -f "$SEED" ]] || die "seed não encontrado: $SEED"
 
 [[ -n "$DBPASS" ]] || DBPASS="$(head -c 24 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 20)"
-SEED="${IMPORT:-deploy/db.sql.gz}"
-[[ -f "$SEED" ]] || die "seed não encontrado: $SEED"
+SCHEME="http"; [[ $SSL -eq 1 ]] && SCHEME="https"
+DBESC="${DBPASS//\'/\\\'}"
 
 echo
 echo "${BOLD}${PURPLE}  LagosPanel — instalação de produção${RESET}"
-echo "  Domínio: $DOMAIN"
-echo "  Seed:    $SEED"
+echo "  Domínio: $SCHEME://$DOMAIN"
 echo
 
 # ── 1. Dependências ─────────────────────────────────────────────
@@ -50,55 +52,97 @@ say "Instalando dependências (nginx, MariaDB, PHP-FPM)..."
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq nginx mariadb-server php-fpm php-mysql php-curl php-mbstring \
-    php-xml php-zip php-imap unzip curl > /dev/null
+    php-xml php-zip unzip curl cron > /dev/null
 PHPVER="$(php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;')"
+systemctl enable --now mariadb php${PHPVER}-fpm nginx > /dev/null 2>&1 || true
 ok "nginx + MariaDB + PHP $PHPVER"
 
 # ── 2. Banco de dados ───────────────────────────────────────────
-say "Criando banco 'lagospanel' e usuário 'lagos'..."
-mysql -e "CREATE DATABASE IF NOT EXISTS lagospanel CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-mysql -e "CREATE USER IF NOT EXISTS 'lagos'@'localhost' IDENTIFIED BY '${DBPASS//\'/\\\'}';"
+say "Criando banco 'lagospanel' e importando o seed..."
+mysql -e "DROP DATABASE IF EXISTS lagospanel; CREATE DATABASE lagospanel CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -e "CREATE USER IF NOT EXISTS 'lagos'@'localhost' IDENTIFIED BY '${DBESC}';"
+mysql -e "ALTER USER 'lagos'@'localhost' IDENTIFIED BY '${DBESC}';" 2>/dev/null \
+  || mysql -e "SET PASSWORD FOR 'lagos'@'localhost' = PASSWORD('${DBESC}');" 2>/dev/null || true
 mysql -e "GRANT ALL PRIVILEGES ON lagospanel.* TO 'lagos'@'localhost'; FLUSH PRIVILEGES;"
-say "Importando seed (isso pode demorar um pouco)..."
 zcat "$SEED" | mysql lagospanel
-ok "banco importado"
+ok "banco pronto"
 
-# ── 3. URLs do seed → domínio real ──────────────────────────────
-say "Ajustando URLs ($SEED → https://$DOMAIN)..."
-if [[ -f deploy/replace-url.php ]]; then
-  php deploy/replace-url.php "https://$DOMAIN" || true
-else
-  mysql lagospanel -e "UPDATE wp_options SET option_value='https://$DOMAIN' WHERE option_name IN ('home','siteurl');"
+# ── 3. Montagem do public/ (engine + produto) ───────────────────
+say "Montando public/ (engine WordPress + app + resources)..."
+if [[ ! -f public/index.php ]]; then
+  unzip -q engine/lagospanel-engine.zip -d public
 fi
+mkdir -p public/wp-content/plugins public/wp-content/themes public/wp-content/uploads
+rm -rf public/wp-content/plugins/lagos-core public/wp-content/themes/lagospanel
+cp -a app public/wp-content/plugins/lagos-core
+cp -a resources public/wp-content/themes/lagospanel
+rm -f public/readme.html public/wp-config-sample.php
+ok "public/ montado"
+
+# ── 4. wp-config.php (gerado, chaves locais) ────────────────────
+if [[ ! -f public/wp-config.php ]]; then
+  say "Gerando wp-config.php..."
+  salt() { head -c 64 /dev/urandom | base64 | tr -d '+/=' | head -c 64; }
+  cat > public/wp-config.php <<CFG
+<?php
+/** LagosPanel — gerado pelo install.sh em $(date '+%Y-%m-%d %H:%M') */
+define('DB_NAME', 'lagospanel');
+define('DB_USER', 'lagos');
+define('DB_PASSWORD', '${DBPASS}');
+define('DB_HOST', 'localhost');
+define('DB_CHARSET', 'utf8mb4');
+define('DB_COLLATE', '');
+
+\$table_prefix = 'lagos_';
+
+define('WP_HOME', '${SCHEME}://${DOMAIN}');
+define('WP_SITEURL', '${SCHEME}://${DOMAIN}');
+
+define('AUTH_KEY',         '$(salt)');
+define('SECURE_AUTH_KEY',  '$(salt)');
+define('LOGGED_IN_KEY',    '$(salt)');
+define('NONCE_KEY',        '$(salt)');
+define('AUTH_SALT',        '$(salt)');
+define('SECURE_AUTH_SALT', '$(salt)');
+define('LOGGED_IN_SALT',   '$(salt)');
+define('NONCE_SALT',       '$(salt)');
+
+define('WP_DEBUG', false);
+define('DISALLOW_FILE_EDIT', true);
+define('DISABLE_WP_CRON', true);      // cron real agendado no passo 7
+define('FS_METHOD', 'direct');
+define('WP_AUTO_UPDATE_CORE', false);
+define('AUTOSAVE_INTERVAL', 300);
+define('WP_POST_REVISIONS', 5);
+
+if ( !defined('ABSPATH') ) define('ABSPATH', __DIR__ . '/');
+require_once ABSPATH . 'wp-settings.php';
+CFG
+  ok "wp-config.php gerado (chaves de segurança próprias)"
+else
+  say "public/wp-config.php já existe — mantido"
+fi
+
+# ── 5. URLs do seed → domínio real (serializado-safe) ───────────
+say "Ajustando URLs do seed para $SCHEME://$DOMAIN ..."
+OLDURL="$(mysql -N lagospanel -e "SELECT option_value FROM lagos_options WHERE option_name='home' LIMIT 1;" 2>/dev/null || true)"
+if [[ -n "$OLDURL" && "$OLDURL" != "$SCHEME://$DOMAIN" ]]; then
+  cp database/replace-url.php public/replace-url.php
+  php public/replace-url.php "$OLDURL" "$SCHEME://$DOMAIN" || true
+  rm -f public/replace-url.php
+fi
+mysql -N lagospanel -e "UPDATE lagos_options SET option_value='${SCHEME}://${DOMAIN}' WHERE option_name IN ('home','siteurl');" || true
 ok "URLs atualizadas"
 
-# ── 4. wp-config.php ────────────────────────────────────────────
-say "Configurando wp-config.php..."
-sed -i "s/^define( *'DB_USER'.*/define( 'DB_USER', 'lagos' );/" public/wp-config.php
-sed -i "s/^define( *'DB_PASSWORD'.*/define( 'DB_PASSWORD', '$DBPASS' );/" public/wp-config.php
-sed -i "s/^define( *'DB_HOST'.*/define( 'DB_HOST', 'localhost' );/" public/wp-config.php
-sed -i "s/^define( *'WP_HOME'.*/define( 'WP_HOME', 'https:\/\/$DOMAIN' );/" public/wp-config.php
-grep -q "DISABLE_WP_CRON" public/wp-config.php || \
-  echo "define( 'DISABLE_WP_CRON', true );" >> public/wp-config.php
-ok "wp-config.php pronto"
-
-# ── 5. Chaves de segurança + dono dos arquivos ──────────────────
-SALT="$(curl -fsS https://api.wordpress.org/secret-key/1.1/salt/ 2>/dev/null || true)"
-[[ -n "$SALT" ]] && php -r '
-$cfg = file_get_contents("public/wp-config.php");
-$salt = file_get_contents("php://stdin");
-if (strpos($cfg, "put your unique phrase here") !== false) {
-    $cfg = preg_replace("/(define\(.AUTH_KEY.{0,30}put your unique phrase here.\);.*?define\(.NONCE_SALT[^\n]*\n)/s", $salt . "\n", $cfg, 1);
-    file_put_contents("public/wp-config.php", $cfg);
-    echo "chaves de segurança geradas\n";
-}' <<< "$SALT" || true
+# ── 6. Permissões ───────────────────────────────────────────────
 chown -R www-data:www-data public/wp-content
 find public -type d -exec chmod 755 {} \;
+find public -type f -exec chmod 644 {} \;
 ok "permissões aplicadas (www-data)"
 
-# ── 6. Nginx + PHP-FPM ──────────────────────────────────────────
+# ── 7. Nginx vhost ──────────────────────────────────────────────
 say "Criando vhost nginx..."
-DOCROOT="$(pwd)/public"
+DOCROOT="$(cd public && pwd)"
 cat > /etc/nginx/sites-available/lagospanel <<NGINX
 server {
     listen 80;
@@ -113,43 +157,46 @@ server {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
 
-    location ~ \\.php\$ {
+    location ~ \.php\$ {
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/run/php/php${PHPVER}-fpm.sock;
         fastcgi_read_timeout 120;
     }
 
-    location ~* \\.(js|css|png|jpg|jpeg|webp|svg|woff2?|ico)\$ {
+    location ~* \.(js|css|png|jpg|jpeg|webp|svg|woff2?|ico)\$ {
         expires 30d;
         access_log off;
     }
 
     location = /wp-config.php { deny all; }
-    location ~ /\\.(?!well-known) { deny all; }
+    location ~ /\.(?!well-known) { deny all; }
 }
 NGINX
 ln -sf /etc/nginx/sites-available/lagospanel /etc/nginx/sites-enabled/lagospanel
 rm -f /etc/nginx/sites-enabled/default
 nginx -t > /dev/null 2>&1 || { nginx -t; die "config nginx inválida"; }
-systemctl reload nginx
-systemctl enable --now php${PHPVER}-fpm mariadb nginx > /dev/null 2>&1 || true
+systemctl reload nginx 2>/dev/null || nginx -s reload 2>/dev/null || nginx 2>/dev/null || true
 ok "nginx + PHP-FPM ativos"
 
-# ── 7. Cron (WP-Cron real, fora do request) ─────────────────────
+# ── 8. Cron (WP-Cron real, fora do request) ─────────────────────
 say "Agendando WP-Cron (a cada 5 min)..."
-( crontab -l 2>/dev/null | grep -v "wp-cron.php.*${DOMAIN}"; \
-  echo "*/5 * * * * curl -fsS https://${DOMAIN}/wp-cron.php > /dev/null 2>&1" ) | crontab -
-ok "cron instalado"
+if command -v crontab > /dev/null 2>&1; then
+  ( crontab -l 2>/dev/null | grep -v "wp-cron.php.*${DOMAIN}" || true; \
+    echo "*/5 * * * * curl -fsS ${SCHEME}://${DOMAIN}/wp-cron.php > /dev/null 2>&1" ) | crontab -
+  ok "cron instalado"
+else
+  say "crontab indisponível — agende manualmente: */5 * * * * curl -fsS ${SCHEME}://${DOMAIN}/wp-cron.php"
+fi
 
-# ── 8. HTTPS opcional ───────────────────────────────────────────
-URL="http://$DOMAIN"
+# ── 9. HTTPS opcional ───────────────────────────────────────────
+URL="$SCHEME://$DOMAIN"
 if [[ $SSL -eq 1 ]]; then
   say "Instalando certificado Let's Encrypt..."
   apt-get install -y -qq certbot python3-certbot-nginx > /dev/null
   if certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email -q; then
     ok "HTTPS ativo (Let's Encrypt)"
     URL="https://$DOMAIN"
-    mysql lagospanel -e "UPDATE wp_options SET option_value='https://$DOMAIN' WHERE option_name IN ('home','siteurl');"
+    mysql -N lagospanel -e "UPDATE lagos_options SET option_value='https://${DOMAIN}' WHERE option_name IN ('home','siteurl');" || true
   else
     echo "  ⚠ certbot falhou (aponte o DNS antes de rodar com --ssl); painel no HTTP por enquanto"
   fi
@@ -159,12 +206,11 @@ echo
 echo "${BOLD}${GREEN}  Instalação concluída!${RESET}"
 echo
 echo "  Painel:      $URL"
-echo "  Admin:       $URL/wp-admin/  (troque a senha no 1º login!)"
+echo "  Admin:       $URL/wp-admin/  (usuário: eduardo — troque a senha no 1º login!)"
 echo "  Banco:       lagospanel · usuário lagos · senha: $DBPASS"
 echo
 echo "  Próximos passos:"
-echo "   1. Troque as senhas demo (admin e cliente@lagos.com)"
-echo "   2. Configurações → SMTP + gateways (Mercado Pago, Stripe...)"
-echo "   3. Conexões → módulos reais (Pterodactyl, cPanel...)"
-echo "   4. Rodar deploy/clean-demo.php se quiser zerar os dados de demonstração"
+echo "   1. Trocar a senha do admin e configurar SMTP (Configurações)"
+echo "   2. Gateways de pagamento (Mercado Pago, Stripe...) e módulos (Conexões)"
+echo "   3. Opcional: zerar dados de demonstração com database/clean-demo.php"
 echo
