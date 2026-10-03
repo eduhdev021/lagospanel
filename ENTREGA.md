@@ -1,6 +1,6 @@
 # LagosPanel 1.2.0 — automação e acesso
 
-Pacote local implementado e validado. Última publicação pública confirmada: 1.1.0. Sem afirmação de push/CI novo, deploy ou paridade completa com WHMCS/Paymenter.
+Versão 1.2.0 para distribuição pública. Publicação não significa deploy, homologação externa ou paridade completa com WHMCS/Paymenter.
 
 ## Implementado
 

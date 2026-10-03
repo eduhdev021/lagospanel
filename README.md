@@ -1,8 +1,7 @@
 # LagosPanel
 
-**Versão 1.2.0 — pacote local desta entrega.**
+**Versão 1.2.0 — distribuição principal.**
 
-A publicação pública anterior é 1.1.0; não há afirmação de push/CI remoto para este pacote.
 
 Painel de clientes, cobrança, serviços e atendimento, com administração própria, integrações de hospedagem/jogos e assistente Ollama com pesquisa web. Aplicação independente sobre Laravel, mantendo a identidade visual do LagosPanel.
 
