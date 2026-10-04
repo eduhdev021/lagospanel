@@ -240,6 +240,40 @@ class SiteSettingsController extends Controller
         return back()->with('status', $status.' ID: '.$result['test_id']);
     }
 
+    public function testMailConnection(Request $r)
+    {
+        $v = $r->validate([
+            'smtp_host' => 'required|string|max:253',
+            'smtp_port' => 'required|integer|min:1|max:65535',
+            'smtp_scheme' => 'required|in:smtp,smtps',
+            'smtp_username' => 'required|string|max:200',
+            'smtp_password' => 'nullable|string|max:2000',
+        ]);
+        if (! preg_match('/^[A-Za-z0-9.:-]+$/D', $v['smtp_host']) || str_contains($v['smtp_host'], '://')) {
+            throw ValidationException::withMessages(['smtp_host' => 'Host SMTP inválido.']);
+        }
+
+        $saved = SiteSetting::find(1);
+        $password = filled($v['smtp_password'] ?? null) ? $v['smtp_password'] : $saved?->smtp_password;
+        $result = app(SmtpDiagnostics::class)->connection([
+            'host' => $v['smtp_host'],
+            'port' => (int) $v['smtp_port'],
+            'scheme' => $v['smtp_scheme'],
+            'username' => $v['smtp_username'],
+            'password' => $password,
+            'from' => $saved?->mail_from_address,
+        ]);
+        Audit::record('site.mail_connection_test', 'site:1', [
+            'ok' => $result['ok'],
+            'host' => $result['host'],
+            'port' => $result['port'],
+            'scheme' => $result['scheme'],
+            'steps' => array_map(fn (array $step) => [$step['label'], $step['ok']], $result['steps']),
+        ], $r->user()->id);
+
+        return back()->with('mail_diagnostics', $result);
+    }
+
     public function logo()
     {
         return $this->serveStoredImage('logo', ['image/png', 'image/jpeg', 'image/webp']);

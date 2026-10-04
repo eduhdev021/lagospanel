@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 final class SmtpDiagnostics
 {
@@ -26,6 +27,200 @@ final class SmtpDiagnostics
         $logs = $this->inspectLogs($testId, $messageId);
 
         return ['test_id' => $testId, 'transport' => config('mail.default'), 'accepted' => true, 'message_id' => $messageId, ...$logs];
+    }
+
+    /**
+     * Tests the server without sending a message. It verifies DNS, TCP, TLS,
+     * SMTP capabilities and credentials, and returns only safe diagnostics.
+     *
+     * @param array{host:string,port:int,scheme:string,username:?string,password:?string,from:?string} $settings
+     */
+    public function connection(array $settings): array
+    {
+        $started = microtime(true);
+        $steps = [];
+        $host = trim($settings['host']);
+        $port = (int) $settings['port'];
+        $scheme = $settings['scheme'] === 'smtps' ? 'smtps' : 'smtp';
+        $username = trim((string) ($settings['username'] ?? ''));
+        $password = (string) ($settings['password'] ?? '');
+
+        $resolved = gethostbyname($host);
+        if ($resolved === $host || filter_var($resolved, FILTER_VALIDATE_IP) === false) {
+            $steps[] = $this->step('DNS', false, 'Não foi possível resolver o host informado.', ['host' => $host]);
+
+            return $this->connectionResult($host, $port, $scheme, $steps, $started);
+        }
+        $steps[] = $this->step('DNS', true, 'Host resolvido.', ['ip' => $resolved]);
+
+        $socket = null;
+        try {
+            $errno = 0;
+            $error = '';
+            $target = $scheme === 'smtps' ? 'tls://'.$host : $host;
+            $socket = @stream_socket_client($target.':'.$port, $errno, $error, 12, STREAM_CLIENT_CONNECT);
+            if (! is_resource($socket)) {
+                throw new RuntimeException('connection_failed');
+            }
+            stream_set_timeout($socket, 12);
+            $steps[] = $this->step('TCP', true, 'Conexão TCP estabelecida.', ['host' => $host, 'port' => $port]);
+
+            $greeting = $this->readResponse($socket);
+            $this->assertCode($greeting, [220]);
+            $steps[] = $this->step('SMTP greeting', true, 'Servidor respondeu corretamente.', ['code' => $greeting['code']]);
+
+            $ehlo = $this->command($socket, 'EHLO lagospanel');
+            $this->assertCode($ehlo, [250]);
+            $steps[] = $this->step('EHLO', true, 'Servidor identificou o painel.', ['code' => $ehlo['code'], 'capabilities' => $this->capabilities($ehlo['lines'])]);
+
+            if ($scheme === 'smtp') {
+                $hasStartTls = collect($ehlo['lines'])->contains(fn (string $line) => str_contains(strtoupper($line), 'STARTTLS'));
+                if (! $hasStartTls) {
+                    throw new RuntimeException('starttls_not_advertised');
+                }
+                $tls = $this->command($socket, 'STARTTLS');
+                $this->assertCode($tls, [220]);
+                $crypto = @stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+                if ($crypto !== true) {
+                    throw new RuntimeException('tls_handshake_failed');
+                }
+                $steps[] = $this->step('TLS', true, 'Handshake TLS concluído e certificado aceito.');
+                $ehlo = $this->command($socket, 'EHLO lagospanel');
+                $this->assertCode($ehlo, [250]);
+            } else {
+                $steps[] = $this->step('TLS', true, 'TLS implícito ativo desde a abertura da conexão.');
+            }
+
+            if ($username === '' || $password === '') {
+                throw new RuntimeException('credentials_missing');
+            }
+            $auth = $this->authenticate($socket, $username, $password, $ehlo['lines']);
+            $this->assertCode($auth, [235]);
+            $steps[] = $this->step('Autenticação', true, 'Usuário e senha SMTP aceitos.', ['code' => $auth['code']]);
+            $this->command($socket, 'QUIT', [221, 250]);
+        } catch (RuntimeException $e) {
+            $steps[] = $this->step($this->failureLabel($e->getMessage()), false, $this->failureMessage($e->getMessage()));
+            if (is_resource($socket)) {
+                @fwrite($socket, "QUIT\r\n");
+            }
+        } finally {
+            if (is_resource($socket)) {
+                fclose($socket);
+            }
+        }
+
+        return $this->connectionResult($host, $port, $scheme, $steps, $started);
+    }
+
+    private function connectionResult(string $host, int $port, string $scheme, array $steps, float $started): array
+    {
+        $failed = collect($steps)->firstWhere('ok', false);
+
+        return [
+            'ok' => $failed === null,
+            'host' => $host,
+            'port' => $port,
+            'scheme' => $scheme,
+            'duration_ms' => (int) round((microtime(true) - $started) * 1000),
+            'steps' => $steps,
+            'summary' => $failed ? 'Falhou na etapa '.$failed['label'].'.' : 'Conexão, TLS e autenticação SMTP confirmados.',
+        ];
+    }
+
+    private function step(string $label, bool $ok, string $message, array $meta = []): array
+    {
+        return ['label' => $label, 'ok' => $ok, 'message' => $message, 'meta' => $meta];
+    }
+
+    private function readResponse($socket): array
+    {
+        $lines = [];
+        while (($line = fgets($socket, 2048)) !== false) {
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+            $lines[] = $line;
+            if (preg_match('/^\d{3} /', $line)) {
+                break;
+            }
+        }
+        if ($lines === []) {
+            throw new RuntimeException('empty_response');
+        }
+        $last = end($lines);
+        $code = (int) substr($last, 0, 3);
+
+        return ['code' => $code, 'lines' => $lines];
+    }
+
+    private function command($socket, string $command, array $accepted = []): array
+    {
+        if (@fwrite($socket, $command."\r\n") === false) {
+            throw new RuntimeException('write_failed');
+        }
+        $response = $this->readResponse($socket);
+        if ($accepted !== [] && ! in_array($response['code'], $accepted, true)) {
+            throw new RuntimeException('smtp_code_'.$response['code']);
+        }
+
+        return $response;
+    }
+
+    private function authenticate($socket, string $username, string $password, array $capabilities): array
+    {
+        $plain = $this->command($socket, 'AUTH PLAIN '.base64_encode("\0{$username}\0{$password}"));
+        if (in_array($plain['code'], [235], true)) {
+            return $plain;
+        }
+        if (! in_array($plain['code'], [500, 501, 502, 504, 535], true)) {
+            return $plain;
+        }
+
+        $login = $this->command($socket, 'AUTH LOGIN');
+        $this->assertCode($login, [334]);
+        $login = $this->command($socket, base64_encode($username));
+        $this->assertCode($login, [334]);
+
+        return $this->command($socket, base64_encode($password));
+    }
+
+    private function assertCode(array $response, array $accepted): void
+    {
+        if (! in_array($response['code'], $accepted, true)) {
+            throw new RuntimeException('smtp_code_'.$response['code']);
+        }
+    }
+
+    private function capabilities(array $lines): array
+    {
+        return array_values(array_filter(array_map(static function (string $line): ?string {
+            $value = trim(substr($line, 4));
+            return $value !== '' && preg_match('/^[A-Z0-9][A-Z0-9_-]*/i', $value, $m) ? strtoupper($m[0]) : null;
+        }, $lines)));
+    }
+
+    private function failureLabel(string $code): string
+    {
+        return match (true) {
+            $code === 'connection_failed' => 'TCP',
+            $code === 'starttls_not_advertised' || $code === 'tls_handshake_failed' => 'TLS',
+            $code === 'credentials_missing' || str_starts_with($code, 'smtp_code_535') => 'Autenticação',
+            default => 'SMTP',
+        };
+    }
+
+    private function failureMessage(string $code): string
+    {
+        return match (true) {
+            $code === 'connection_failed' => 'Não foi possível abrir a conexão com o host e porta informados.',
+            $code === 'starttls_not_advertised' => 'O servidor não anunciou STARTTLS nesta porta. Confira porta e modo de segurança.',
+            $code === 'tls_handshake_failed' => 'A conexão abriu, mas o handshake TLS falhou ou o certificado não foi aceito.',
+            $code === 'credentials_missing' => 'Informe usuário e senha SMTP, ou salve uma senha antes de testar.',
+            str_starts_with($code, 'smtp_code_535') => 'O servidor recusou usuário ou senha SMTP.',
+            str_starts_with($code, 'smtp_code_') => 'O servidor respondeu com um código SMTP inesperado.',
+            default => 'O servidor encerrou ou não respondeu corretamente durante o diagnóstico.',
+        };
     }
 
     private function inspectLogs(string $testId, string $messageId): array

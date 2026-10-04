@@ -76,6 +76,7 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
         Route::get('/configuracoes/ambiente', [AdminConfigurationController::class, 'environment'])->name('settings.environment');
         Route::post('/configuracoes', [SiteSettingsController::class, 'save'])->name('settings.save');
         Route::post('/configuracoes/email-teste', [SiteSettingsController::class, 'testMail'])->middleware('throttle:3,1,lagos-mail-test')->name('settings.mail');
+        Route::post('/configuracoes/email-conexao', [SiteSettingsController::class, 'testMailConnection'])->middleware('throttle:6,1,lagos-mail-connection')->name('settings.mail.connection');
         Route::get('/integracoes/ollama', [AiSettingsController::class, 'index'])->name('connectors.ai');
         Route::post('/integracoes/ollama', [AiSettingsController::class, 'save'])->name('connectors.ai.save');
         Route::post('/integracoes/ollama/testar', [AiSettingsController::class, 'probe'])->middleware('throttle:2,1,lagos-ai-probe')->name('connectors.ai.probe');
