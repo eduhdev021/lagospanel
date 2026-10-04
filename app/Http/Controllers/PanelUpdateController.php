@@ -31,9 +31,14 @@ class PanelUpdateController extends Controller
         $this->root($r);
         try {
             $current = $workspace->head();
-            $target = $source->latest();
         } catch (\Throwable) {
-            throw ValidationException::withMessages(['update' => 'Consulta não concluída. Confira acesso ao GitHub, instalação Git e CI aprovado da main. Nenhum arquivo foi alterado.']);
+            throw ValidationException::withMessages(['update' => 'O processo web não conseguiu ler o checkout Git. Confira acesso do usuário PHP-FPM ao Git, ao HEAD e às referências, e se proc_open está disponível. Nenhum arquivo foi alterado.']);
+        }
+        try {
+            $target = $source->latest();
+        } catch (\Throwable $error) {
+            $reason = $error->getMessage() === 'A main ainda não tem CI aprovado.' ? 'A versão publicada ainda não possui CI aprovado. Aguarde a conclusão dos testes no GitHub.' : 'Não foi possível validar a versão no GitHub. Confira DNS, TLS, saída HTTPS e limite de consultas à API pública.';
+            throw ValidationException::withMessages(['update' => $reason.' Nenhum arquivo foi alterado.']);
         }
         $u = PanelUpdate::create(['user_id' => $r->user()->id, 'source_sha' => $current, 'target_sha' => $target, 'status' => $current === $target ? 'current' : 'checked', 'phase' => 'checked']);
         Audit::record('panel.update_checked', 'panel_update:'.$u->id, ['target' => $target], $r->user()->id);

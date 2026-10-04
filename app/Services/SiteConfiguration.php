@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AdminPreference;
 use App\Models\SiteSetting;
+use App\Support\OperationalSettings;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
@@ -13,11 +14,18 @@ final class SiteConfiguration
 {
     private array $baseline;
 
+    private array $operationalBaseline = [];
+
+    private array $operationalApplied = [];
+
     public function __construct()
     {
         $this->baseline = [];
         foreach (['mail', 'app.name', 'app.url', 'site.registration_enabled', 'site.support_email', 'admin_access.require_two_factor'] as $key) {
             $this->baseline[$key] = config($key);
+        }
+        foreach (OperationalSettings::keys() as $key) {
+            $this->operationalBaseline[$key] = config($key);
         }
     }
 
@@ -36,12 +44,17 @@ final class SiteConfiguration
     {
         $oldMail = config('mail');
         config($this->baseline);
+        foreach ($this->operationalApplied as $key) {
+            config([$key => $this->operationalBaseline[$key]]);
+        }
+        $this->operationalApplied = [];
         URL::forceRootUrl(null);
         View::share('siteLogo', null);
         try {
             if (is_file(config('setup.state_path')) && ! is_file(config('setup.lock_path'))) {
                 return;
             }
+            $this->operationalApplied = OperationalSettings::apply();
             if (Schema::hasTable('admin_preferences') && ($preference = AdminPreference::find(1)) && $preference->require_two_factor !== null) {
                 config(['admin_access.require_two_factor' => $preference->require_two_factor]);
             }

@@ -37,6 +37,7 @@ final class AiChat
             abort_if($usage->value('requests') >= config('ai.daily_requests'), 429, 'Limite diário de IA atingido. O suporte humano continua disponível.');
             $usage->increment('requests');
             $turn = $t->turns()->create(['request_key' => $key, 'user_text' => $text, 'settings_version' => $s->version, 'model' => $s->model, 'status' => 'queued', 'web_requested' => $query !== null, 'web_query' => $query]);
+            $t->touch();
             AnswerAiTurn::dispatch($turn->id)->onConnection('database')->afterCommit();
             Audit::record('ai.message_queued', 'ai_turn:'.$turn->id, [], $u->id);
 

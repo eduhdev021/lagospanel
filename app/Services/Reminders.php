@@ -10,8 +10,11 @@ final class Reminders
 {
     public function run(): int
     {
+        if (! config('automation.reminders_enabled', true)) {
+            return 0;
+        }
         $count = 0;
-        Invoice::whereIn('status', ['unpaid', 'overdue'])->where('created_at', '<=', now()->subHours(6))->whereDate('due_date', '<=', today()->addDay())->chunkById(100, function ($invoices) use (&$count) {
+        Invoice::whereIn('status', ['unpaid', 'overdue'])->where('created_at', '<=', now()->subHours(6))->whereDate('due_date', '<=', today()->addDays((int) config('automation.reminder_days', 1)))->chunkById(100, function ($invoices) use (&$count) {
             foreach ($invoices as $invoice) {
                 $count += DB::transaction(function () use ($invoice) {
                     $i = Invoice::lockForUpdate()->findOrFail($invoice->id);

@@ -9,6 +9,7 @@ use App\Http\Controllers\CommerceController;
 use App\Http\Controllers\InvoiceDocumentController;
 use App\Http\Controllers\KnowledgeController;
 use App\Http\Controllers\NativeProvisioningController;
+use App\Http\Controllers\OperationalSettingsController;
 use App\Http\Controllers\PanelUpdateController;
 use App\Http\Controllers\PterodactylAccountController;
 use App\Http\Controllers\ReportController;
@@ -26,6 +27,7 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
     Route::get('/painel/chat/{thread}', [AiChatController::class, 'index'])->name('ai.show');
     Route::post('/painel/chat/{thread}', [AiChatController::class, 'send'])->middleware('throttle:6,1,lagos-ai-send')->name('ai.send');
     Route::get('/painel/chat/{thread}/estado', [AiChatController::class, 'state'])->middleware('throttle:60,1,lagos-ai-state')->name('ai.state');
+    Route::post('/painel/chat/{thread}/renomear', [AiChatController::class, 'rename'])->middleware('throttle:15,1,lagos-ai-rename')->name('ai.rename');
     Route::post('/painel/chat/{thread}/excluir', [AiChatController::class, 'delete'])->name('ai.delete');
     Route::get('/painel/faturas/{invoice}/pdf', [InvoiceDocumentController::class, 'download'])->middleware('throttle:10,1,lagos-invoice-pdf')->name('invoices.pdf');
     Route::post('/painel/servicos/{service}/energia', [NativeProvisioningController::class, 'power'])->middleware('throttle:5,1,lagos-ptero-power')->name('services.power');
@@ -51,6 +53,9 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
         Route::post('/suporte/modelos', [CannedReplyController::class, 'save'])->name('tickets.templates.create');
         Route::post('/suporte/modelos/{template}', [CannedReplyController::class, 'save'])->name('tickets.templates.update');
         Route::get('/suporte/{ticket}/modelos/{template}', [CannedReplyController::class, 'content'])->name('tickets.templates.content');
+        Route::get('/configuracoes/recursos-disponiveis', [OperationalSettingsController::class, 'coverage'])->name('settings.coverage');
+        Route::get('/configuracoes/operacao/{section}', [OperationalSettingsController::class, 'index'])->name('settings.operation');
+        Route::post('/configuracoes/operacao/{section}', [OperationalSettingsController::class, 'save'])->middleware('throttle:10,1,lagos-operation-settings')->name('settings.operation.save');
         Route::get('/configuracoes', [AdminConfigurationController::class, 'index'])->name('settings.index');
         Route::get('/configuracoes/atualizacoes', [PanelUpdateController::class, 'index'])->name('settings.updates');
         Route::post('/configuracoes/atualizacoes/conferir', [PanelUpdateController::class, 'check'])->middleware('throttle:3,1,lagos-update-check')->name('settings.updates.check');

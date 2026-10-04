@@ -1,0 +1,126 @@
+{
+  "results": [
+    {
+      "test": "Chat returns 200",
+      "passed": true
+    },
+    {
+      "test": "Suggestion fills composer",
+      "passed": true
+    },
+    {
+      "test": "First message does not reload page",
+      "passed": true
+    },
+    {
+      "test": "Composer disables sending while queued",
+      "passed": true
+    },
+    {
+      "test": "Consent remembered per conversation",
+      "passed": true
+    },
+    {
+      "test": "Real worker completes with mocked Ollama",
+      "passed": true
+    },
+    {
+      "test": "Markdown bold and code rendered",
+      "passed": true
+    },
+    {
+      "test": "Model HTML remains inert",
+      "passed": true
+    },
+    {
+      "test": "Send reenabled after answer",
+      "passed": true
+    },
+    {
+      "test": "Shift Enter inserts newline without sending",
+      "passed": true
+    },
+    {
+      "test": "Failure retry fills draft, never auto resends",
+      "passed": true
+    },
+    {
+      "test": "Rename updates sidebar without navigation",
+      "passed": true
+    },
+    {
+      "test": "Chat responsive 320",
+      "passed": true
+    },
+    {
+      "test": "Chat responsive 390",
+      "passed": true
+    },
+    {
+      "test": "Chat responsive 768",
+      "passed": true
+    },
+    {
+      "test": "Chat responsive 1440",
+      "passed": true
+    },
+    {
+      "test": "Mobile history opens",
+      "passed": true
+    },
+    {
+      "test": "Mobile history closes",
+      "passed": true
+    },
+    {
+      "test": "Conversation persists after reload",
+      "passed": true
+    },
+    {
+      "test": "Operational settings added to hub",
+      "passed": true
+    },
+    {
+      "test": "Billing discoverable by search",
+      "passed": true
+    },
+    {
+      "test": "Operational page billing",
+      "passed": true
+    },
+    {
+      "test": "Operational page payments",
+      "passed": true
+    },
+    {
+      "test": "Operational page automation",
+      "passed": true
+    },
+    {
+      "test": "Operational page support",
+      "passed": true
+    },
+    {
+      "test": "Operational page resources",
+      "passed": true
+    },
+    {
+      "test": "Billing configuration persists",
+      "passed": true
+    },
+    {
+      "test": "Operational settings responsive",
+      "passed": true
+    },
+    {
+      "test": "Coverage page discloses missing features",
+      "passed": true
+    },
+    {
+      "test": "No JavaScript errors",
+      "passed": true
+    }
+  ],
+  "javascript_errors": [],
+  "network": "Ollama mocked locally; no real provider credentials"
+}

@@ -1,7 +1,7 @@
 {
   "database": "SQLite WAL / BEGIN IMMEDIATE",
   "workers": 20,
-  "seconds": 50.103,
+  "seconds": 48.662,
   "results": [
     {
       "test": "20 processos creditam depósitos sem perder atualizações",

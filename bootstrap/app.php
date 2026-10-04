@@ -31,6 +31,6 @@ return Application::configure(basePath: dirname(__DIR__))
         }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->dontFlash(['client_secret', 'token', 'web_token', 'smtp_password', 'setup_key', 'db_password', 'code', 'password', 'password_confirmation']);
+        $exceptions->dontFlash(['values', 'client_secret', 'token', 'web_token', 'smtp_password', 'setup_key', 'db_password', 'code', 'password', 'password_confirmation']);
         $exceptions->shouldRenderJsonWhen(fn ($request, $e) => $request->is('webhooks/*', 'api/*') || $request->expectsJson());
     })->create();

@@ -13,7 +13,7 @@ final class Maintenance
     {
         $expired = app(OrderLifecycle::class)->expire();
         $made = 0;
-        Service::where('status', 'active')->where('auto_renew', true)->whereNull('cancellation_requested_at')->whereNotNull('next_due')->whereDate('next_due', '<=', today()->addDays(5))->chunkById(100, function ($services) use (&$made) {
+        Service::when(! config('automation.renewals_enabled', true), fn ($q) => $q->whereRaw('1=0'))->where('status', 'active')->where('auto_renew', true)->whereNull('cancellation_requested_at')->whereNotNull('next_due')->whereDate('next_due', '<=', today()->addDays((int) config('automation.renewal_days', 5)))->chunkById(100, function ($services) use (&$made) {
             foreach ($services as $service) {
                 $made += DB::transaction(function () use ($service) {
                     $s = Service::lockForUpdate()->findOrFail($service->id);
@@ -30,7 +30,7 @@ final class Maintenance
         });
         $overdue = Invoice::where('status', 'unpaid')->whereDate('due_date', '<', today())->update(['status' => 'overdue']);
         $queued = 0;
-        Invoice::with('services')->where('status', 'overdue')->whereDate('due_date', '<=', today()->subDays(3))->chunkById(100, function ($invoices) use (&$queued) {
+        Invoice::with('services')->when(! config('automation.suspensions_enabled', true), fn ($q) => $q->whereRaw('1=0'))->where('status', 'overdue')->whereDate('due_date', '<=', today()->subDays((int) config('automation.suspension_days', 3)))->chunkById(100, function ($invoices) use (&$queued) {
             foreach ($invoices as $invoice) {
                 foreach ($invoice->services as $s) {
                     if ($s->status === 'active' && $s->connector_id) {

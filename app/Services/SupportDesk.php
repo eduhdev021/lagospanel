@@ -67,7 +67,7 @@ final class SupportDesk
                 User::whereKey($user->id)->lockForUpdate()->firstOrFail();
             }
             $priority = $data['priority'] ?? 'normal';
-            $hours = self::PRIORITIES[$priority];
+            $hours = (int) config('support.sla.'.$priority, self::PRIORITIES[$priority]);
             $ticket = $user->tickets()->create(['subject' => $data['subject'], 'body' => $data['body'], 'department' => $data['department'], 'priority' => $priority, 'sla_hours' => $hours, 'response_due_at' => now()->addHours($hours)]);
             $this->attach($ticket, $user, $files);
             Audit::record('ticket.created', 'ticket:'.$ticket->id, ['priority' => $priority], $user->id);
@@ -115,7 +115,7 @@ final class SupportDesk
                     throw ValidationException::withMessages(['assigned_to' => 'Responsável precisa das permissões de visualizar e gerenciar suporte.']);
                 }
             }
-            $hours = self::PRIORITIES[$priority];
+            $hours = (int) config('support.sla.'.$priority, self::PRIORITIES[$priority]);
             if (in_array($ticket->status, ['open', 'customer_reply'], true)) {
                 $due = now()->addHours($hours);
                 $ticket->response_due_at = $ticket->response_due_at?->min($due) ?? $due;

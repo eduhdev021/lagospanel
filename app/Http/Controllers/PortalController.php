@@ -136,7 +136,7 @@ class PortalController extends Controller
             if ($audit) {
                 return Invoice::findOrFail($audit->context['invoice']);
             }
-            $i = $u->invoices()->create(['type' => 'deposit', 'total_minor' => $amount, 'due_date' => today()->addDays(3), 'snapshot' => [['name' => 'Recarga de saldo', 'quantity' => 1, 'unit_minor' => $amount]]]);
+            $i = $u->invoices()->create(['type' => 'deposit', 'total_minor' => $amount, 'due_date' => today()->addDays((int) config('automation.deposit_due_days', 3)), 'snapshot' => [['name' => 'Recarga de saldo', 'quantity' => 1, 'unit_minor' => $amount]]]);
             Audit::record('deposit.created', $ref, ['invoice' => $i->id], $u->id);
 
             return $i;

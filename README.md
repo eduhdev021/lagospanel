@@ -117,3 +117,10 @@ no ADM e vínculos protegidos por senha/2FA. Os provedores vêm desativados; nã
 credenciais de produção nem homologação real embutida.
 
 Veja [configuração e segurança do login social](docs/LOGIN-SOCIAL-E-NOVA-INTERFACE.md).
+
+### Chat e operação (1.6.0-dev)
+
+Chat com envio sem recarregar, histórico, compositor fixo e consentimento por
+conversa. Cinco novas seções conectadas aos serviços existentes: faturamento,
+automação, gateways, SLA e recursos. Não equivale a todos os módulos do WHMCS.
+Veja [funcionamento, limites e testes](docs/CHAT-E-CONFIGURACOES-OPERACIONAIS.md).

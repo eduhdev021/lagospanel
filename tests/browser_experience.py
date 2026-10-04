@@ -20,7 +20,7 @@ with sync_playwright()as pw:
  p.goto(BASE+'/entrar');check('All five social buttons render',p.locator('.social-button').count()==5);check('Login responsive',p.evaluate('document.documentElement.scrollWidth<=innerWidth+1'))
  p.locator('[name=email]').fill('admin@experience.invalid');p.locator('[name=password]').fill('DemoOnly-Experience-4928');p.get_by_role('button',name='Entrar',exact=True).click();p.wait_for_url('**/painel')
  p.set_viewport_size({'width':1440,'height':1000});check('Settings returns 200',p.goto(BASE+'/admin/configuracoes').status==200)
- check('Settings icons present',p.locator('[data-settings-item] .settings-tile-icon svg').count()==14)
+ check('Settings icons present',p.locator('[data-settings-item] .settings-tile-icon svg').count()==22)
  p.screenshot(path=str(ROOT/'docs/screenshots/settings-desktop.png'),full_page=True)
  p.locator('#settings-search').fill('EMAIL');check('Search ignores accents and matches email',p.locator('[data-settings-item]:visible').count()==1)
  p.locator('#settings-search').fill('no-match-fixture');check('Empty search has recovery button',p.locator('[data-settings-empty]').is_visible());p.locator('[data-settings-reset]').click()
