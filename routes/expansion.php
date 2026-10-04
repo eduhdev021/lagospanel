@@ -6,6 +6,7 @@ use App\Http\Controllers\AiSettingsController;
 use App\Http\Controllers\ApiAccessController;
 use App\Http\Controllers\CannedReplyController;
 use App\Http\Controllers\CommerceController;
+use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\InvoiceDocumentController;
 use App\Http\Controllers\KnowledgeController;
 use App\Http\Controllers\NativeProvisioningController;
@@ -50,6 +51,8 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
     Route::post('/painel/api/{token}/revogar', [ApiAccessController::class, 'revoke'])->name('api.revoke');
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::get('/faturas/{invoice}/pdf', [InvoiceDocumentController::class, 'download'])->middleware('throttle:30,1,lagos-staff-invoice-pdf')->name('invoices.pdf');
+        Route::post('/pagamentos/{payment}/reembolso', [FinanceController::class, 'refund'])->middleware('throttle:10,1,lagos-finance-refund')->name('invoices.refund');
+        Route::post('/pagamentos/{payment}/chargeback', [FinanceController::class, 'chargeback'])->middleware('throttle:10,1,lagos-finance-chargeback')->name('invoices.chargeback');
         Route::get('/suporte/modelos', [CannedReplyController::class, 'index'])->name('tickets.templates');
         Route::get('/suporte/modelos/{template}/editar', [CannedReplyController::class, 'index'])->name('tickets.templates.edit');
         Route::post('/suporte/modelos', [CannedReplyController::class, 'save'])->name('tickets.templates.create');

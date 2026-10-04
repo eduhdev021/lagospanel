@@ -63,4 +63,18 @@ class FinancialLedgerTest extends TestCase
         $this->assertDatabaseHas('financial_ledger_entries', ['type' => 'chargeback', 'amount_minor' => -1000]);
         $this->assertDatabaseCount('payment_refunds', 0);
     }
+
+    public function test_admin_can_register_refund_and_chargeback_through_protected_routes(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $invoice = Invoice::create(['user_id' => $admin->id, 'type' => 'order', 'total_minor' => 1000, 'snapshot' => [], 'due_date' => today()]);
+        app(Billing::class)->settle($invoice->id, 'manual', 'paid-3', 1000, 'BRL');
+        $payment = Payment::firstOrFail();
+
+        $this->actingAs($admin)->post(route('admin.invoices.refund', $payment), ['amount_minor' => 250, 'reference' => 'admin-refund-1', 'reason' => 'Solicitado pelo cliente'])->assertRedirect();
+        $this->assertDatabaseHas('payment_refunds', ['reference' => 'admin-refund-1', 'amount_minor' => 250]);
+
+        $this->actingAs($admin)->post(route('admin.invoices.chargeback', $payment), ['amount_minor' => 750, 'reference' => 'admin-cb-1', 'reason' => 'Disputa confirmada'])->assertRedirect();
+        $this->assertDatabaseHas('payment_chargebacks', ['reference' => 'admin-cb-1', 'amount_minor' => 750]);
+    }
 }
