@@ -137,10 +137,20 @@ final class PterodactylDriver
         $method = 'POST';
         $path = '/servers';
         if ($op->action === 'create') {
-            $data = ['external_id' => $p['external_id'], 'name' => 'LagosPanel '.$s->id, 'description' => $p['external_id'], 'user' => $p['remote_user_id'], 'egg' => $p['egg'], 'docker_image' => $p['docker_image'], 'startup' => $p['startup'], 'environment' => (object) $p['environment'],
+            $data = ['external_id' => $p['external_id'], 'name' => $p['hostname'] ?? ('LagosPanel '.$s->id), 'description' => $p['external_id'], 'user' => $p['remote_user_id'], 'nest' => $p['nest_id'] ?? null, 'egg' => $p['egg_id'] ?? $p['egg'], 'docker_image' => $p['docker_image'], 'startup' => $p['startup'], 'environment' => (object) $p['environment'],
                 'limits' => array_intersect_key($p, array_flip(['memory', 'disk', 'cpu', 'swap', 'io'])),
                 'feature_limits' => array_intersect_key($p, array_flip(['databases', 'allocations', 'backups'])),
-                'deploy' => ['locations' => [$p['location']], 'dedicated_ip' => false, 'port_range' => []], 'start_on_completion' => true, 'skip_scripts' => false, 'oom_disabled' => false];
+                'deployment' => ['locations' => $p['location_ids'] ?? [$p['location']], 'dedicated_ip' => (bool) ($p['dedicated_ip'] ?? false), 'port_range' => array_values($p['port_range'] ?? [])],
+                'deploy' => ['locations' => $p['location_ids'] ?? [$p['location']], 'dedicated_ip' => (bool) ($p['dedicated_ip'] ?? false), 'port_range' => array_values($p['port_range'] ?? [])],
+                'start_on_completion' => (bool) ($p['start_on_completion'] ?? true), 'skip_scripts' => (bool) ($p['skip_scripts'] ?? false), 'oom_disabled' => ! (bool) ($p['oom_killer'] ?? false)];
+            if (! empty($p['node'])) {
+                $data['deployment']['nodes'] = [(int) $p['node']];
+                $data['deploy']['node'] = (int) $p['node'];
+            }
+            if (! empty($p['port_array'])) {
+                $data['deployment']['port_array'] = array_values($p['port_array']);
+                $data['deploy']['port_array'] = array_values($p['port_array']);
+            }
         } else {
             $path .= '/'.$before['remote_id'];
             if ($op->action === 'terminate') {

@@ -167,6 +167,37 @@ class PterodactylTest extends TestCase
         PterodactylConfig::product(['ptero_config' => json_encode(array_replace(self::plan(), ['memory' => 0]))]);
     }
 
+    public function test_paymenter_addon_fields_are_normalized_and_preserved(): void
+    {
+        $plan = array_replace(self::plan(), [
+            'egg' => null,
+            'location' => null,
+            'egg_id' => 7,
+            'nest_id' => 2,
+            'location_ids' => [3, 4],
+            'node' => 9,
+            'additional_allocations' => 2,
+            'port_range' => ['25565-25565'],
+            'port_array' => ['QUERY_PORT'],
+            'dedicated_ip' => true,
+            'skip_scripts' => true,
+            'start_on_completion' => false,
+            'oom_killer' => true,
+        ]);
+
+        $config = PterodactylConfig::product(['ptero_config' => json_encode($plan)]);
+
+        $this->assertSame(7, $config['egg_id']);
+        $this->assertSame(2, $config['nest_id']);
+        $this->assertSame([3, 4], $config['location_ids']);
+        $this->assertSame(9, $config['node']);
+        $this->assertSame(['QUERY_PORT'], $config['port_array']);
+        $this->assertTrue($config['dedicated_ip']);
+        $this->assertTrue($config['skip_scripts']);
+        $this->assertFalse($config['start_on_completion']);
+        $this->assertTrue($config['oom_killer']);
+    }
+
     public function test_owner_email_mismatch_blocks_all_mutations(): void
     {
         $s = $this->service();
@@ -453,7 +484,7 @@ class PterodactylTest extends TestCase
         Http::preventStrayRequests();
         $u->forceFill(['totp_secret' => null])->save();
         config(['lagos.native_provisioning' => false]);
-        $this->post($url,$this->powerData())->assertSessionHasErrors('service');
+        $this->post($url, $this->powerData())->assertSessionHasErrors('service');
         Http::assertNothingSent();
     }
 }
