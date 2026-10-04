@@ -7,8 +7,8 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentReview;
 use App\Support\Money;
+use Efi\EfiPay;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 
@@ -48,6 +48,20 @@ final class Gateways
     public function efiCharge(Invoice $invoice): ?GatewayCharge
     {
         return GatewayCharge::where('invoice_id', $invoice->id)->where('gateway', 'efi')->latest('id')->first();
+    }
+
+    public function configureEfiWebhook(?string $webhookUrl = null): array
+    {
+        $this->enabled('efi');
+        $this->assertEfiConfig();
+        $key = (string) config('lagos.payments.efi.pix_key');
+        $url = $webhookUrl ?: url('/webhooks/efi?ignorar='.(config('lagos.payments.efi.webhook_hmac') ? '&hmac='.urlencode((string) config('lagos.payments.efi.webhook_hmac')) : ''));
+        abort_unless(filter_var($url, FILTER_VALIDATE_URL) && str_starts_with($url, 'https://'), 422, 'A URL do webhook Efí precisa ser HTTPS.');
+        try {
+            return $this->efiBody($this->efiApi()->pixConfigWebhook(['chave' => $key], ['webhookUrl' => $url]));
+        } catch (\Throwable $e) {
+            abort(502, 'A Efí não configurou o webhook: '.mb_substr($e->getMessage(), 0, 180));
+        }
     }
 
     public function stripe(string $body, string $signature): ?Invoice
@@ -119,6 +133,10 @@ final class Gateways
             if (! $charge) {
                 continue;
             }
+            if ($charge->status === 'paid' && $charge->provider_reference) {
+                $processed[] = $txid;
+                continue;
+            }
             $authoritative = $this->efiGetCharge($txid);
             if (($authoritative['status'] ?? '') !== 'CONCLUIDA') {
                 continue;
@@ -154,16 +172,23 @@ final class Gateways
         $this->assertEfiConfig();
         $txid = 'LAGOS'.str_pad(base_convert((string) $invoice->id, 10, 36), 8, '0', STR_PAD_LEFT).strtoupper(substr(hash('sha256', $invoice->id.'|'.$invoice->total_minor), 0, 20));
         $expiration = (int) config('lagos.payments.efi.charge_expiration', 3600);
-        $token = $this->efiAccessToken();
         $body = [
             'calendario' => ['expiracao' => $expiration],
             'valor' => ['original' => number_format($invoice->total_minor / 100, 2, '.', '')],
             'chave' => (string) config('lagos.payments.efi.pix_key'),
             'solicitacaoPagador' => 'Pagamento da fatura #'.$invoice->id.' — '.config('app.name'),
         ];
-        $r = $this->efiRequest()->withToken($token)->put($this->efiBaseUrl().'/v2/cob/'.$txid, $body);
-        $pix = $r->json('pixCopiaECola');
-        abort_unless($r->successful() && is_string($pix) && $pix !== '' && ($r->json('txid') === $txid), 502, 'A Efí não criou uma cobrança Pix válida.');
+        try {
+            $api = $this->efiApi();
+            $response = $this->efiBody($api->pixCreateCharge(['txid' => $txid], $body));
+            abort_unless(($response['txid'] ?? null) === $txid, 502, 'A Efí não criou uma cobrança Pix válida.');
+            $location = $response['loc']['id'] ?? null;
+            $qr = $location ? $this->efiBody($api->pixGenerateQRCode(['id' => $location])) : [];
+            $pix = $qr['qrcode'] ?? $qr['pixCopiaECola'] ?? null;
+            abort_unless(is_string($pix) && $pix !== '', 502, 'A Efí não retornou o código Pix da cobrança.');
+        } catch (\Throwable $e) {
+            abort(502, 'A Efí não criou a cobrança Pix: '.mb_substr($e->getMessage(), 0, 180));
+        }
         GatewayCharge::create([
             'invoice_id' => $invoice->id,
             'gateway' => 'efi',
@@ -172,7 +197,7 @@ final class Gateways
             'amount_minor' => $invoice->total_minor,
             'currency' => 'BRL',
             'pix_copia_e_cola' => $pix,
-            'location' => is_string($r->json('location')) ? $r->json('location') : null,
+            'location' => is_scalar($location) ? (string) $location : null,
             'expires_at' => now()->addSeconds($expiration),
         ]);
 
@@ -182,36 +207,41 @@ final class Gateways
     private function efiGetCharge(string $txid): array
     {
         $this->assertEfiConfig();
-
-        return $this->efiRequest()->withToken($this->efiAccessToken())->get($this->efiBaseUrl().'/v2/cob/'.$txid)->throw()->json();
-    }
-
-    private function efiAccessToken(): string
-    {
-        $r = $this->efiRequest()->withBasicAuth((string) config('lagos.payments.efi.client_id'), (string) config('lagos.payments.efi.client_secret'))->post($this->efiBaseUrl().'/oauth/token', ['grant_type' => 'client_credentials']);
-        $token = $r->json('access_token');
-        abort_unless($r->successful() && is_string($token) && $token !== '', 502, 'A Efí não autorizou o gateway. Confira Client ID, Client Secret e certificado.');
-
-        return $token;
-    }
-
-    private function efiRequest(): PendingRequest
-    {
-        $options = ['verify' => true];
-        $certificate = (string) config('lagos.payments.efi.certificate');
-        if ($certificate !== '') {
-            $options['cert'] = [(string) $certificate, (string) config('lagos.payments.efi.certificate_password', '')];
-            if (strtoupper((string) config('lagos.payments.efi.certificate_type', 'PEM')) === 'P12') {
-                $options['curl'] = [CURLOPT_SSLCERTTYPE => 'P12'];
-            }
+        try {
+            return $this->efiBody($this->efiApi()->pixDetailCharge(['txid' => $txid]));
+        } catch (\Throwable $e) {
+            abort(502, 'A Efí não consultou a cobrança: '.mb_substr($e->getMessage(), 0, 180));
         }
+    }
 
-        return Http::withOptions($options)->acceptJson()->withoutRedirecting()->timeout(20);
+    private function efiApi(): EfiPay
+    {
+        if (app()->bound(EfiPay::class)) {
+            return app(EfiPay::class);
+        }
+        $certificate = (string) config('lagos.payments.efi.certificate');
+        return new EfiPay([
+            'clientId' => (string) config('lagos.payments.efi.client_id'),
+            'clientSecret' => (string) config('lagos.payments.efi.client_secret'),
+            'certificate' => $certificate,
+            'pwdCertificate' => (string) config('lagos.payments.efi.certificate_password', ''),
+            'sandbox' => config('lagos.payments.efi.environment') !== 'producao',
+            'timeout' => 20,
+            'headers' => ['x-skip-mtls-checking' => false],
+        ]);
+    }
+
+    private function efiBody(mixed $response): array
+    {
+        $body = is_object($response) && isset($response->body) ? $response->body : $response;
+        abort_unless(is_array($body), 502, 'Resposta inválida recebida da Efí.');
+
+        return $body;
     }
 
     private function assertEfiConfig(): void
     {
-        $required = ['client_id', 'client_secret', 'certificate', 'pix_key', 'webhook_hmac'];
+        $required = ['client_id', 'client_secret', 'certificate', 'pix_key'];
         foreach ($required as $key) {
             abort_unless(filled(config('lagos.payments.efi.'.$key)), 503, 'Configure todos os dados de segurança da Efí antes de cobrar.');
         }

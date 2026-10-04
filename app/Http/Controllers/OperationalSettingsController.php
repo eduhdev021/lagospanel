@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\OperationalSetting;
 use App\Services\AdminConfirmation;
 use App\Services\Audit;
+use App\Services\Gateways;
 use App\Support\OperationalSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -86,7 +87,7 @@ class OperationalSettingsController extends Controller
                 }
             }
             if ($section === 'payments') {
-                foreach (['stripe_enabled' => ['stripe_secret', 'stripe_webhook'], 'mp_enabled' => ['mp_token'], 'efi_enabled' => ['efi_client_id', 'efi_client_secret', 'efi_certificate_path', 'efi_pix_key', 'efi_webhook_hmac']] as $enabled => $needed) {
+                foreach (['stripe_enabled' => ['stripe_secret', 'stripe_webhook'], 'mp_enabled' => ['mp_token'], 'efi_enabled' => ['efi_client_id', 'efi_client_secret', 'efi_certificate_path', 'efi_pix_key']] as $enabled => $needed) {
                     if ($values[$enabled]) {
                         foreach ($needed as $key) {
                             if (! (array_key_exists($key, $values) ? $values[$key] : config($fields[$key][1]))) {
@@ -109,5 +110,13 @@ class OperationalSettingsController extends Controller
     public function coverage()
     {
         return view('admin.configuration.coverage');
+    }
+
+    public function configureEfiWebhook(Request $r, Gateways $gateways)
+    {
+        abort_unless($r->user()->is_admin && $r->user()->hasPermission('settings.manage'), 403);
+        $gateways->configureEfiWebhook();
+
+        return back()->with('status', 'Webhook Pix configurado pela API oficial da Efí.');
     }
 }

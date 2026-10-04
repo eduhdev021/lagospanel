@@ -61,6 +61,7 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
         Route::get('/configuracoes/recursos-disponiveis', [OperationalSettingsController::class, 'coverage'])->name('settings.coverage');
         Route::get('/configuracoes/operacao/{section}', [OperationalSettingsController::class, 'index'])->name('settings.operation');
         Route::post('/configuracoes/operacao/{section}', [OperationalSettingsController::class, 'save'])->middleware('throttle:10,1,lagos-operation-settings')->name('settings.operation.save');
+        Route::post('/configuracoes/operacao/pagamentos/efi/webhook', [OperationalSettingsController::class, 'configureEfiWebhook'])->middleware('throttle:3,1,lagos-efi-webhook-config')->name('settings.operation.efi-webhook');
         Route::get('/configuracoes', [AdminConfigurationController::class, 'index'])->name('settings.index');
         Route::get('/configuracoes/atualizacoes', [PanelUpdateController::class, 'index'])->name('settings.updates');
         Route::post('/configuracoes/atualizacoes/conferir', [PanelUpdateController::class, 'check'])->middleware('throttle:3,1,lagos-update-check')->name('settings.updates.check');

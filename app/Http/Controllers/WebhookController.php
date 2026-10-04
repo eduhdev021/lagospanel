@@ -26,7 +26,9 @@ class WebhookController extends Controller
     {
         $expected = (string) config('lagos.payments.efi.webhook_hmac');
         $provided = (string) $r->query('hmac');
-        abort_unless($expected !== '' && $provided !== '' && hash_equals($expected, $provided), 403, 'Webhook Efí não autorizado.');
+        if ($expected !== '') {
+            abort_unless($provided !== '' && hash_equals($expected, $provided), 403, 'Webhook Efí não autorizado.');
+        }
 
         return response()->json(['received' => true] + $g->efiWebhook($r->json()->all()));
     }

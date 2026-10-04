@@ -5,9 +5,11 @@ namespace Tests\Feature;
 use App\Models\GatewayCharge;
 use App\Models\Invoice;
 use App\Models\User;
+use App\Services\Gateways;
+use Efi\EfiPay;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Mockery;
 use Tests\TestCase;
 
 class EfiGatewayTest extends TestCase
@@ -20,7 +22,7 @@ class EfiGatewayTest extends TestCase
     {
         parent::setUp();
         $this->certificate = tempnam(sys_get_temp_dir(), 'efi-cert-');
-        file_put_contents($this->certificate, 'fake certificate for Http::fake');
+        file_put_contents($this->certificate, 'fake certificate for SDK tests');
         config([
             'lagos.payments.live' => false,
             'lagos.payments.efi' => [
@@ -40,8 +42,17 @@ class EfiGatewayTest extends TestCase
 
     protected function tearDown(): void
     {
+        Mockery::close();
         @unlink($this->certificate);
         parent::tearDown();
+    }
+
+    private function sdk(): \Mockery\MockInterface
+    {
+        $sdk = Mockery::mock(EfiPay::class);
+        $this->app->instance(EfiPay::class, $sdk);
+
+        return $sdk;
     }
 
     private function invoice(User $user): Invoice
@@ -65,44 +76,33 @@ class EfiGatewayTest extends TestCase
         return $this->actingAs($user)->withSession(['_token' => $token])->post(route('invoices.gateway', $invoice), ['gateway' => 'efi', '_token' => $token]);
     }
 
-    public function test_efi_checkout_creates_one_reusable_pix_charge(): void
+    public function test_efi_checkout_uses_sdk_and_creates_one_reusable_pix_charge(): void
     {
         $user = User::factory()->create();
         $invoice = $this->invoice($user);
-        $createdTxid = null;
-        Http::fake(function ($request) use (&$createdTxid) {
-            if (str_ends_with($request->url(), '/oauth/token')) {
-                return Http::response(['access_token' => 'efi-access-token']);
-            }
-            $createdTxid = basename(parse_url($request->url(), PHP_URL_PATH));
-
-            return Http::response(['txid' => $createdTxid, 'status' => 'ATIVA', 'location' => 'qrcode.loc/abc', 'pixCopiaECola' => '000201pix-code-test']);
-        });
+        $sdk = $this->sdk();
+        $sdk->shouldReceive('pixCreateCharge')->once()->andReturnUsing(fn (array $params, array $body) => ['txid' => $params['txid'], 'status' => 'ATIVA', 'loc' => ['id' => 321]]);
+        $sdk->shouldReceive('pixGenerateQRCode')->once()->with(['id' => 321])->andReturn(['qrcode' => '000201pix-code-test', 'imagemQrcode' => 'data:image/png;base64,test']);
 
         $this->gatewayPost($user, $invoice)->assertRedirect(route('invoices.efi', $invoice));
-        $this->assertNotNull($createdTxid);
-        $this->assertDatabaseHas('gateway_charges', ['invoice_id' => $invoice->id, 'gateway' => 'efi', 'reference' => $createdTxid, 'status' => 'active']);
+        $charge = GatewayCharge::where('invoice_id', $invoice->id)->sole();
+        $this->assertSame('active', $charge->status);
+        $this->assertSame('000201pix-code-test', $charge->pix_copia_e_cola);
         $this->assertSame('unpaid', $invoice->fresh()->status);
-        Http::assertSentCount(2);
 
         $this->gatewayPost($user, $invoice)->assertRedirect(route('invoices.efi', $invoice));
-        Http::assertSentCount(2);
+        $this->assertDatabaseCount('gateway_charges', 1);
     }
 
-    public function test_efi_webhook_consults_authoritative_charge_and_is_idempotent(): void
+    public function test_efi_webhook_consults_authoritative_charge_through_sdk_and_is_idempotent(): void
     {
         $user = User::factory()->create();
         $invoice = $this->invoice($user);
         $txid = 'LAGOS00000001'.strtoupper(substr(hash('sha256', (string) Str::uuid()), 0, 20));
         $endToEnd = 'E1234567890123456789012345678901';
         GatewayCharge::create(['invoice_id' => $invoice->id, 'gateway' => 'efi', 'reference' => $txid, 'status' => 'active', 'amount_minor' => 2599, 'currency' => 'BRL', 'pix_copia_e_cola' => 'pix-code-test', 'expires_at' => now()->addHour()]);
-        Http::fake(function ($request) use ($txid, $endToEnd) {
-            if (str_ends_with($request->url(), '/oauth/token')) {
-                return Http::response(['access_token' => 'efi-access-token']);
-            }
-
-            return Http::response(['txid' => $txid, 'status' => 'CONCLUIDA', 'valor' => ['original' => '25.99'], 'pix' => [['txid' => $txid, 'endToEndId' => $endToEnd, 'valor' => '25.99']]]);
-        });
+        $sdk = $this->sdk();
+        $sdk->shouldReceive('pixDetailCharge')->once()->with(['txid' => $txid])->andReturn(['txid' => $txid, 'status' => 'CONCLUIDA', 'valor' => ['original' => '25.99'], 'pix' => [['txid' => $txid, 'endToEndId' => $endToEnd, 'valor' => '25.99']]]);
         $payload = ['pix' => [['txid' => $txid, 'endToEndId' => $endToEnd, 'valor' => '25.99']]];
 
         $this->postJson('/webhooks/efi?hmac=callback-hmac-test', $payload)->assertOk();
@@ -114,10 +114,24 @@ class EfiGatewayTest extends TestCase
         $this->assertDatabaseCount('payments', 1);
     }
 
-    public function test_efi_webhook_requires_private_hmac(): void
+    public function test_efi_webhook_can_be_configured_by_sdk_without_a_panel_url_field(): void
     {
-        Http::fake();
+        $sdk = $this->sdk();
+        $sdk->shouldReceive('pixConfigWebhook')->once()->with(['chave' => 'pix@example.test'], ['webhookUrl' => 'https://panel.example.test/webhooks/efi?ignorar='])->andReturn(['webhookUrl' => 'https://panel.example.test/webhooks/efi?ignorar=']);
+
+        $result = app(Gateways::class)->configureEfiWebhook('https://panel.example.test/webhooks/efi?ignorar=');
+
+        $this->assertSame('https://panel.example.test/webhooks/efi?ignorar=', $result['webhookUrl']);
+    }
+
+    public function test_efi_webhook_requires_private_hmac_when_one_is_configured(): void
+    {
         $this->postJson('/webhooks/efi', ['pix' => []])->assertForbidden();
-        Http::assertNothingSent();
+    }
+
+    public function test_efi_webhook_accepts_callback_without_hmac_when_hmac_is_not_configured(): void
+    {
+        config(['lagos.payments.efi.webhook_hmac' => null]);
+        $this->postJson('/webhooks/efi', ['pix' => []])->assertOk();
     }
 }
