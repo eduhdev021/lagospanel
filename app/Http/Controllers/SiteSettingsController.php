@@ -31,6 +31,15 @@ class SiteSettingsController extends Controller
             'footer_description' => 'nullable|string|max:500',
             'footer_copyright' => 'nullable|string|max:240',
             'footer_tagline' => 'nullable|string|max:180',
+            'social_links' => 'sometimes|array:instagram,facebook,x,youtube,linkedin,tiktok,whatsapp,discord',
+            'social_links.instagram' => ['nullable', 'string', 'url', 'max:255', $this->httpsSocialLinkRule()],
+            'social_links.facebook' => ['nullable', 'string', 'url', 'max:255', $this->httpsSocialLinkRule()],
+            'social_links.x' => ['nullable', 'string', 'url', 'max:255', $this->httpsSocialLinkRule()],
+            'social_links.youtube' => ['nullable', 'string', 'url', 'max:255', $this->httpsSocialLinkRule()],
+            'social_links.linkedin' => ['nullable', 'string', 'url', 'max:255', $this->httpsSocialLinkRule()],
+            'social_links.tiktok' => ['nullable', 'string', 'url', 'max:255', $this->httpsSocialLinkRule()],
+            'social_links.whatsapp' => ['nullable', 'string', 'url', 'max:255', $this->httpsSocialLinkRule()],
+            'social_links.discord' => ['nullable', 'string', 'url', 'max:255', $this->httpsSocialLinkRule()],
             'mailer' => 'required|in:inherit,log,smtp',
             'smtp_host' => 'nullable|required_if:mailer,smtp|string|max:253',
             'smtp_port' => 'required|integer|min:1|max:65535',
@@ -40,7 +49,7 @@ class SiteSettingsController extends Controller
             'clear_smtp_password' => 'sometimes|boolean',
             'mail_from_address' => 'nullable|required_if:mailer,smtp|email|max:254',
         ];
-        $general = ['name', 'url', 'support_email', 'registration_enabled', 'version', 'logo', 'remove_logo', 'footer_description', 'footer_copyright', 'footer_tagline'];
+        $general = ['name', 'url', 'support_email', 'registration_enabled', 'version', 'logo', 'remove_logo', 'footer_description', 'footer_copyright', 'footer_tagline', 'social_links', 'social_links.instagram', 'social_links.facebook', 'social_links.x', 'social_links.youtube', 'social_links.linkedin', 'social_links.tiktok', 'social_links.whatsapp', 'social_links.discord'];
         if ($section === 'general') {
             $rules = array_intersect_key($rules, array_flip($general));
         }
@@ -48,6 +57,12 @@ class SiteSettingsController extends Controller
             $rules = array_diff_key($rules, array_flip(array_diff($general, ['version'])));
         }
         $v = $r->validate($rules);
+        if (isset($v['social_links'])) {
+            $v['social_links'] = array_filter($v['social_links'], fn ($url) => filled($url));
+            if ($v['social_links'] === []) {
+                $v['social_links'] = null;
+            }
+        }
         if (isset($v['url'])) {
             $v['url'] = SiteConfiguration::origin($v['url']);
         }
@@ -67,7 +82,7 @@ class SiteSettingsController extends Controller
             DB::table('site_settings')->insertOrIgnore(['id' => 1, 'name' => 'LagosPanel', 'url' => config('app.url'), 'version' => 0, 'created_at' => now(), 'updated_at' => now()]);
             $s = SiteSetting::lockForUpdate()->findOrFail(1);
             abort_unless($s->version === (int) $v['version'], 409, 'Configuração alterada. Recarregue a página.');
-            $data = array_intersect_key($v, array_flip(['name', 'url', 'support_email', 'footer_description', 'footer_copyright', 'footer_tagline', 'mailer', 'smtp_host', 'smtp_port', 'smtp_scheme', 'smtp_username', 'mail_from_address']));
+            $data = array_intersect_key($v, array_flip(['name', 'url', 'support_email', 'footer_description', 'footer_copyright', 'footer_tagline', 'social_links', 'mailer', 'smtp_host', 'smtp_port', 'smtp_scheme', 'smtp_username', 'mail_from_address']));
             $data['version'] = $s->version + 1;
             if ($section !== 'email') {
                 $data['registration_enabled'] = $r->boolean('registration_enabled');
@@ -87,6 +102,15 @@ class SiteSettingsController extends Controller
         }, 5);
 
         return back()->with('status', 'Configuração salva. Se mudou a URL, acesse o endereço novo; DNS/TLS devem estar preparados.');
+    }
+
+    private function httpsSocialLinkRule(): \Closure
+    {
+        return static function ($attribute, $value, $fail): void {
+            if (! SiteConfiguration::isSafeSocialLink($value)) {
+                $fail('Use um link público HTTPS, sem usuário ou senha na URL.');
+            }
+        };
     }
 
     public function testMail(Request $r)

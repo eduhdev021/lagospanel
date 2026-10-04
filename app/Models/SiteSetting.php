@@ -12,6 +12,6 @@ class SiteSetting extends Model
 
     protected function casts(): array
     {
-        return ['smtp_password' => 'encrypted', 'registration_enabled' => 'boolean', 'version' => 'integer', 'smtp_port' => 'integer'];
+        return ['smtp_password' => 'encrypted', 'registration_enabled' => 'boolean', 'version' => 'integer', 'smtp_port' => 'integer', 'social_links' => 'array'];
     }
 }

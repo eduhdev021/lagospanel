@@ -208,13 +208,15 @@ class WebAndSiteTest extends TestCase
             ->assertSee('Rodapé e direitos autorais')
             ->assertSee('footer_description')
             ->assertSee('footer_copyright')
-            ->assertSee('footer_tagline');
+            ->assertSee('footer_tagline')
+            ->assertSee('social_links[instagram]');
 
         $this->post(route('admin.settings.general.save'), $this->settingsData([
             'name' => 'Lagos Cloud',
             'footer_description' => 'Hospedagem com atendimento próximo.',
             'footer_copyright' => 'CNPJ 00.000.000/0001-00 · Todos os direitos reservados.',
             'footer_tagline' => '<script>alert(1)</script>',
+            'social_links' => ['instagram' => 'https://instagram.com/lagospanel', 'youtube' => 'https://youtube.com/@lagospanel', 'discord' => ''],
         ]))->assertRedirect()->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('site_settings', [
@@ -223,6 +225,10 @@ class WebAndSiteTest extends TestCase
             'footer_copyright' => 'CNPJ 00.000.000/0001-00 · Todos os direitos reservados.',
             'footer_tagline' => '<script>alert(1)</script>',
         ]);
+        $this->assertSame([
+            'instagram' => 'https://instagram.com/lagospanel',
+            'youtube' => 'https://youtube.com/@lagospanel',
+        ], SiteSetting::find(1)->social_links);
 
         $this->get(route('home'))
             ->assertOk()
@@ -230,7 +236,28 @@ class WebAndSiteTest extends TestCase
             ->assertSee('Hospedagem com atendimento próximo.')
             ->assertSee('CNPJ 00.000.000/0001-00 · Todos os direitos reservados.')
             ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false)
-            ->assertDontSee('<script>alert(1)</script>', false);
+            ->assertDontSee('<script>alert(1)</script>', false)
+            ->assertSee('Instagram')
+            ->assertSee('https://instagram.com/lagospanel')
+            ->assertSee('YouTube');
+    }
+
+    public function test_social_links_require_valid_https_urls_without_embedded_credentials(): void
+    {
+        $this->actingAs($this->root());
+        $base = $this->settingsData();
+
+        $this->post(route('admin.settings.general.save'), array_replace_recursive($base, [
+            'social_links' => ['instagram' => 'http://instagram.com/lagospanel'],
+        ]))->assertSessionHasErrors('social_links.instagram');
+
+        $this->post(route('admin.settings.general.save'), array_replace_recursive($base, [
+            'social_links' => ['instagram' => 'https://user:password@instagram.com/lagospanel'],
+        ]))->assertSessionHasErrors('social_links.instagram');
+
+        $this->post(route('admin.settings.general.save'), array_replace_recursive($base, [
+            'social_links' => ['instagram' => 'javascript:alert(1)'],
+        ]))->assertSessionHasErrors('social_links.instagram');
     }
 
     public function test_site_configuration_permission_and_stale_edit_protection(): void
@@ -258,12 +285,13 @@ class WebAndSiteTest extends TestCase
     {
         $baseline = config('mail');
         $service = app(SiteConfiguration::class);
-        $setting = SiteSetting::create(['id' => 1, 'name' => 'Example', 'url' => 'https://panel.example.test', 'mailer' => 'smtp', 'smtp_host' => 'smtp.example.test', 'smtp_port' => 587, 'smtp_scheme' => 'smtp', 'smtp_password' => 'secret', 'mail_from_address' => 'custom@example.test', 'footer_description' => 'Descrição atualizada', 'footer_copyright' => 'CNPJ de exemplo', 'footer_tagline' => 'Assinatura personalizada']);
+        $setting = SiteSetting::create(['id' => 1, 'name' => 'Example', 'url' => 'https://panel.example.test', 'mailer' => 'smtp', 'smtp_host' => 'smtp.example.test', 'smtp_port' => 587, 'smtp_scheme' => 'smtp', 'smtp_password' => 'secret', 'mail_from_address' => 'custom@example.test', 'footer_description' => 'Descrição atualizada', 'footer_copyright' => 'CNPJ de exemplo', 'footer_tagline' => 'Assinatura personalizada', 'social_links' => ['instagram' => 'https://instagram.com/example', 'facebook' => 'javascript:alert(1)']]);
         $service->apply();
         $this->assertSame('smtp', config('mail.default'));
         $this->assertSame('Descrição atualizada', view()->shared('siteFooterDescription'));
         $this->assertSame('CNPJ de exemplo', view()->shared('siteFooterCopyright'));
         $this->assertSame('Assinatura personalizada', view()->shared('siteFooterTagline'));
+        $this->assertSame(['instagram' => 'https://instagram.com/example'], view()->shared('siteSocialLinks'));
         $setting->update(['mailer' => 'inherit']);
         app(SiteConfiguration::class)->apply();
         $this->assertSame($baseline, config('mail'));
@@ -273,6 +301,7 @@ class WebAndSiteTest extends TestCase
         $this->assertSame('Um lugar para seus projetos. Um painel para acompanhar cada passo.', view()->shared('siteFooterDescription'));
         $this->assertSame('Todos os direitos reservados.', view()->shared('siteFooterCopyright'));
         $this->assertSame('Feito para conectar suas ideias.', view()->shared('siteFooterTagline'));
+        $this->assertSame([], view()->shared('siteSocialLinks'));
     }
 
     public function test_installer_rearm_preserves_application_key_and_failed_database_fingerprint(): void

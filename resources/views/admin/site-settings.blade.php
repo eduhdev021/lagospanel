@@ -4,7 +4,7 @@
 @include('admin.configuration.nav')
 <div class="card settings-intro-card">
     <h2>{{ $section==='email'?'E-mail e notificações':'Geral, identidade e rodapé' }}</h2>
-    <p>{{ $section==='email'?'Configure o transportador e envie um teste. O modo log não envia mensagens externas.':'Defina o nome, a marca e os textos exibidos no site público. Alterar a URL não configura DNS ou certificado.' }}</p>
+    <p>{{ $section==='email'?'Configure o transportador e envie um teste. O modo log não envia mensagens externas.':'Defina o nome, a marca, os textos do rodapé e os links sociais do site público. Alterar a URL não configura DNS ou certificado.' }}</p>
 </div>
 
 @if(auth()->user()->hasPermission('settings.manage'))
@@ -34,6 +34,7 @@
                 <label class="check-line"><input type="hidden" name="registration_enabled" value="0"><input type="checkbox" name="registration_enabled" value="1" @checked(old('registration_enabled',$setting?->registration_enabled??true))> Permitir novos cadastros públicos</label>
             </section>
 
+            @php($socialLinks = $setting?->social_links ?? [])
             <section class="settings-form-section" aria-labelledby="footer-heading">
                 <div class="settings-form-heading">
                     <span class="eyebrow">SITE PÚBLICO</span>
@@ -48,6 +49,19 @@
                 <div class="form-grid">
                     <div class="field"><label for="footer-copyright">Complemento dos direitos autorais</label><input id="footer-copyright" name="footer_copyright" maxlength="240" value="{{ old('footer_copyright',$setting?->footer_copyright??'Todos os direitos reservados.') }}"><small>Ex.: Todos os direitos reservados · CNPJ 00.000.000/0001-00</small></div>
                     <div class="field"><label for="footer-tagline">Assinatura curta do rodapé</label><input id="footer-tagline" name="footer_tagline" maxlength="180" value="{{ old('footer_tagline',$setting?->footer_tagline??'Feito para conectar suas ideias.') }}"><small>Exibida ao lado dos direitos autorais.</small></div>
+                </div>
+            </section>
+
+            <section class="settings-form-section" aria-labelledby="social-links-heading">
+                <div class="settings-form-heading">
+                    <span class="eyebrow">CANAIS DA EMPRESA</span>
+                    <h3 id="social-links-heading">Redes sociais</h3>
+                    <p>Adicione os perfis públicos que quer mostrar no rodapé. Deixe em branco para ocultar; os links precisam usar HTTPS.</p>
+                </div>
+                <div class="form-grid">
+                    @foreach(\App\Services\SiteConfiguration::SOCIAL_PLATFORMS as $key=>$label)
+                        <div class="field"><label for="social-{{ $key }}">{{ $label }}</label><input id="social-{{ $key }}" type="url" name="social_links[{{ $key }}]" maxlength="255" value="{{ old('social_links.'.$key,$socialLinks[$key]??'') }}" placeholder="https://..."></div>
+                    @endforeach
                 </div>
             </section>
         @else
@@ -66,7 +80,7 @@
             </section>
         @endif
 
-        <div class="settings-form-actions"><button class="btn btn-primary">Salvar {{ $section==='email'?'configuração de e-mail':'identidade e rodapé' }}</button></div>
+        <div class="settings-form-actions"><button class="btn btn-primary">Salvar {{ $section==='email'?'configuração de e-mail':'identidade, rodapé e redes sociais' }}</button></div>
     </form>
 </div>
 
