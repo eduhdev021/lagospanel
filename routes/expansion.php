@@ -65,6 +65,7 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
         Route::get('/configuracoes', [AdminConfigurationController::class, 'index'])->name('settings.index');
         Route::get('/configuracoes/atualizacoes', [PanelUpdateController::class, 'index'])->name('settings.updates');
         Route::post('/configuracoes/atualizacoes/conferir', [PanelUpdateController::class, 'check'])->middleware('throttle:3,1,lagos-update-check')->name('settings.updates.check');
+        Route::post('/configuracoes/atualizacoes/atualizar', [PanelUpdateController::class, 'updateNow'])->middleware('throttle:2,1,lagos-update-now')->name('settings.updates.now');
         Route::post('/configuracoes/atualizacoes/{update}/aprovar', [PanelUpdateController::class, 'approve'])->middleware('throttle:3,1,lagos-update-approve')->name('settings.updates.approve');
         Route::post('/configuracoes/atualizacoes/{update}/cancelar', [PanelUpdateController::class, 'cancel'])->name('settings.updates.cancel');
         Route::get('/configuracoes/atualizacoes/{update}/estado', [PanelUpdateController::class, 'state'])->middleware('throttle:30,1,lagos-update-state')->name('settings.updates.state');

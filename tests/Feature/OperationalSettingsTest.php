@@ -13,8 +13,10 @@ use App\Services\SiteConfiguration;
 use App\Services\SupportDesk;
 use App\Support\OperationalSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class OperationalSettingsTest extends TestCase
@@ -47,6 +49,24 @@ class OperationalSettingsTest extends TestCase
         foreach (array_keys(OperationalSettings::SECTIONS) as $section) {
             $this->get(route('admin.settings.operation', $section))->assertOk();
         }$this->get(route('admin.settings.coverage'))->assertOk()->assertSee('múltiplas moedas');
+    }
+
+    public function test_efi_certificate_upload_is_private_and_sets_sdk_path(): void
+    {
+        Storage::fake('efi_private');
+        $this->actingAs($this->root());
+        $response = $this->post(route('admin.settings.operation.save', 'payments'), [
+            'version' => 0,
+            'ack' => 1,
+            'password' => 'password',
+            'values' => $this->values('payments'),
+            'efi_certificate_file' => UploadedFile::fake()->create('certificado.p12', 20, 'application/x-pkcs12'),
+        ]);
+        $response->assertRedirect()->assertSessionHasNoErrors();
+        $path = OperationalSetting::find('payments')->values['efi_certificate_path'];
+        $this->assertStringStartsWith(storage_path('app/private/efi/certificates/'), $path);
+        $this->assertStringNotContainsString('certificado.p12', $path);
+        Storage::disk('efi_private')->assertExists('certificates/'.basename($path));
     }
 
     public function test_customer_and_non_root_staff_cannot_change_payments(): void

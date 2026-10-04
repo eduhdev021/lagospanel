@@ -6,7 +6,10 @@ use App\Models\AdminPreference;
 use App\Models\PanelUpdate;
 use App\Models\SiteSetting;
 use App\Models\User;
+use App\Services\PanelUpdateSource;
+use App\Services\PanelWorkspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery;
 use Tests\TestCase;
 
 class AdminConfigurationTest extends TestCase
@@ -92,6 +95,24 @@ class AdminConfigurationTest extends TestCase
         $this->get(route('admin.settings.updates.state', $u))->assertOk()->assertJsonMissingPath('backup_path');
         $this->post(route('admin.settings.updates.cancel', $u))->assertRedirect();
         $this->assertSame('cancelled', $u->fresh()->status);
+    }
+
+    public function test_one_click_update_checks_source_and_queues_worker(): void
+    {
+        config(['panel_updates.enabled' => true]);
+        AdminPreference::ensure();
+        AdminPreference::find(1)->update(['updater_heartbeat_at' => now()]);
+        $source = Mockery::mock(PanelUpdateSource::class);
+        $source->shouldReceive('latest')->once()->andReturn(str_repeat('b', 40));
+        $workspace = Mockery::mock(PanelWorkspace::class);
+        $workspace->shouldReceive('head')->once()->andReturn(str_repeat('a', 40));
+        $this->app->instance(PanelUpdateSource::class, $source);
+        $this->app->instance(PanelWorkspace::class, $workspace);
+        $actor = $this->admin();
+
+        $this->actingAs($actor)->post(route('admin.settings.updates.now'))->assertRedirect()->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('panel_updates', ['user_id' => $actor->id, 'source_sha' => str_repeat('a', 40), 'target_sha' => str_repeat('b', 40), 'status' => 'pending', 'phase' => 'queued']);
+        Mockery::close();
     }
 
     public function test_expired_check_is_rejected(): void

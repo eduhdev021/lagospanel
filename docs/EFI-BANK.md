@@ -40,6 +40,18 @@ Os campos podem ser salvos em **Administração → Configurações → Gateways
 - `EFI_WEBHOOK_HMAC`
 - `EFI_CHARGE_EXPIRATION`
 
+### Upload pelo painel
+
+Na configuração de Gateways, o administrador pode enviar o P12/PFX/PEM/CRT diretamente pelo campo **Certificado Efí**. O arquivo:
+
+- tem limite de 2 MiB e extensão controlada;
+- recebe nome aleatório;
+- é gravado no disco `efi_private` em `storage/app/private/efi`;
+- não usa `storage:link` nem fica servido pelo navegador;
+- substitui o certificado anterior somente depois que a configuração é salva com sucesso.
+
+O usuário do PHP-FPM/queue precisa ter permissão de leitura no diretório `storage/app/private/efi`. Depois do upload, o caminho absoluto protegido é usado automaticamente pelo `EfiPay`.
+
 O painel monta e cadastra automaticamente `https://seu-dominio/webhooks/efi?ignorar=` pela API/SDK. Se `EFI_WEBHOOK_HMAC` for preenchido, ele acrescenta `hmac=...` como camada adicional; esse campo não é obrigatório para a Efí. O parâmetro `ignorar=` evita que a Efí acrescente `/pix`.
 
 ## Fontes oficiais consultadas

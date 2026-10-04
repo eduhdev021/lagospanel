@@ -17,7 +17,7 @@
             'efi' => ['name'=>'Efí Bank','logo'=>'efi.svg','tone'=>'efi','description'=>'Pix nativo via SDK oficial, QR Code, copia-e-cola e confirmação automática.','capabilities'=>['Pix SDK','OAuth2','mTLS + webhook'],'fields'=>['efi_enabled','efi_environment','efi_client_id','efi_client_secret','efi_certificate_path','efi_certificate_password','efi_certificate_type','efi_pix_key','efi_webhook_hmac','efi_charge_expiration'],'callback'=>url('/webhooks/efi?ignorar=')],
         ];
     @endphp
-    <form method="post" action="{{ route('admin.settings.operation.save',$key) }}">@csrf<input type="hidden" name="version" value="{{ $draft?old('version'):($setting?->version??0) }}">
+    <form method="post" enctype="multipart/form-data" action="{{ route('admin.settings.operation.save',$key) }}">@csrf<input type="hidden" name="version" value="{{ $draft?old('version'):($setting?->version??0) }}">
         <fieldset @disabled(!auth()->user()->hasPermission('settings.manage'))>
             <div class="gateway-admin-grid">
             @foreach($gatewayCards as $gateway=>$meta)

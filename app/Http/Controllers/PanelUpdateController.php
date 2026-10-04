@@ -46,6 +46,32 @@ class PanelUpdateController extends Controller
         return redirect()->route('admin.settings.updates')->with('status', $current === $target ? 'O código já está no commit consultado.' : 'Atualização encontrada. Confira a comparação e os requisitos antes de aprovar.');
     }
 
+    public function updateNow(Request $r, PanelUpdateSource $source, PanelWorkspace $workspace)
+    {
+        $this->root($r);
+        abort_unless(config('panel_updates.enabled'), 409, 'Atualizador desabilitado no servidor.');
+        AdminPreference::ensure();
+        abort_unless(AdminPreference::find(1)?->updater_heartbeat_at?->gt(now()->subMinute()), 409, 'Worker de atualização não está pronto.');
+        try {
+            $current = $workspace->head();
+            $target = $source->latest();
+        } catch (\Throwable $error) {
+            throw ValidationException::withMessages(['update' => 'Não foi possível consultar a versão publicada. Nenhum arquivo foi alterado.']);
+        }
+        if ($current === $target) {
+            return back()->with('status', 'O painel já está atualizado neste commit.');
+        }
+        DB::transaction(function () use ($r, $current, $target) {
+            $p = AdminPreference::whereKey(1)->lockForUpdate()->firstOrFail();
+            abort_unless($p->updater_heartbeat_at?->gt(now()->subMinute()), 409, 'Worker de atualização não está pronto.');
+            abort_if(PanelUpdate::whereIn('status', ['pending', 'running'])->exists(), 409, 'Já existe atualização em andamento.');
+            $u = PanelUpdate::create(['user_id' => $r->user()->id, 'source_sha' => $current, 'target_sha' => $target, 'status' => 'pending', 'approved_at' => now(), 'phase' => 'queued']);
+            Audit::record('panel.update_requested', 'panel_update:'.$u->id, ['target' => $target, 'one_click' => true], $r->user()->id);
+        }, 5);
+
+        return back()->with('status', 'Atualização iniciada. O worker fará backup, verificações e migrations antes de aplicar o commit.');
+    }
+
     public function approve(Request $r, PanelUpdate $update, AdminConfirmation $confirmation)
     {
         $this->root($r);

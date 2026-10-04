@@ -11,6 +11,10 @@
             <input id="operation-{{ $field }}" type="password" name="values[{{ $field }}]" maxlength="{{ $max }}" autocomplete="new-password" placeholder="{{ config($path)?'Credencial configurada — vazio mantém':'Informe a credencial' }}">
             <label class="check-line"><input type="checkbox" name="clear[{{ $field }}]" value="1"> Apagar a credencial efetiva</label>
             <small>{{ config($path)?'Credencial salva. Deixar vazio mantém o valor atual.':'Nenhuma credencial configurada.' }}</small>
+        @elseif($field==='efi_certificate_path')
+            <input id="operation-{{ $field }}" name="values[{{ $field }}]" type="text" value="{{ $value }}" maxlength="{{ $max }}" placeholder="Caminho absoluto ou use o upload abaixo">
+            <input name="efi_certificate_file" type="file" accept=".p12,.pfx,.pem,.crt" aria-describedby="efi-certificate-help">
+            <small id="efi-certificate-help">Upload privado P12/PFX/PEM/CRT, até 2 MiB. O arquivo não fica acessível pela web e recebe um nome aleatório.</small>
         @elseif($field==='efi_environment')
             <select id="operation-{{ $field }}" name="values[{{ $field }}]">
                 <option value="homologacao" @selected($value==='homologacao')>Homologação</option>

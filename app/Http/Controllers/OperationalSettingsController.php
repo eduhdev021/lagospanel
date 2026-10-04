@@ -9,6 +9,8 @@ use App\Services\Gateways;
 use App\Support\OperationalSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class OperationalSettingsController extends Controller
@@ -50,11 +52,16 @@ class OperationalSettingsController extends Controller
         abort_unless($r->user()->is_admin, 403);
         abort_unless(isset(OperationalSettings::SECTIONS[$section]), 404);
         $fields = OperationalSettings::SECTIONS[$section]['fields'];
+        $certificateUpload = $section === 'payments' && $r->hasFile('efi_certificate_file');
+        if ($certificateUpload) {
+            $r->merge(['values' => array_replace($r->input('values', []), ['efi_certificate_path' => 'uploaded-by-panel'])]);
+            $r->validate(['efi_certificate_file' => ['file', 'max:2048', 'extensions:p12,pfx,pem,crt']]);
+        }
         $rules = ['version' => 'required|integer|min:0', 'ack' => 'accepted', 'values' => 'required|array:'.implode(',', array_keys($fields)), 'clear' => 'sometimes|array:'.implode(',', array_keys(array_filter($fields, fn ($f) => $f[2] === 'secret')))];
         foreach ($fields as $key => [$label,$path,$type,$min,$max]) {
             $rules['values.'.$key] = $type === 'boolean' ? 'required|boolean' : ($type === 'integer' ? "required|integer|min:$min|max:$max" : (($min ? 'required' : 'nullable')."|string|min:$min|max:$max"));
             if ($section === 'payments' && in_array($key, ['efi_certificate_path', 'efi_pix_key', 'efi_webhook_hmac'], true)) {
-                $rules['values.'.$key] = "nullable|string|min:$min|max:$max|required_if:values.efi_enabled,1";
+                $rules['values.'.$key] = 'nullable|string|min:'.$min.'|max:'.$max.(! $certificateUpload ? '|required_if:values.efi_enabled,1' : '');
             }
             if ($type === 'secret') {
                 $rules['clear.'.$key] = 'sometimes|boolean';
@@ -66,43 +73,63 @@ class OperationalSettingsController extends Controller
         }
         $v = $r->validate($rules);
         $confirmation->verify($r);
-        DB::transaction(function () use ($r, $section, $fields, $v) {
-            OperationalSetting::insertOrIgnore(['section' => $section, 'version' => 0, 'created_at' => now(), 'updated_at' => now()]);
-            $s = OperationalSetting::whereKey($section)->lockForUpdate()->firstOrFail();
-            abort_unless($s->version === (int) $v['version'], 409, 'Configuração alterada. Recarregue antes de salvar.');
-            $values = $s->values ?? [];
-            foreach ($fields as $key => [$label,$path,$type]) {
-                if ($type === 'secret') {
-                    if ($r->boolean('clear.'.$key)) {
-                        $values[$key] = null;
-                    } elseif (! empty($v['values'][$key])) {
-                        if (preg_match('/[\r\n]/', $v['values'][$key])) {
-                            throw ValidationException::withMessages(['values.'.$key => 'Segredo inválido.']);
-                        }$values[$key] = $v['values'][$key];
+        $uploadedPath = null;
+        if ($certificateUpload) {
+            $extension = strtolower($r->file('efi_certificate_file')->getClientOriginalExtension());
+            $uploadedPath = $r->file('efi_certificate_file')->storeAs('certificates', (string) Str::uuid().'.'.$extension, 'efi_private');
+        }
+        $oldCertificatePath = null;
+        try {
+            DB::transaction(function () use ($r, $section, $fields, $v, $uploadedPath, &$oldCertificatePath) {
+                OperationalSetting::insertOrIgnore(['section' => $section, 'version' => 0, 'created_at' => now(), 'updated_at' => now()]);
+                $s = OperationalSetting::whereKey($section)->lockForUpdate()->firstOrFail();
+                abort_unless($s->version === (int) $v['version'], 409, 'Configuração alterada. Recarregue antes de salvar.');
+                $values = $s->values ?? [];
+                foreach ($fields as $key => [$label,$path,$type]) {
+                    if ($type === 'secret') {
+                        if ($r->boolean('clear.'.$key)) {
+                            $values[$key] = null;
+                        } elseif (! empty($v['values'][$key])) {
+                            if (preg_match('/[\r\n]/', $v['values'][$key])) {
+                                throw ValidationException::withMessages(['values.'.$key => 'Segredo inválido.']);
+                            }$values[$key] = $v['values'][$key];
+                        }
+                    } else {
+                        $values[$key] = match ($type) {
+                            'boolean' => (bool) $v['values'][$key],'integer' => (int) $v['values'][$key],default => $v['values'][$key] ?? ''
+                        };
                     }
-                } else {
-                    $values[$key] = match ($type) {
-                        'boolean' => (bool) $v['values'][$key],'integer' => (int) $v['values'][$key],default => $v['values'][$key] ?? ''
-                    };
                 }
-            }
-            if ($section === 'payments') {
-                foreach (['stripe_enabled' => ['stripe_secret', 'stripe_webhook'], 'mp_enabled' => ['mp_token'], 'efi_enabled' => ['efi_client_id', 'efi_client_secret', 'efi_certificate_path', 'efi_pix_key']] as $enabled => $needed) {
-                    if ($values[$enabled]) {
-                        foreach ($needed as $key) {
-                            if (! (array_key_exists($key, $values) ? $values[$key] : config($fields[$key][1]))) {
-                                throw ValidationException::withMessages(['values.'.$key => 'Informe a credencial antes de habilitar este gateway.']);
+                if ($section === 'payments' && $uploadedPath) {
+                    $oldCertificatePath = $values['efi_certificate_path'] ?? config('lagos.payments.efi.certificate');
+                    $values['efi_certificate_path'] = storage_path('app/private/efi/'.$uploadedPath);
+                }
+                if ($section === 'payments') {
+                    foreach (['stripe_enabled' => ['stripe_secret', 'stripe_webhook'], 'mp_enabled' => ['mp_token'], 'efi_enabled' => ['efi_client_id', 'efi_client_secret', 'efi_certificate_path', 'efi_pix_key']] as $enabled => $needed) {
+                        if ($values[$enabled]) {
+                            foreach ($needed as $key) {
+                                if (! (array_key_exists($key, $values) ? $values[$key] : config($fields[$key][1]))) {
+                                    throw ValidationException::withMessages(['values.'.$key => 'Informe a credencial antes de habilitar este gateway.']);
+                                }
                             }
                         }
                     }
                 }
+                if ($section === 'support' && ! ($values['sla_low'] >= $values['sla_normal'] && $values['sla_normal'] >= $values['sla_high'] && $values['sla_high'] >= $values['sla_urgent'])) {
+                    throw ValidationException::withMessages(['values.sla_urgent' => 'Prioridades maiores devem ter prazo menor ou igual às menores.']);
+                }
+                $s->update(['values' => $values, 'version' => $s->version + 1]);
+                Audit::record('settings.operational_updated', 'settings:'.$section, ['version' => $s->version, 'fields' => array_keys($values)], $r->user()->id);
+            }, 5);
+        } catch (\Throwable $e) {
+            if ($uploadedPath) {
+                Storage::disk('efi_private')->delete($uploadedPath);
             }
-            if ($section === 'support' && ! ($values['sla_low'] >= $values['sla_normal'] && $values['sla_normal'] >= $values['sla_high'] && $values['sla_high'] >= $values['sla_urgent'])) {
-                throw ValidationException::withMessages(['values.sla_urgent' => 'Prioridades maiores devem ter prazo menor ou igual às menores.']);
-            }
-            $s->update(['values' => $values, 'version' => $s->version + 1]);
-            Audit::record('settings.operational_updated', 'settings:'.$section, ['version' => $s->version, 'fields' => array_keys($values)], $r->user()->id);
-        }, 5);
+            throw $e;
+        }
+        if ($uploadedPath && $oldCertificatePath && str_starts_with($oldCertificatePath, storage_path('app/private/efi/'))) {
+            Storage::disk('efi_private')->delete(str_replace(storage_path('app/private/efi/').'/', '', $oldCertificatePath));
+        }
 
         return back()->with('status', 'Configuração salva. As próximas requisições e tarefas usarão os novos valores.');
     }
