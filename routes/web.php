@@ -80,6 +80,7 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
         Route::get('/servicos', [AdminController::class, 'services'])->name('services');
         Route::post('/servicos/{service}', [AdminController::class, 'serviceAction'])->name('services.action');
         Route::get('/clientes', [AdminController::class, 'users'])->name('users');
+        Route::post('/clientes/{user}/saldo', [AdminController::class, 'walletAdjustment'])->middleware('throttle:10,1,lagos-wallet-adjustment')->name('users.wallet');
         Route::get('/suporte', [AdminController::class, 'tickets'])->name('tickets');
         Route::post('/suporte/{ticket}', [AdminController::class, 'reply'])->middleware('throttle:30,1,lagos-staff-reply')->whereNumber('ticket')->name('tickets.reply');
         Route::get('/integracoes', [AdminController::class, 'connectors'])->name('connectors');

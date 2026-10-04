@@ -77,4 +77,17 @@ class FinancialLedgerTest extends TestCase
         $this->actingAs($admin)->post(route('admin.invoices.chargeback', $payment), ['amount_minor' => 750, 'reference' => 'admin-cb-1', 'reason' => 'Disputa confirmada'])->assertRedirect();
         $this->assertDatabaseHas('payment_chargebacks', ['reference' => 'admin-cb-1', 'amount_minor' => 750]);
     }
+
+    public function test_finance_staff_can_credit_and_debit_customer_wallet_with_audit(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $customer = User::factory()->create(['balance_minor' => 1000]);
+
+        $this->actingAs($admin)->post(route('admin.users.wallet', $customer), ['direction' => 'credit', 'amount' => '50,00', 'reason' => 'Bônus comercial aprovado', 'request_key' => '11111111-1111-4111-8111-111111111111'])->assertRedirect();
+        $this->assertSame(6000, $customer->fresh()->balance_minor);
+
+        $this->actingAs($admin)->post(route('admin.users.wallet', $customer), ['direction' => 'debit', 'amount' => '10,00', 'reason' => 'Ajuste de saldo solicitado', 'request_key' => '22222222-2222-4222-8222-222222222222'])->assertRedirect();
+        $this->assertSame(5000, $customer->fresh()->balance_minor);
+        $this->assertDatabaseHas('wallet_entries', ['user_id' => $customer->id, 'reference' => 'admin-wallet:'.$customer->id.':11111111-1111-4111-8111-111111111111', 'amount_minor' => 5000]);
+    }
 }

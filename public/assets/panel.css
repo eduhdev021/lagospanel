@@ -868,6 +868,19 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .btn { white-space: normal; text-align: center; }
   .check-line { align-items: flex-start; }
   .check-line input { margin-top: 4px; flex: 0 0 auto; }
+  .table-wrap { overflow: visible; border: 0; box-shadow: none; background: transparent; }
+  .table-wrap table { display: block; width: 100%; border-collapse: separate; }
+  .table-wrap thead { display: none; }
+  .table-wrap tbody, .table-wrap tr, .table-wrap td { display: block; width: 100%; }
+  .table-wrap tr { margin: 0 0 12px; padding: 8px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-sm); }
+  .table-wrap td { display: grid; grid-template-columns: minmax(88px, 34%) minmax(0, 1fr); gap: 12px; align-items: start; padding: 11px 0; border-bottom: 1px dashed var(--line); text-align: right; overflow-wrap: anywhere; }
+  .table-wrap td::before { content: attr(data-label); color: var(--muted); font-size: .7rem; font-weight: 800; letter-spacing: .04em; line-height: 1.35; text-align: left; text-transform: uppercase; }
+  .table-wrap td:last-child { border-bottom: 0; }
+  .table-wrap td[colspan] { display: block; text-align: left; }
+  .table-wrap td[colspan]::before { display: none; }
+  .table-wrap td form, .table-wrap td .inline-form { width: 100%; min-width: 0; }
+  .wallet-adjust-form .wallet-adjust-fields { display: grid; gap: 8px; width: 100%; }
+  .wallet-adjust-form input, .wallet-adjust-form select { width: 100%; min-width: 0; }
 }
 
 @media (max-width: 420px) {

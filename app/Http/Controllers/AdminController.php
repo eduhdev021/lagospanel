@@ -119,6 +119,20 @@ class AdminController extends Controller
         return view('admin.users', ['users' => User::latest()->paginate(25)]);
     }
 
+    public function walletAdjustment(Request $r, User $user, Billing $billing)
+    {
+        abort_unless($r->user()->hasPermission('billing.manage'), 403);
+        $v = $r->validate(['direction' => 'required|in:credit,debit', 'amount' => 'required|string', 'reason' => 'required|string|min:5|max:500', 'request_key' => 'required|uuid']);
+        $amount = Money::parse($v['amount']);
+        abort_if($amount < 1 || $amount > 100000000, 422, 'O valor deve estar entre R$ 0,01 e R$ 1.000.000,00.');
+        $signed = $v['direction'] === 'credit' ? $amount : -$amount;
+        $reference = 'admin-wallet:'.$user->id.':'.$v['request_key'];
+        $billing->wallet($user->id, $signed, $reference, ($v['direction'] === 'credit' ? 'Crédito manual: ' : 'Débito manual: ').$v['reason']);
+        Audit::record('wallet.adjusted', 'user:'.$user->id, ['direction' => $v['direction'], 'amount_minor' => $amount, 'reason' => $v['reason'], 'reference' => $reference], $r->user()->id);
+
+        return back()->with('status', ($v['direction'] === 'credit' ? 'Crédito' : 'Débito').' de saldo registrado com sucesso.');
+    }
+
     public function operations()
     {
         return view('admin.operations', ['operations' => Operation::with('service.connector')->latest()->paginate(25)]);

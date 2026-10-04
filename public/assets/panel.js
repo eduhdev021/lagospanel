@@ -53,6 +53,18 @@
     });
   });
 
+  // Em telas pequenas, transforma qualquer tabela do painel em cartões legíveis.
+  document.querySelectorAll('.table-wrap table, .ltable-wrap table').forEach(function (table) {
+    var headers = Array.prototype.map.call(table.querySelectorAll('thead th'), function (th) {
+      return (th.textContent || '').replace(/\s+/g, ' ').trim();
+    });
+    table.querySelectorAll('tbody tr').forEach(function (row) {
+      row.querySelectorAll('td').forEach(function (cell, index) {
+        if (!cell.getAttribute('data-label') && headers[index]) cell.setAttribute('data-label', headers[index]);
+      });
+    });
+  });
+
   // Fechar modal
   document.querySelectorAll('[data-close-modal]').forEach(function (el) {
     el.addEventListener('click', function (e) {
