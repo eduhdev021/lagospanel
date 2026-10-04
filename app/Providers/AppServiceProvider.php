@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\CannedReply;
 use App\Models\SocialIdentity;
 use App\Models\SocialProvider;
+use App\Services\AiDiagnostics;
 use App\Services\SiteConfiguration;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
@@ -32,7 +33,19 @@ class AppServiceProvider extends ServiceProvider
             } catch (\Throwable) {
             }
         }
-        Queue::looping(fn () => is_file(storage_path('framework/panel-update-pause')) ? false : null);
+        Queue::looping(function ($event) {
+            if (is_file(storage_path('framework/panel-update-pause'))) {
+                return false;
+            }
+            static $last = [];
+            $key = $event->connectionName.':'.$event->queue;
+            if (time() - ($last[$key] ?? 0) >= 15) {
+                app(AiDiagnostics::class)->heartbeat($event->connectionName, $event->queue);
+                $last[$key] = time();
+            }
+
+            return null;
+        });
         Queue::before(function () {
             app(SiteConfiguration::class)->apply();
         });

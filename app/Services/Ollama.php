@@ -40,10 +40,15 @@ final class Ollama
         try {
             $r = $payload ? $h->post($endpoint.$path, $payload) : $h->get($endpoint.$path);
         } catch (\Throwable) {
-            throw new ProtocolError('Ollama indisponível. Confira conexão, chave e limites do provedor.');
+            throw new AiFailure('connection');
         }
-        if (! $r->successful() || strlen($r->body()) > 1048576 || ! is_array($d = $r->json()) || isset($d['error'])) {
-            throw new ProtocolError('Ollama recusou ou não concluiu a solicitação. Confira chave, modelo e limites.');
+        if (! $r->successful()) {
+            throw new AiFailure(match ($r->status()) {
+                401 => 'authentication',403 => 'permission',404 => 'not_found',429 => 'rate_limit',default => 'provider_unavailable'
+            });
+        }
+        if (strlen($r->body()) > 1048576 || ! is_array($d = $r->json()) || isset($d['error'])) {
+            throw new AiFailure('invalid_response');
         }
 
         return $d;
@@ -73,7 +78,7 @@ final class Ollama
     {
         $d = $this->request($s, '/api/chat', ['model' => $s->model, 'messages' => $messages, 'stream' => false, 'options' => ['num_predict' => 1024, 'num_ctx' => 8192]]);
         if (($d['done'] ?? null) !== true || ($d['message']['role'] ?? '') !== 'assistant' || ! is_string($text = $d['message']['content'] ?? null) || trim($text) === '' || strlen($text) > 32000 || ! empty($d['message']['tool_calls'])) {
-            throw new ProtocolError('Resposta Ollama incompleta ou não textual. Nenhuma ferramenta foi executada.');
+            throw new AiFailure('invalid_response');
         }
 
         return mb_substr($text, 0, 8000);

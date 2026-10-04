@@ -79,7 +79,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $hidden = [
-        'password',
+        'password', 'avatar_content',
         'remember_token', 'totp_secret', 'recovery_codes',
     ];
 
@@ -91,7 +91,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            'email_verified_at' => 'datetime', 'avatar_updated_at' => 'datetime',
             'password' => 'hashed', 'totp_secret' => 'encrypted', 'recovery_codes' => 'encrypted:array', 'totp_last_step' => 'integer',
             'is_admin' => 'boolean', 'password_reset_required' => 'boolean', 'balance_minor' => 'integer',
         ];

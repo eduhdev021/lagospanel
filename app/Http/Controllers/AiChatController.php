@@ -7,6 +7,7 @@ use App\Models\AiThread;
 use App\Models\AiTurn;
 use App\Models\User;
 use App\Services\AiChat;
+use App\Services\AiFailure;
 use App\Services\Audit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +30,7 @@ class AiChatController extends Controller
 
     private function payload(AiTurn $turn): array
     {
-        return ['id' => $turn->id, 'request_key' => $turn->request_key, 'body' => $turn->user_text, 'status' => $turn->status, 'answer' => $turn->status === 'done' ? $turn->assistant_text : null, 'web_requested' => $turn->web_requested, 'web_status' => $turn->web_status, 'sources' => $turn->status === 'done' ? array_map(fn ($s) => array_intersect_key($s, array_flip(['id', 'title', 'url'])), $turn->web_sources ?? []) : []];
+        return ['id' => $turn->id, 'request_key' => $turn->request_key, 'body' => $turn->user_text, 'status' => $turn->status, 'failure_message' => $turn->status === 'failed' ? AiFailure::message($turn->failure_code) : null, 'answer' => $turn->status === 'done' ? $turn->assistant_text : null, 'web_requested' => $turn->web_requested, 'web_status' => $turn->web_status, 'sources' => $turn->status === 'done' ? array_map(fn ($s) => array_intersect_key($s, array_flip(['id', 'title', 'url'])), $turn->web_sources ?? []) : []];
     }
 
     private function accepted(Request $r, AiThread $thread, AiTurn $turn)
@@ -89,7 +90,7 @@ class AiChatController extends Controller
         abort_unless($thread->user_id === $r->user()->id, 404);
 
         // Expire abandoned local leases; never resend an uncertain inference.
-        AiTurn::where('ai_thread_id', $thread->id)->whereIn('status', ['queued', 'processing'])->where('updated_at', '<', now()->subMinutes(5))->update(['status' => 'failed', 'execution_token' => null]);
+        AiTurn::where('ai_thread_id', $thread->id)->whereIn('status', ['queued', 'processing'])->where('updated_at', '<', now()->subMinutes(5))->update(['status' => 'failed', 'execution_token' => null, 'failure_code' => 'worker_expired']);
 
         return response()->json(['turns' => $thread->turns()->orderBy('id')->get()->map(fn ($t) => $this->payload($t))])->header('Cache-Control', 'no-store, private');
     }

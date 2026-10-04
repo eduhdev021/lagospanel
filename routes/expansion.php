@@ -73,6 +73,7 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
         Route::post('/configuracoes/email-teste', [SiteSettingsController::class, 'testMail'])->middleware('throttle:3,1,lagos-mail-test')->name('settings.mail');
         Route::get('/integracoes/ollama', [AiSettingsController::class, 'index'])->name('connectors.ai');
         Route::post('/integracoes/ollama', [AiSettingsController::class, 'save'])->name('connectors.ai.save');
+        Route::post('/integracoes/ollama/testar', [AiSettingsController::class, 'probe'])->middleware('throttle:2,1,lagos-ai-probe')->name('connectors.ai.probe');
         Route::post('/integracoes/ollama/modelos', [AiSettingsController::class, 'models'])->middleware('throttle:5,1,lagos-ai-models')->name('connectors.ai.models');
         Route::get('/integracoes/{connector}/clientes-plesk', [NativeProvisioningController::class, 'pleskCustomers'])->name('connectors.plesk-customers');
         Route::get('/integracoes/{connector}/contas', [PterodactylAccountController::class, 'index'])->name('connectors.accounts');

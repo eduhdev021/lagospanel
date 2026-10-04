@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\PortalController;
 use App\Http\Controllers\TwoFactorController;
@@ -63,6 +64,8 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
     Route::get('/painel/suporte', [PortalController::class, 'tickets'])->name('tickets.index');
     Route::post('/painel/suporte', [PortalController::class, 'ticketCreate'])->middleware('throttle:10,1,lagos-ticket-create')->name('tickets.create');
     Route::post('/painel/suporte/{ticket}/responder', [PortalController::class, 'reply'])->middleware('throttle:20,1,lagos-ticket-reply')->name('tickets.reply');
+    Route::get('/painel/avatar', [AvatarController::class, 'show'])->name('profile.avatar');
+    Route::post('/painel/avatar', [AvatarController::class, 'save'])->middleware('throttle:6,1,lagos-avatar')->name('profile.avatar.save');
     Route::get('/painel/perfil', [PortalController::class, 'profile'])->name('profile');
     Route::post('/painel/perfil', [PortalController::class, 'profileUpdate'])->name('profile.update');
     Route::post('/painel/saldo', [PortalController::class, 'deposit'])->middleware('throttle:5,1,lagos-deposit')->name('wallet.deposit');

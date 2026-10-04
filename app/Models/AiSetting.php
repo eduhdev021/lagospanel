@@ -14,6 +14,6 @@ class AiSetting extends Model
 
     protected function casts(): array
     {
-        return ['web_token' => 'encrypted', 'web_enabled' => 'boolean', 'token' => 'encrypted', 'models' => 'array', 'active' => 'boolean', 'version' => 'integer', 'models_checked_at' => 'datetime'];
+        return ['probe_checked_at' => 'datetime', 'probe_version' => 'integer', 'web_token' => 'encrypted', 'web_enabled' => 'boolean', 'token' => 'encrypted', 'models' => 'array', 'active' => 'boolean', 'version' => 'integer', 'models_checked_at' => 'datetime'];
     }
 }

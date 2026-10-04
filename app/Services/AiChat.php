@@ -28,7 +28,7 @@ final class AiChat
                 abort_unless($s->web_enabled && WebResearch::key($s), 409, 'Pesquisa web indisponível.');
             }
             // Recover stale local workers without ever resending an uncertain inference.
-            AiTurn::whereIn('ai_thread_id', AiThread::where('user_id', $u->id)->select('id'))->whereIn('status', ['queued', 'processing'])->where('updated_at', '<', now()->subMinutes(5))->update(['status' => 'failed', 'execution_token' => null]);
+            AiTurn::whereIn('ai_thread_id', AiThread::where('user_id', $u->id)->select('id'))->whereIn('status', ['queued', 'processing'])->where('updated_at', '<', now()->subMinutes(5))->update(['status' => 'failed', 'execution_token' => null, 'failure_code' => 'worker_expired']);
             abort_if(AiTurn::whereIn('ai_thread_id', AiThread::where('user_id', $u->id)->select('id'))->whereIn('status', ['queued', 'processing'])->exists(), 409, 'Aguarde a resposta pendente.');
             abort_if($t->turns()->count() >= 20, 422, 'Limite de 20 mensagens por conversa. Crie outra conversa.');
             $day = today()->toDateString();

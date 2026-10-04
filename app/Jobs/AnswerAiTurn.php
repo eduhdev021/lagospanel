@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\AiSetting;
 use App\Models\AiTurn;
+use App\Services\AiFailure;
 use App\Services\Ollama;
 use App\Services\WebResearch;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -43,7 +44,7 @@ final class AnswerAiTurn implements ShouldQueue
         try {
             $s = AiSetting::find(1);
             if (! $s?->active || $s->version !== $turn->settings_version || $s->model !== $turn->model) {
-                throw new \RuntimeException('Configuration changed');
+                throw new AiFailure('configuration_changed');
             }
             $history = AiTurn::where('ai_thread_id', $turn->ai_thread_id)->where('id', '<', $turn->id)->where('status', 'done')->latest('id')->limit(8)->get();
             $pairs = [];
@@ -78,7 +79,7 @@ final class AnswerAiTurn implements ShouldQueue
                 }
                 $fresh = AiSetting::find(1);
                 if (! $fresh?->active || $fresh->version !== $turn->settings_version || ! AiTurn::whereKey($turn->id)->where('status', 'processing')->where('execution_token', $this->claim)->exists()) {
-                    throw new \RuntimeException('Revoked');
+                    throw new AiFailure('configuration_changed');
                 }
             }
             $answer = app(Ollama::class)->chat($s, $messages);
@@ -86,19 +87,19 @@ final class AnswerAiTurn implements ShouldQueue
             DB::transaction(function () use ($turn, $answer, $sources, $webStatus) {
                 $current = AiSetting::lockForUpdate()->find(1);
                 if (! $current?->active || $current->version !== $turn->settings_version) {
-                    $this->failed(null);
+                    $this->failed(new AiFailure('configuration_changed'));
 
                     return;
                 }
                 AiTurn::whereKey($turn->id)->where('status', 'processing')->where('execution_token', $this->claim)->update(['status' => 'done', 'assistant_text' => Crypt::encryptString($answer), 'web_sources' => Crypt::encryptString(json_encode($sources, JSON_THROW_ON_ERROR)), 'web_status' => $webStatus]);
             });
-        } catch (\Throwable) {
-            $this->failed(null);
+        } catch (\Throwable $error) {
+            $this->failed($error);
         }
     }
 
     public function failed(?\Throwable $e): void
     {
-        AiTurn::whereKey($this->turnId)->where('status', 'processing')->where('execution_token', $this->claim)->update(['status' => 'failed', 'execution_token' => null]);
+        AiTurn::whereKey($this->turnId)->where('status', 'processing')->where('execution_token', $this->claim)->update(['status' => 'failed', 'execution_token' => null, 'failure_code' => AiFailure::code($e)]);
     }
 }

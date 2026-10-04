@@ -124,3 +124,7 @@ Chat com envio sem recarregar, histórico, compositor fixo e consentimento por
 conversa. Cinco novas seções conectadas aos serviços existentes: faturamento,
 automação, gateways, SLA e recursos. Não equivale a todos os módulos do WHMCS.
 Veja [funcionamento, limites e testes](docs/CHAT-E-CONFIGURACOES-OPERACIONAIS.md).
+
+### Foto de perfil e diagnóstico da IA
+
+Importação consentida do Gravatar, upload de avatar, estado da chave salva, sinal do worker database e teste de geração autorizado no ADM. Veja [operação e configuração](docs/IA-FOTO-E-OPERACAO.md). Testes com provedores simulados não comprovam funcionamento no servidor de produção.

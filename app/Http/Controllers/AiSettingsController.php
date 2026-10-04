@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\AiSetting;
+use App\Services\AdminConfirmation;
+use App\Services\AiDiagnostics;
+use App\Services\AiFailure;
 use App\Services\Audit;
 use App\Services\Ollama;
 use App\Services\WebResearch;
@@ -14,7 +17,7 @@ class AiSettingsController extends Controller
 {
     public function index()
     {
-        return view('admin.ai-settings', ['setting' => AiSetting::find(1)]);
+        return view('admin.ai-settings', ['setting' => AiSetting::find(1), 'diagnostics' => app(AiDiagnostics::class)->report()]);
     }
 
     public function save(Request $r)
@@ -71,13 +74,42 @@ class AiSettingsController extends Controller
         return back()->with('status', 'Configuração salva. Chave não será exibida. Alterações invalidam solicitações de IA ainda pendentes.');
     }
 
+    public function probe(Request $r, Ollama $ollama, AdminConfirmation $confirmation)
+    {
+        $r->validate(['ack' => 'accepted']);
+        $confirmation->verify($r);
+        $s = AiSetting::findOrFail(1);
+        abort_unless($s->model && in_array($s->model, $s->models ?? [], true), 409, 'Selecione e salve um modelo do catálogo antes de testar.');
+        try {
+            $ollama->chat($s, [['role' => 'user', 'content' => 'Responda apenas OK. Este é um teste de conexão.']]);
+            $status = 'ok';
+        } catch (\Throwable $error) {
+            $status = AiFailure::code($error);
+        }
+        $saved = DB::transaction(function () use ($s, $status, $r) {
+            $current = AiSetting::lockForUpdate()->findOrFail(1);
+            if ($current->version !== $s->version) {
+                return false;
+            }$current->update(['probe_status' => $status, 'probe_version' => $s->version, 'probe_checked_at' => now()]);
+            Audit::record('ai.generation_tested', 'ai:1', ['status' => $status, 'version' => $s->version], $r->user()->id);
+
+            return true;
+        });
+        if (! $saved) {
+            return back()->withErrors(['probe' => 'A configuração mudou durante o teste. Teste novamente a versão atual.']);
+        }
+
+        return $status === 'ok' ? back()->with('status', 'O provedor gerou uma resposta de teste. Isso confirma a geração direta, não o funcionamento da fila.') :
+            back()->withErrors(['probe' => AiFailure::message($status)]);
+    }
+
     public function models(Request $r, Ollama $ollama)
     {
         $s = AiSetting::findOrFail(1);
         try {
             $models = $ollama->models($s);
-        } catch (\Throwable) {
-            return back()->withErrors(['models' => 'Não foi possível consultar o catálogo. Confira URL, chave, acesso e disponibilidade da API.']);
+        } catch (\Throwable $error) {
+            return back()->withErrors(['models' => AiFailure::message(AiFailure::code($error))]);
         }
         DB::transaction(function () use ($s, $models, $r) {
             $current = AiSetting::lockForUpdate()->findOrFail(1);
