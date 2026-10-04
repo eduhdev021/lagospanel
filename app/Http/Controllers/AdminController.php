@@ -49,7 +49,7 @@ class AdminController extends Controller
 
     public function invoices()
     {
-        return view('admin.invoices', ['invoices' => Invoice::with('user')->latest()->paginate(20)]);
+        return view('admin.invoices', ['invoices' => Invoice::with(['user', 'payments'])->latest()->paginate(20)]);
     }
 
     public function paid(Request $r, Invoice $invoice, Billing $billing)

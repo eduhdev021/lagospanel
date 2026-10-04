@@ -18,6 +18,7 @@ final class OperationalSettings
         'automation' => ['title' => 'Automação de cobrança', 'icon' => 'clock', 'description' => 'Regras executadas pelo agendador existente. Mudanças afetam futuras execuções; faturas e operações já criadas não são revertidas.', 'fields' => [
             'renewals_enabled' => ['Gerar faturas de renovação automaticamente', 'automation.renewals_enabled', 'boolean', 0, 1],
             'renewal_days' => ['Gerar renovação antes do vencimento (dias)', 'automation.renewal_days', 'integer', 0, 60],
+            'auto_charge_wallet' => ['Debitar automaticamente o saldo nas renovações', 'automation.auto_charge_wallet', 'boolean', 0, 1],
             'suspensions_enabled' => ['Agendar suspensão de serviços inadimplentes', 'automation.suspensions_enabled', 'boolean', 0, 1],
             'suspension_days' => ['Aguardar após o vencimento para suspender (dias)', 'automation.suspension_days', 'integer', 1, 90],
             'reminders_enabled' => ['Enviar lembretes de faturas por e-mail', 'automation.reminders_enabled', 'boolean', 0, 1],

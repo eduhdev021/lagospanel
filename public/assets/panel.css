@@ -984,3 +984,14 @@ body.theme-dark .payment-choice { background:#181030; }
   .gateway-live-card { align-items:flex-start; flex-direction:column; }
   .gateway-live-control { width:100%; }
 }
+
+
+/* Financial operations */
+.finance-payment { margin-top:10px; padding:10px; border:1px solid var(--line); border-radius:10px; background:var(--surface-soft, var(--surface)); }
+.finance-payment summary { cursor:pointer; font-size:.78rem; font-weight:700; }
+.finance-payment .form-grid { align-items:start; gap:12px; margin-top:12px; }
+.finance-payment form { display:grid; gap:7px; padding:10px; border:1px solid var(--line); border-radius:9px; background:var(--surface); }
+.finance-payment form h4 { margin:0 0 3px; font-size:.8rem; }
+.finance-payment form label { display:grid; gap:4px; font-size:.7rem; color:var(--muted); }
+.finance-payment form input, .finance-payment form textarea { width:100%; min-width:0; }
+.finance-payment form textarea { min-height:55px; resize:vertical; }

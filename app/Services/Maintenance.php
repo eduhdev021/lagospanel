@@ -13,19 +13,39 @@ final class Maintenance
     {
         $expired = app(OrderLifecycle::class)->expire();
         $made = 0;
-        Service::when(! config('automation.renewals_enabled', true), fn ($q) => $q->whereRaw('1=0'))->where('status', 'active')->where('auto_renew', true)->whereNull('cancellation_requested_at')->whereNotNull('next_due')->whereDate('next_due', '<=', today()->addDays((int) config('automation.renewal_days', 5)))->chunkById(100, function ($services) use (&$made) {
+        $autoCharged = 0;
+        $autoChargeSkipped = 0;
+        Service::when(! config('automation.renewals_enabled', true), fn ($q) => $q->whereRaw('1=0'))->where('status', 'active')->where('auto_renew', true)->whereNull('cancellation_requested_at')->whereNotNull('next_due')->whereDate('next_due', '<=', today()->addDays((int) config('automation.renewal_days', 5)))->chunkById(100, function ($services) use (&$made, &$autoCharged, &$autoChargeSkipped) {
             foreach ($services as $service) {
-                $made += DB::transaction(function () use ($service) {
+                $invoice = DB::transaction(function () use ($service) {
                     $s = Service::lockForUpdate()->findOrFail($service->id);
                     if ($s->cycle === 'one_time' || $s->price_minor <= 0 || $s->invoices()->whereIn('status', ['unpaid', 'overdue'])->exists() || Invoice::where('renewal_service_id', $s->id)->whereDate('period_start', $s->next_due)->exists()) {
-                        return 0;
+                        return null;
                     }
                     $invoice = Invoice::create(['user_id' => $s->user_id, 'type' => 'renewal', 'total_minor' => $s->price_minor, 'snapshot' => [['name' => 'Renovação — '.$s->name, 'quantity' => 1, 'unit_minor' => $s->price_minor]], 'due_date' => $s->next_due, 'renewal_service_id' => $s->id, 'period_start' => $s->next_due]);
                     $invoice->services()->attach($s);
-                    $s->user->notify(new InvoiceNotice($invoice->id));
-
-                    return 1;
+                    return $invoice->fresh(['user']);
                 }, 5);
+                if (! $invoice) {
+                    continue;
+                }
+                $made++;
+                $charged = false;
+                if (config('automation.auto_charge_wallet', false) && $invoice->user->balance_minor >= $invoice->total_minor) {
+                    try {
+                        app(Billing::class)->payWithWallet($invoice->user, $invoice->id);
+                        $autoCharged++;
+                        $charged = true;
+                    } catch (\Throwable) {
+                        $charged = false;
+                    }
+                }
+                if (! $charged) {
+                    if (config('automation.auto_charge_wallet', false)) {
+                        $autoChargeSkipped++;
+                    }
+                    $invoice->user->notify(new InvoiceNotice($invoice->id));
+                }
             }
         });
         $overdue = Invoice::where('status', 'unpaid')->whereDate('due_date', '<', today())->update(['status' => 'overdue']);
@@ -41,6 +61,6 @@ final class Maintenance
             }
         });
 
-        return ['reminders' => app(Reminders::class)->run(), 'expired_orders' => $expired, 'renewals' => $made, 'overdue' => $overdue, 'suspension_jobs_considered' => $queued];
+        return ['reminders' => app(Reminders::class)->run(), 'expired_orders' => $expired, 'renewals' => $made, 'renewals_auto_charged' => $autoCharged, 'renewals_auto_charge_skipped' => $autoChargeSkipped, 'overdue' => $overdue, 'suspension_jobs_considered' => $queued];
     }
 }

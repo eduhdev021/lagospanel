@@ -23,21 +23,21 @@ Catálogo e pedidos,"Bundles, addons e produtos dependentes",Planejado,Sem motor
 Catálogo e pedidos,Cotações e aprovação comercial,Implementado localmente,"Proposta avulsa em BRL, aceite/recusa, validade, revisão e fatura única; execução manual sem estoque/provisionamento"
 Catálogo e pedidos,Cupons fixos e percentuais,Implementado localmente,Primeira fatura; limites global e por cliente
 Catálogo e pedidos,Cupons recorrentes e elegibilidade avançada,Planejado,"Sem recorrência, segmentação ou regras combinadas"
-Catálogo e pedidos,Upgrades/downgrades e prorrata,Planejado,Não há alteração proporcional automática
+Catálogo e pedidos,Upgrades/downgrades e prorrata,Implementado localmente,ServiceUpgrades calcula saldo proporcional; drivers reais ainda precisam homologação
 Catálogo e pedidos,Configurações remotas após upgrade,Planejado,Depende dos drivers e da reconciliação
 Financeiro,Faturas e registros de pagamento,Implementado localmente,"BRL, quitação integral e idempotência"
 Financeiro,"Carteira, recargas e pagamentos internos",Implementado localmente,Uma moeda; saldos e concorrência testados
-Financeiro,Renovações e lembretes,Implementado localmente,Fila deduplicada e verificação antes de enviar
-Financeiro,Conciliação de recebimentos excepcionais,Parcial,Registro e conclusão manual; sem estorno automático
+Financeiro,Renovações e lembretes,Implementado localmente,Faturas deduplicadas, lembretes e débito opcional via carteira
+Financeiro,Conciliação de recebimentos excepcionais,Implementado localmente,Reviews ledger idempotente estorno/chargeback e referências externas; provedor é operação externa
 Financeiro,Cancelamento de pedido não pago,Implementado localmente,Libera reservas registradas; bloqueia pagamento vencido
 Financeiro,Relatórios e exportação CSV,Parcial,Indicadores básicos; não são lucro nem contabilidade fiscal
 Financeiro,Faturas PDF e layout fiscal,Parcial,"PDF não fiscal privado, itens/valores do snapshot e cadastro atual; sem emissão fiscal ou assinatura"
 Financeiro,Múltiplas moedas e câmbio,Planejado,Precisa de preços/carteiras por moeda e snapshots de câmbio
 Financeiro,"Impostos, VAT e regras territoriais",Planejado,Não implementado
 Financeiro,Documentos fiscais brasileiros,Planejado,Integração fiscal e validação legal necessárias
-Financeiro,Pagamentos parciais e sobrepagamentos,Planejado,Capturas incompatíveis vão para conciliação
-Financeiro,Estornos totais/parciais e chargebacks,Planejado,Sem API de reembolso e ledger de reversões
-Financeiro,Débito recorrente e assinaturas no gateway,Planejado,Checkout atual não equivale a assinatura automática
+Financeiro,Pagamentos parciais e sobrepagamentos,Parcial,Capturas parciais e status partial; sobrepagamento continua em conciliação
+Financeiro,Estornos totais/parciais e chargebacks,Implementado localmente,Ledger limites idempotência auditoria e tela administrativa; APIs externas pendentes
+Financeiro,Débito recorrente e assinaturas no gateway,Parcial,Renovação via carteira opt-in; assinaturas nativas de gateways pendentes
 Financeiro,"Cobrança por uso, medição e excedentes",Planejado,Sem coletor de uso tarifável
 Financeiro,"Juros, multas e tolerâncias por produto",Planejado,Políticas avançadas ausentes
 Financeiro,Afiliados e comissões,Planejado,Sem motor de comissão/pagamento

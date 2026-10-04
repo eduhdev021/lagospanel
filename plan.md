@@ -29,3 +29,10 @@ Evoluir o painel administrativo com foco em operação de cobrança, sem afirmar
 - A integração Efí exige conta Efí, client ID/secret, certificado P12/PEM, chave Pix, TLS 1.2 e mTLS no servidor do webhook; nenhum segredo será criado ou testado neste sandbox.
 - Homologação será o padrão; produção só funciona quando o operador habilitar pagamentos reais.
 - A tela e os testes usam `Http::fake`; isso não substitui homologação com credenciais reais.
+
+
+## Segunda entrega — operação financeira
+
+A renovação automática por saldo da carteira agora é opt-in, idempotente e auditada: uma fatura por período, um movimento de carteira e um pagamento `wallet`, com notificação de sucesso ou saldo insuficiente. A tela administrativa de faturamento mostra pagamentos, saldo reembolsável, referência interna e referência do provedor.
+
+Estorno e chargeback passaram a exigir `billing.manage` e são registrados no ledger interno. O painel não finge que chamou o provedor externo; APIs de refund, assinaturas nativas, antifraude, documentos fiscais e registradores ainda exigem contratos, credenciais e homologação reais.

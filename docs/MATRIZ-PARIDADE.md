@@ -39,7 +39,7 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 | Cotações e aprovação comercial | Implementado localmente | Proposta avulsa em BRL, aceite/recusa, validade, revisão e fatura única; execução manual sem estoque/provisionamento |
 | Cupons fixos e percentuais | Implementado localmente | Primeira fatura; limites global e por cliente |
 | Cupons recorrentes e elegibilidade avançada | Planejado | Sem recorrência, segmentação ou regras combinadas |
-| Upgrades/downgrades e prorrata | Planejado | Não há alteração proporcional automática |
+| Upgrades/downgrades e prorrata | Implementado localmente | `ServiceUpgrades` calcula saldo proporcional, gera fatura de upgrade e credita downgrade; drivers reais ainda precisam homologação |
 | Configurações remotas após upgrade | Planejado | Depende dos drivers e da reconciliação |
 
 ## Financeiro
@@ -48,17 +48,17 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 |---|---|---|
 | Faturas e registros de pagamento | Implementado localmente | BRL, quitação integral e idempotência |
 | Carteira, recargas e pagamentos internos | Implementado localmente | Uma moeda; saldos e concorrência testados |
-| Renovações e lembretes | Implementado localmente | Fila deduplicada e verificação antes de enviar |
-| Conciliação de recebimentos excepcionais | Parcial | Registro e conclusão manual; sem estorno automático |
+| Renovações e lembretes | Implementado localmente | Faturas deduplicadas, lembretes e débito automático opcional via carteira com notificação e ledger |
+| Conciliação de recebimentos excepcionais | Implementado localmente | Reviews manuais, ledger idempotente, estorno/chargeback administrativos e referências externas; execução no provedor ainda é operação externa |
 | Cancelamento de pedido não pago | Implementado localmente | Libera reservas registradas; bloqueia pagamento vencido |
 | Relatórios e exportação CSV | Parcial | Indicadores básicos; não são lucro nem contabilidade fiscal |
 | Faturas PDF e layout fiscal | Parcial | PDF não fiscal privado, itens/valores do snapshot e cadastro atual; sem emissão fiscal ou assinatura |
 | Múltiplas moedas e câmbio | Planejado | Precisa de preços/carteiras por moeda e snapshots de câmbio |
 | Impostos, VAT e regras territoriais | Planejado | Não implementado |
 | Documentos fiscais brasileiros | Planejado | Integração fiscal e validação legal necessárias |
-| Pagamentos parciais e sobrepagamentos | Planejado | Capturas incompatíveis vão para conciliação |
-| Estornos totais/parciais e chargebacks | Planejado | Sem API de reembolso e ledger de reversões |
-| Débito recorrente e assinaturas no gateway | Planejado | Checkout atual não equivale a assinatura automática |
+| Pagamentos parciais e sobrepagamentos | Parcial | `Billing::capture` aceita capturas parciais e status `partial`; sobrepagamento continua bloqueado para conciliação |
+| Estornos totais/parciais e chargebacks | Implementado localmente | Ledger, limites, idempotência, auditoria e tela administrativa; APIs de refund do provedor ainda precisam ser homologadas por gateway |
+| Débito recorrente e assinaturas no gateway | Parcial | Renovação automática por carteira agora é opt-in e auditada; assinaturas nativas em Stripe/Mercado Pago/Efí continuam pendentes |
 | Cobrança por uso, medição e excedentes | Planejado | Sem coletor de uso tarifável |
 | Juros, multas e tolerâncias por produto | Planejado | Políticas avançadas ausentes |
 | Afiliados e comissões | Planejado | Sem motor de comissão/pagamento |

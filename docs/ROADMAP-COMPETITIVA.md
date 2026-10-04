@@ -45,3 +45,9 @@ A assistente **Waguri Lagos**, criada pela companhia Lagos, deve continuar limit
 ## Métricas para dizer “melhor”
 
 Antes de comparar com WHMCS ou Paymenter, medir tempo para configurar o primeiro produto, tempo para ativar um gateway em homologação, taxa de pagamentos reconciliados automaticamente, tempo para resolver uma exceção, quantidade de cliques para encontrar um diagnóstico e percentual de operações cobertas por testes de replay/timeout. Superioridade deve ser demonstrada por esses resultados e por uma instalação reproduzível, não por quantidade de telas.
+
+## Entrega adicional — operações financeiras
+
+O LagosPanel agora também oferece renovação automática por saldo da carteira, com ativação explícita, idempotência por período, ledger e notificação. A tela administrativa de faturamento mostra cada pagamento e permite registrar estorno parcial/total ou chargeback com permissão `billing.manage`, referência interna, referência do provedor e auditoria.
+
+Isso fecha o núcleo interno de cobrança, mas não transforma automaticamente esse registro em uma chamada de refund no Stripe, Mercado Pago ou Efí. Para cada provedor ainda é necessário homologar o endpoint de estorno, políticas de chargeback e reconciliação de retorno. Também permanecem como blocos de produto separados: assinaturas nativas dos gateways, antifraude, emissão fiscal, registradores externos, multitenancy e marketplace de extensões.
