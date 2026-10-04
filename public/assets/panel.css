@@ -832,3 +832,50 @@ body.theme-dark .notice-warn { background:#2A1A06; border-color:#4A3A12; color:#
   .gw-btn button { padding:14px 16px; min-height:36px; }
   .gw-amount { font-size:1.9rem; }
 }
+
+/* =========================================================
+   RESPONSIVIDADE GLOBAL — 320px até desktop
+   ========================================================= */
+html, body { max-width: 100%; overflow-x: hidden; }
+.panel-shell, .panel-main, .panel-content, .panel-content > *,
+.panel-content .card, .panel-content form, .panel-content fieldset { min-width: 0; max-width: 100%; }
+.panel-content .form-grid > *, .panel-content .field, .panel-content .row-between,
+.panel-content .page-head, .panel-content .welcome-row { min-width: 0; }
+.panel-content input, .panel-content select, .panel-content textarea,
+.panel-content button, .panel-content .btn { max-width: 100%; min-width: 0; }
+.panel-content textarea, .panel-content pre, .panel-content code,
+.panel-content p, .panel-content h1, .panel-content h2, .panel-content h3,
+.panel-content h4 { overflow-wrap: anywhere; word-break: break-word; }
+.table-wrap, .ltable-wrap { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-wrap table, .ltable-wrap table { max-width: none; }
+
+@media (max-width: 900px) {
+  .panel-content { width: 100%; max-width: none; }
+  .panel-foot { padding-left: 16px; padding-right: 16px; overflow-wrap: anywhere; }
+}
+
+@media (max-width: 680px) {
+  .panel-content { padding: 16px 12px; }
+  .card { padding: 16px; border-radius: 12px; }
+  .card + .card { margin-top: 12px; }
+  .form-grid { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .topbar-title { min-width: 0; overflow-wrap: anywhere; }
+  .topbar-actions { flex-shrink: 0; }
+  .row-between, .page-head, .welcome-row { align-items: flex-start; flex-wrap: wrap; }
+  .row-between > *, .page-head > *, .welcome-row > * { min-width: 0; max-width: 100%; }
+  .operation-tabs { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; padding-bottom: 4px; }
+  .operation-tabs a { flex: 0 0 auto; }
+  .btn { white-space: normal; text-align: center; }
+  .check-line { align-items: flex-start; }
+  .check-line input { margin-top: 4px; flex: 0 0 auto; }
+}
+
+@media (max-width: 420px) {
+  .panel-content { padding-left: 10px; padding-right: 10px; }
+  .card { padding: 14px; }
+  .topbar { padding-left: 10px; padding-right: 10px; }
+  .topbar-title { font-size: .95rem; }
+  .topbar-actions { gap: 4px; }
+  .topbar-actions .btn { display: none; }
+  .field label { font-size: .8rem; }
+}
