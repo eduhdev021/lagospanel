@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SocialIdentity;
+use App\Models\SocialProvider;
 use App\Models\User;
 use App\Services\Audit;
 use App\Support\Totp;
@@ -35,8 +37,14 @@ class TwoFactorController extends Controller
         }
         $user = DB::transaction(function () use ($data, $v) {
             $u = User::lockForUpdate()->find($data['user']);
-            if (! $u || ! $u->totp_secret || ! hash_equals($data['binding'], hash('sha256', $u->password.'|'.$u->totp_secret))) {
+            if (! $u || (($data['social_customer'] ?? false) && ($u->isStaff() || $u->password_reset_required)) || ! $u->totp_secret || ! hash_equals($data['binding'], hash('sha256', $u->password.'|'.$u->totp_secret))) {
                 return null;
+            }
+            if ($data['social_customer'] ?? false) {
+                $setting = SocialProvider::whereKey($data['social_provider'])->where('enabled', true)->first();
+                if (! $setting || $setting->version !== $data['social_version'] || ! SocialIdentity::whereKey($data['social_identity'])->where('user_id', $u->id)->where('client_hash', $setting->fingerprint())->exists()) {
+                    return null;
+                }
             }
             $step = Totp::step($u->totp_secret, $v['code'], $u->totp_last_step);
             if ($step !== null) {
@@ -64,6 +72,7 @@ class TwoFactorController extends Controller
         }Cache::forget($key);
         Cache::forget($key.':attempts');
         $r->session()->forget('two_factor_challenge');
+        $r->session()->put('customer_social_auth', (bool) ($data['social_customer'] ?? false));
         Auth::login($user, (bool) $data['remember']);
         $r->session()->regenerate();
         Audit::record('auth.two_factor_login', 'user:'.$user->id, [], $user->id);

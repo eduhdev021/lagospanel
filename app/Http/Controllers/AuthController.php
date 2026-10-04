@@ -31,6 +31,7 @@ class AuthController extends Controller
             RateLimiter::hit($key, 900);
             throw ValidationException::withMessages(['email' => 'Credenciais inválidas. Contas migradas precisam redefinir a senha.']);
         }RateLimiter::clear($key);
+        $r->session()->forget('customer_social_auth');
         if ($user->totp_secret) {
             $challenge = bin2hex(random_bytes(32));
             $cacheKey = '2fa:'.$challenge;

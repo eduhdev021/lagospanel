@@ -107,3 +107,13 @@ administrativo é opcional por padrão e pode ser exigido pelo administrador.
 A atualização aprovada pelo site exige preparação inicial de um worker não-root,
 checkout Git limpo e backup externo; não executa comandos privilegiados pelo PHP-FPM.
 Veja [configuração, requisitos e recuperação](docs/ATUALIZACOES-PELO-PAINEL.md).
+
+### Homepage, nova central ADM e login social (1.5.0-dev)
+
+A página inicial pública apresenta os planos reais do catálogo. A central do ADM
+possui ícones, busca e categorias responsivas. GitHub, X/Twitter, Facebook, Google
+e Microsoft estão integrados para **clientes**, com configuração das credenciais
+no ADM e vínculos protegidos por senha/2FA. Os provedores vêm desativados; não há
+credenciais de produção nem homologação real embutida.
+
+Veja [configuração e segurança do login social](docs/LOGIN-SOCIAL-E-NOVA-INTERFACE.md).

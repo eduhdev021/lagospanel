@@ -1,0 +1,98 @@
+{
+  "results": [
+    {
+      "test": "Homepage returns 200",
+      "passed": true
+    },
+    {
+      "test": "Homepage shows real catalog fixture",
+      "passed": true
+    },
+    {
+      "test": "Homepage responsive 320",
+      "passed": true
+    },
+    {
+      "test": "Homepage responsive 390",
+      "passed": true
+    },
+    {
+      "test": "Homepage responsive 768",
+      "passed": true
+    },
+    {
+      "test": "Homepage responsive 1440",
+      "passed": true
+    },
+    {
+      "test": "All five social buttons render",
+      "passed": true
+    },
+    {
+      "test": "Login responsive",
+      "passed": true
+    },
+    {
+      "test": "Settings returns 200",
+      "passed": true
+    },
+    {
+      "test": "Settings icons present",
+      "passed": true
+    },
+    {
+      "test": "Search ignores accents and matches email",
+      "passed": true
+    },
+    {
+      "test": "Empty search has recovery button",
+      "passed": true
+    },
+    {
+      "test": "Category filtering",
+      "passed": true
+    },
+    {
+      "test": "Settings responsive 320",
+      "passed": true
+    },
+    {
+      "test": "Settings responsive 390",
+      "passed": true
+    },
+    {
+      "test": "Settings responsive 768",
+      "passed": true
+    },
+    {
+      "test": "Settings responsive 1440",
+      "passed": true
+    },
+    {
+      "test": "Five provider forms",
+      "passed": true
+    },
+    {
+      "test": "No credential reflected",
+      "passed": true
+    },
+    {
+      "test": "Social settings mobile layout",
+      "passed": true
+    },
+    {
+      "test": "Five account linking forms",
+      "passed": true
+    },
+    {
+      "test": "Customer cannot access admin settings",
+      "passed": true
+    },
+    {
+      "test": "No JavaScript errors",
+      "passed": true
+    }
+  ],
+  "javascript_errors": [],
+  "scope": "Local fixture; no live OAuth provider authorization"
+}

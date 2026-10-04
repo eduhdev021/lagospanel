@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->trimStrings(except: ['db_password', 'smtp_password', 'setup_key', 'web_token']);
+        $middleware->trimStrings(except: ['client_secret', 'db_password', 'smtp_password', 'setup_key', 'web_token']);
         $middleware->append(LoadSiteConfiguration::class);
         $middleware->web(append: [SecurityHeaders::class]);
         $middleware->alias(['admin' => AdminOnly::class, 'permission' => RequirePermission::class, 'api.token' => ApiAuthenticate::class]);
@@ -31,6 +31,6 @@ return Application::configure(basePath: dirname(__DIR__))
         }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->dontFlash(['token', 'web_token', 'smtp_password', 'setup_key', 'db_password', 'code', 'password', 'password_confirmation']);
+        $exceptions->dontFlash(['client_secret', 'token', 'web_token', 'smtp_password', 'setup_key', 'db_password', 'code', 'password', 'password_confirmation']);
         $exceptions->shouldRenderJsonWhen(fn ($request, $e) => $request->is('webhooks/*', 'api/*') || $request->expectsJson());
     })->create();

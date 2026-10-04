@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\PortalController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\WebhookController;
@@ -13,8 +14,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/instalar', [WebInstallerController::class, 'index'])->name('setup.index');
 Route::post('/instalar/autorizar', [WebInstallerController::class, 'unlock'])->middleware('throttle:5,1,lagos-setup-unlock')->name('setup.unlock');
 Route::post('/instalar/concluir', [WebInstallerController::class, 'finish'])->middleware('throttle:3,1,lagos-setup-finish')->name('setup.finish');
-Route::get('/', fn () => redirect()->route('store'));
+Route::get('/', [HomepageController::class, 'index'])->name('home');
 Route::get('/loja', [PortalController::class, 'store'])->name('store');
+Route::view('/privacidade', 'privacy')->name('privacy');
 Route::view('/termos', 'terms')->name('terms');
 Route::middleware('guest')->group(function () {
     Route::get('/duas-etapas', [TwoFactorController::class, 'challenge'])->name('two-factor.challenge');
@@ -88,6 +90,7 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
 Route::post('/webhooks/stripe', [WebhookController::class, 'stripe'])->middleware('throttle:120,1,lagos-webhook-stripe');
 Route::post('/webhooks/mercadopago', [WebhookController::class, 'mercadoPago'])->middleware('throttle:120,1,lagos-webhook-mercadopago');
 
+require __DIR__.'/social.php';
 require __DIR__.'/expansion.php';
 require __DIR__.'/commercial.php';
 require __DIR__.'/outgoing-webhooks.php';
