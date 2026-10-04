@@ -50,6 +50,9 @@ final class SiteConfiguration
         $this->operationalApplied = [];
         URL::forceRootUrl(null);
         View::share('siteLogo', null);
+        View::share('siteFooterDescription', 'Um lugar para seus projetos. Um painel para acompanhar cada passo.');
+        View::share('siteFooterCopyright', 'Todos os direitos reservados.');
+        View::share('siteFooterTagline', 'Feito para conectar suas ideias.');
         try {
             if (is_file(config('setup.state_path')) && ! is_file(config('setup.lock_path'))) {
                 return;
@@ -64,6 +67,9 @@ final class SiteConfiguration
             config(['app.name' => $s->name, 'app.url' => $s->url, 'site.registration_enabled' => $s->registration_enabled, 'site.support_email' => $s->support_email]);
             URL::forceRootUrl($s->url);
             View::share('siteLogo', $s->logo_mime ? route('brand.logo', ['v' => $s->version]) : null);
+            View::share('siteFooterDescription', $s->footer_description ?? 'Um lugar para seus projetos. Um painel para acompanhar cada passo.');
+            View::share('siteFooterCopyright', $s->footer_copyright ?? 'Todos os direitos reservados.');
+            View::share('siteFooterTagline', $s->footer_tagline ?? 'Feito para conectar suas ideias.');
             if ($s->mailer !== 'inherit') {
                 config(['mail.default' => $s->mailer]);
                 if ($s->mail_from_address) {

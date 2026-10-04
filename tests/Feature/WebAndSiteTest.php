@@ -200,6 +200,39 @@ class WebAndSiteTest extends TestCase
         $this->post('/registrar', ['name' => 'X', 'email' => 'new@example.test', 'password' => 'TestPassword123', 'password_confirmation' => 'TestPassword123'])->assertForbidden();
     }
 
+    public function test_general_settings_customize_the_public_footer_and_escape_text(): void
+    {
+        $this->actingAs($this->root())
+            ->get(route('admin.settings.general'))
+            ->assertOk()
+            ->assertSee('Rodapé e direitos autorais')
+            ->assertSee('footer_description')
+            ->assertSee('footer_copyright')
+            ->assertSee('footer_tagline');
+
+        $this->post(route('admin.settings.general.save'), $this->settingsData([
+            'name' => 'Lagos Cloud',
+            'footer_description' => 'Hospedagem com atendimento próximo.',
+            'footer_copyright' => 'CNPJ 00.000.000/0001-00 · Todos os direitos reservados.',
+            'footer_tagline' => '<script>alert(1)</script>',
+        ]))->assertRedirect()->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('site_settings', [
+            'name' => 'Lagos Cloud',
+            'footer_description' => 'Hospedagem com atendimento próximo.',
+            'footer_copyright' => 'CNPJ 00.000.000/0001-00 · Todos os direitos reservados.',
+            'footer_tagline' => '<script>alert(1)</script>',
+        ]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('Lagos Cloud')
+            ->assertSee('Hospedagem com atendimento próximo.')
+            ->assertSee('CNPJ 00.000.000/0001-00 · Todos os direitos reservados.')
+            ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false)
+            ->assertDontSee('<script>alert(1)</script>', false);
+    }
+
     public function test_site_configuration_permission_and_stale_edit_protection(): void
     {
         $root = $this->root();
@@ -225,15 +258,21 @@ class WebAndSiteTest extends TestCase
     {
         $baseline = config('mail');
         $service = app(SiteConfiguration::class);
-        $setting = SiteSetting::create(['id' => 1, 'name' => 'Example', 'url' => 'https://panel.example.test', 'mailer' => 'smtp', 'smtp_host' => 'smtp.example.test', 'smtp_port' => 587, 'smtp_scheme' => 'smtp', 'smtp_password' => 'secret', 'mail_from_address' => 'custom@example.test']);
+        $setting = SiteSetting::create(['id' => 1, 'name' => 'Example', 'url' => 'https://panel.example.test', 'mailer' => 'smtp', 'smtp_host' => 'smtp.example.test', 'smtp_port' => 587, 'smtp_scheme' => 'smtp', 'smtp_password' => 'secret', 'mail_from_address' => 'custom@example.test', 'footer_description' => 'Descrição atualizada', 'footer_copyright' => 'CNPJ de exemplo', 'footer_tagline' => 'Assinatura personalizada']);
         $service->apply();
         $this->assertSame('smtp', config('mail.default'));
+        $this->assertSame('Descrição atualizada', view()->shared('siteFooterDescription'));
+        $this->assertSame('CNPJ de exemplo', view()->shared('siteFooterCopyright'));
+        $this->assertSame('Assinatura personalizada', view()->shared('siteFooterTagline'));
         $setting->update(['mailer' => 'inherit']);
         app(SiteConfiguration::class)->apply();
         $this->assertSame($baseline, config('mail'));
         $setting->delete();
         $service->apply();
         $this->assertSame('LagosPanel', config('app.name'));
+        $this->assertSame('Um lugar para seus projetos. Um painel para acompanhar cada passo.', view()->shared('siteFooterDescription'));
+        $this->assertSame('Todos os direitos reservados.', view()->shared('siteFooterCopyright'));
+        $this->assertSame('Feito para conectar suas ideias.', view()->shared('siteFooterTagline'));
     }
 
     public function test_installer_rearm_preserves_application_key_and_failed_database_fingerprint(): void

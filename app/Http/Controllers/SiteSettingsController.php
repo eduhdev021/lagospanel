@@ -20,8 +20,27 @@ class SiteSettingsController extends Controller
     public function save(Request $r)
     {
         $section = $r->route('section') ?? 'all';
-        $rules = ['name' => 'required|string|max:80', 'url' => 'required|string|max:255', 'support_email' => 'nullable|email|max:254', 'registration_enabled' => 'sometimes|boolean', 'version' => 'required|integer|min:0', 'logo' => 'nullable|file|mimes:png,jpg,jpeg,webp|max:200', 'remove_logo' => 'sometimes|boolean', 'mailer' => 'required|in:inherit,log,smtp', 'smtp_host' => 'nullable|required_if:mailer,smtp|string|max:253', 'smtp_port' => 'required|integer|min:1|max:65535', 'smtp_scheme' => 'required|in:smtp,smtps', 'smtp_username' => 'nullable|string|max:200', 'smtp_password' => 'nullable|string|max:2000', 'clear_smtp_password' => 'sometimes|boolean', 'mail_from_address' => 'nullable|required_if:mailer,smtp|email|max:254'];
-        $general = ['name', 'url', 'support_email', 'registration_enabled', 'version', 'logo', 'remove_logo'];
+        $rules = [
+            'name' => 'required|string|max:80',
+            'url' => 'required|string|max:255',
+            'support_email' => 'nullable|email|max:254',
+            'registration_enabled' => 'sometimes|boolean',
+            'version' => 'required|integer|min:0',
+            'logo' => 'nullable|file|mimes:png,jpg,jpeg,webp|max:200',
+            'remove_logo' => 'sometimes|boolean',
+            'footer_description' => 'nullable|string|max:500',
+            'footer_copyright' => 'nullable|string|max:240',
+            'footer_tagline' => 'nullable|string|max:180',
+            'mailer' => 'required|in:inherit,log,smtp',
+            'smtp_host' => 'nullable|required_if:mailer,smtp|string|max:253',
+            'smtp_port' => 'required|integer|min:1|max:65535',
+            'smtp_scheme' => 'required|in:smtp,smtps',
+            'smtp_username' => 'nullable|string|max:200',
+            'smtp_password' => 'nullable|string|max:2000',
+            'clear_smtp_password' => 'sometimes|boolean',
+            'mail_from_address' => 'nullable|required_if:mailer,smtp|email|max:254',
+        ];
+        $general = ['name', 'url', 'support_email', 'registration_enabled', 'version', 'logo', 'remove_logo', 'footer_description', 'footer_copyright', 'footer_tagline'];
         if ($section === 'general') {
             $rules = array_intersect_key($rules, array_flip($general));
         }
@@ -48,7 +67,7 @@ class SiteSettingsController extends Controller
             DB::table('site_settings')->insertOrIgnore(['id' => 1, 'name' => 'LagosPanel', 'url' => config('app.url'), 'version' => 0, 'created_at' => now(), 'updated_at' => now()]);
             $s = SiteSetting::lockForUpdate()->findOrFail(1);
             abort_unless($s->version === (int) $v['version'], 409, 'Configuração alterada. Recarregue a página.');
-            $data = array_intersect_key($v, array_flip(['name', 'url', 'support_email', 'mailer', 'smtp_host', 'smtp_port', 'smtp_scheme', 'smtp_username', 'mail_from_address']));
+            $data = array_intersect_key($v, array_flip(['name', 'url', 'support_email', 'footer_description', 'footer_copyright', 'footer_tagline', 'mailer', 'smtp_host', 'smtp_port', 'smtp_scheme', 'smtp_username', 'mail_from_address']));
             $data['version'] = $s->version + 1;
             if ($section !== 'email') {
                 $data['registration_enabled'] = $r->boolean('registration_enabled');
