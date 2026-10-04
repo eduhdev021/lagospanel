@@ -14,7 +14,7 @@
         $gatewayCards = [
             'stripe' => ['name'=>'Stripe','logo'=>'stripe.svg','tone'=>'stripe','description'=>'Checkout para cartões e pagamentos internacionais.','capabilities'=>['Cartão','Checkout','Webhook'],'fields'=>['stripe_enabled','stripe_secret','stripe_webhook'],'callback'=>url('/webhooks/stripe')],
             'mercadopago' => ['name'=>'Mercado Pago','logo'=>'mercadopago.svg','tone'=>'mercadopago','description'=>'Preferência de pagamento com Pix, cartão e saldo Mercado Pago.','capabilities'=>['Pix','Cartão','Webhook'],'fields'=>['mp_enabled','mp_token'],'callback'=>url('/webhooks/mercadopago')],
-            'efi' => ['name'=>'Efí Bank','logo'=>'efi.svg','tone'=>'efi','description'=>'Pix nativo via SDK oficial, QR Code, copia-e-cola e confirmação automática.','capabilities'=>['Pix SDK','OAuth2','mTLS + webhook'],'fields'=>['efi_enabled','efi_environment','efi_client_id','efi_client_secret','efi_certificate_path','efi_certificate_password','efi_certificate_type','efi_pix_key','efi_webhook_hmac','efi_charge_expiration'],'callback'=>url('/webhooks/efi?ignorar=')],
+            'efi' => ['name'=>'Efí Bank','logo'=>'efi.svg','tone'=>'efi','description'=>'Pix nativo via SDK oficial, QR Code, copia-e-cola, mTLS e confirmação automática.','capabilities'=>['Pix SDK','OAuth2','mTLS + webhook'],'fields'=>['efi_enabled','efi_environment','efi_client_id','efi_client_secret','efi_certificate_path','efi_certificate_type','efi_pix_key','efi_charge_expiration'],'callback'=>url('/webhooks/efi?ignorar=')],
         ];
     @endphp
     <form method="post" enctype="multipart/form-data" action="{{ route('admin.settings.operation.save',$key) }}">@csrf<input type="hidden" name="version" value="{{ $draft?old('version'):($setting?->version??0) }}">

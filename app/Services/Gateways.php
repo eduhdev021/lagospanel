@@ -55,7 +55,7 @@ final class Gateways
         $this->enabled('efi');
         $this->assertEfiConfig();
         $key = (string) config('lagos.payments.efi.pix_key');
-        $url = $webhookUrl ?: url('/webhooks/efi?ignorar='.(config('lagos.payments.efi.webhook_hmac') ? '&hmac='.urlencode((string) config('lagos.payments.efi.webhook_hmac')) : ''));
+        $url = $webhookUrl ?: url('/webhooks/efi?ignorar=');
         abort_unless(filter_var($url, FILTER_VALIDATE_URL) && str_starts_with($url, 'https://'), 422, 'A URL do webhook Efí precisa ser HTTPS.');
         try {
             return $this->efiBody($this->efiApi()->pixConfigWebhook(['chave' => $key], ['webhookUrl' => $url]));
@@ -135,6 +135,7 @@ final class Gateways
             }
             if ($charge->status === 'paid' && $charge->provider_reference) {
                 $processed[] = $txid;
+
                 continue;
             }
             $authoritative = $this->efiGetCharge($txid);
@@ -220,11 +221,11 @@ final class Gateways
             return app(EfiPay::class);
         }
         $certificate = (string) config('lagos.payments.efi.certificate');
+
         return new EfiPay([
             'clientId' => (string) config('lagos.payments.efi.client_id'),
             'clientSecret' => (string) config('lagos.payments.efi.client_secret'),
             'certificate' => $certificate,
-            'pwdCertificate' => (string) config('lagos.payments.efi.certificate_password', ''),
             'sandbox' => config('lagos.payments.efi.environment') !== 'producao',
             'timeout' => 20,
             'headers' => ['x-skip-mtls-checking' => false],

@@ -60,7 +60,7 @@ class OperationalSettingsController extends Controller
         $rules = ['version' => 'required|integer|min:0', 'ack' => 'accepted', 'values' => 'required|array:'.implode(',', array_keys($fields)), 'clear' => 'sometimes|array:'.implode(',', array_keys(array_filter($fields, fn ($f) => $f[2] === 'secret')))];
         foreach ($fields as $key => [$label,$path,$type,$min,$max]) {
             $rules['values.'.$key] = $type === 'boolean' ? 'required|boolean' : ($type === 'integer' ? "required|integer|min:$min|max:$max" : (($min ? 'required' : 'nullable')."|string|min:$min|max:$max"));
-            if ($section === 'payments' && in_array($key, ['efi_certificate_path', 'efi_pix_key', 'efi_webhook_hmac'], true)) {
+            if ($section === 'payments' && in_array($key, ['efi_certificate_path', 'efi_pix_key'], true)) {
                 $rules['values.'.$key] = 'nullable|string|min:'.$min.'|max:'.$max.(! $certificateUpload ? '|required_if:values.efi_enabled,1' : '');
             }
             if ($type === 'secret') {

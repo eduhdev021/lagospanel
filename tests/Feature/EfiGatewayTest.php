@@ -10,6 +10,7 @@ use Efi\EfiPay;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Mockery;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class EfiGatewayTest extends TestCase
@@ -31,10 +32,8 @@ class EfiGatewayTest extends TestCase
                 'client_id' => 'client-id-test',
                 'client_secret' => 'client-secret-test',
                 'certificate' => $this->certificate,
-                'certificate_password' => 'secret',
                 'certificate_type' => 'PEM',
                 'pix_key' => 'pix@example.test',
-                'webhook_hmac' => 'callback-hmac-test',
                 'charge_expiration' => 3600,
             ],
         ]);
@@ -47,7 +46,7 @@ class EfiGatewayTest extends TestCase
         parent::tearDown();
     }
 
-    private function sdk(): \Mockery\MockInterface
+    private function sdk(): MockInterface
     {
         $sdk = Mockery::mock(EfiPay::class);
         $this->app->instance(EfiPay::class, $sdk);
@@ -105,12 +104,12 @@ class EfiGatewayTest extends TestCase
         $sdk->shouldReceive('pixDetailCharge')->once()->with(['txid' => $txid])->andReturn(['txid' => $txid, 'status' => 'CONCLUIDA', 'valor' => ['original' => '25.99'], 'pix' => [['txid' => $txid, 'endToEndId' => $endToEnd, 'valor' => '25.99']]]);
         $payload = ['pix' => [['txid' => $txid, 'endToEndId' => $endToEnd, 'valor' => '25.99']]];
 
-        $this->postJson('/webhooks/efi?hmac=callback-hmac-test', $payload)->assertOk();
+        $this->postJson('/webhooks/efi', $payload)->assertOk();
         $this->assertSame('paid', $invoice->fresh()->status);
         $this->assertDatabaseCount('payments', 1);
         $this->assertDatabaseHas('gateway_charges', ['reference' => $txid, 'status' => 'paid', 'provider_reference' => $endToEnd]);
 
-        $this->postJson('/webhooks/efi?hmac=callback-hmac-test', $payload)->assertOk();
+        $this->postJson('/webhooks/efi', $payload)->assertOk();
         $this->assertDatabaseCount('payments', 1);
     }
 
@@ -124,14 +123,8 @@ class EfiGatewayTest extends TestCase
         $this->assertSame('https://panel.example.test/webhooks/efi?ignorar=', $result['webhookUrl']);
     }
 
-    public function test_efi_webhook_requires_private_hmac_when_one_is_configured(): void
+    public function test_efi_webhook_accepts_callback_with_mtls_handled_at_server(): void
     {
-        $this->postJson('/webhooks/efi', ['pix' => []])->assertForbidden();
-    }
-
-    public function test_efi_webhook_accepts_callback_without_hmac_when_hmac_is_not_configured(): void
-    {
-        config(['lagos.payments.efi.webhook_hmac' => null]);
         $this->postJson('/webhooks/efi', ['pix' => []])->assertOk();
     }
 }

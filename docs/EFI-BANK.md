@@ -34,10 +34,8 @@ Os campos podem ser salvos em **Administração → Configurações → Gateways
 - `EFI_CLIENT_ID`
 - `EFI_CLIENT_SECRET`
 - `EFI_CERTIFICATE_PATH`
-- `EFI_CERTIFICATE_PASSWORD`
-- `EFI_CERTIFICATE_TYPE=PEM|P12`
+- `EFI_CERTIFICATE_TYPE`
 - `EFI_PIX_KEY`
-- `EFI_WEBHOOK_HMAC`
 - `EFI_CHARGE_EXPIRATION`
 
 ### Upload pelo painel
@@ -52,7 +50,7 @@ Na configuração de Gateways, o administrador pode enviar o P12/PFX/PEM/CRT dir
 
 O usuário do PHP-FPM/queue precisa ter permissão de leitura no diretório `storage/app/private/efi`. Depois do upload, o caminho absoluto protegido é usado automaticamente pelo `EfiPay`.
 
-O painel monta e cadastra automaticamente `https://seu-dominio/webhooks/efi?ignorar=` pela API/SDK. Se `EFI_WEBHOOK_HMAC` for preenchido, ele acrescenta `hmac=...` como camada adicional; esse campo não é obrigatório para a Efí. O parâmetro `ignorar=` evita que a Efí acrescente `/pix`.
+O painel monta e cadastra automaticamente `https://seu-dominio/webhooks/efi?ignorar=` pela API/SDK. O parâmetro `ignorar=` evita que a Efí acrescente `/pix`. A proteção oficial do callback é o mTLS entre a Efí e o servidor; a Efí também documenta restrição por IP e HMAC opcional na própria URL como camadas externas, mas o LagosPanel não trata HMAC como credencial obrigatória.
 
 ## Fontes oficiais consultadas
 

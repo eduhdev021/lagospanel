@@ -36,10 +36,8 @@ final class OperationalSettings
             'efi_client_id' => ['Efí — Client ID', 'lagos.payments.efi.client_id', 'secret', 0, 2000],
             'efi_client_secret' => ['Efí — Client Secret', 'lagos.payments.efi.client_secret', 'secret', 0, 2000],
             'efi_certificate_path' => ['Efí — caminho do certificado P12/PEM no servidor', 'lagos.payments.efi.certificate', 'text', 1, 512],
-            'efi_certificate_password' => ['Efí — senha do certificado (se houver)', 'lagos.payments.efi.certificate_password', 'secret', 0, 512],
             'efi_certificate_type' => ['Efí — tipo do certificado (PEM ou P12)', 'lagos.payments.efi.certificate_type', 'text', 3, 3],
             'efi_pix_key' => ['Efí — chave Pix recebedora', 'lagos.payments.efi.pix_key', 'secret', 1, 200],
-            'efi_webhook_hmac' => ['Efí — HMAC privado do webhook', 'lagos.payments.efi.webhook_hmac', 'secret', 16, 128],
             'efi_charge_expiration' => ['Efí — validade da cobrança (segundos)', 'lagos.payments.efi.charge_expiration', 'integer', 300, 86400],
         ]],
         'support' => ['title' => 'Atendimento e SLA', 'icon' => 'ticket', 'description' => 'Prazos internos por prioridade e cota de anexos. SLA aplicado a novos chamados ou à alteração explícita de prioridade, sem recalcular tickets antigos.', 'fields' => [
