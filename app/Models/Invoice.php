@@ -10,7 +10,7 @@ class Invoice extends Model
 
     protected function casts(): array
     {
-        return ['expires_at' => 'datetime', 'snapshot' => 'array', 'total_minor' => 'integer', 'due_date' => 'immutable_date', 'period_start' => 'immutable_date', 'paid_at' => 'datetime'];
+        return ['expires_at' => 'datetime', 'snapshot' => 'array', 'total_minor' => 'integer', 'paid_minor' => 'integer', 'due_date' => 'immutable_date', 'period_start' => 'immutable_date', 'paid_at' => 'datetime'];
     }
 
     public function user()

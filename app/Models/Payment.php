@@ -10,6 +10,6 @@ class Payment extends Model
 
     protected function casts(): array
     {
-        return ['amount_minor' => 'integer'];
+        return ['amount_minor' => 'integer', 'refunded_minor' => 'integer', 'provider_payload' => 'array', 'captured_at' => 'datetime'];
     }
 }

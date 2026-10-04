@@ -52,8 +52,9 @@ final class Billing
                     $this->error('Serviço encerrado ou vinculado a outro cliente.');
                 }
             }
-            Payment::create(['invoice_id' => $id, 'gateway' => $gateway, 'reference' => $reference, 'amount_minor' => $amount, 'currency' => $currency, 'actor_id' => $actor, 'note' => $note]);
-            $invoice->update(['status' => 'paid', 'paid_at' => now()]);
+            $payment = Payment::create(['invoice_id' => $id, 'gateway' => $gateway, 'reference' => $reference, 'amount_minor' => $amount, 'currency' => $currency, 'actor_id' => $actor, 'note' => $note, 'captured_at' => now()]);
+            app(FinancialLedger::class)->post(['user_id' => $invoice->user_id, 'invoice_id' => $id, 'payment_id' => $payment->id, 'type' => 'payment', 'reference' => 'payment:'.$gateway.':'.$reference, 'amount_minor' => $amount, 'currency' => $currency, 'metadata' => ['note' => $note]]);
+            $invoice->update(['status' => 'paid', 'paid_minor' => $invoice->paid_minor + $amount, 'paid_at' => now()]);
             StockReservation::where('invoice_id', $id)->where('status', 'held')->update(['status' => 'consumed']);
             CouponRedemption::where('invoice_id', $id)->where('status', 'held')->update(['status' => 'consumed']);
             if ($invoice->type === 'deposit') {
@@ -107,6 +108,36 @@ final class Billing
             WalletEntry::create(['user_id' => $uid, 'reference' => $reference, 'amount_minor' => $amount, 'balance_after_minor' => $user->balance_minor, 'description' => $description]);
 
             return true;
+        }, 5);
+    }
+
+    public function capture(int $id, string $gateway, string $reference, int $amount, string $currency, ?int $actor = null, ?string $note = null): Payment
+    {
+        return DB::transaction(function () use ($id, $gateway, $reference, $amount, $currency, $actor, $note): Payment {
+            $invoice = Invoice::lockForUpdate()->findOrFail($id);
+            if (! preg_match('/^[a-z0-9_-]{1,40}$/D', $gateway) || $reference === '' || strlen($reference) > 160) {
+                $this->error('Referência de pagamento inválida.');
+            }
+            if ($currency !== $invoice->currency || $amount <= 0 || $amount > $invoice->total_minor - $invoice->paid_minor) {
+                $this->error('Valor ou moeda não corresponde ao saldo da fatura.');
+            }
+            $existing = Payment::where('gateway', $gateway)->where('reference', $reference)->first();
+            if ($existing) {
+                if ($existing->invoice_id !== $id || $existing->amount_minor !== $amount || $existing->currency !== $currency) {
+                    $this->error('Transação vinculada a outra fatura.');
+                }
+
+                return $existing;
+            }
+            if (! in_array($invoice->status, ['unpaid', 'overdue', 'partial'], true)) {
+                $this->error('Fatura não aceita novo pagamento.');
+            }
+            $payment = Payment::create(['invoice_id' => $id, 'gateway' => $gateway, 'reference' => $reference, 'amount_minor' => $amount, 'currency' => $currency, 'actor_id' => $actor, 'note' => $note, 'captured_at' => now()]);
+            app(FinancialLedger::class)->post(['user_id' => $invoice->user_id, 'invoice_id' => $id, 'payment_id' => $payment->id, 'type' => 'payment', 'reference' => 'payment:'.$gateway.':'.$reference, 'amount_minor' => $amount, 'currency' => $currency, 'metadata' => ['partial' => true, 'note' => $note]]);
+            $paid = $invoice->paid_minor + $amount;
+            $invoice->update(['paid_minor' => $paid, 'status' => $paid >= $invoice->total_minor ? 'paid' : 'partial', 'paid_at' => $paid >= $invoice->total_minor ? now() : null]);
+
+            return $payment->fresh();
         }, 5);
     }
 
