@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AdminPreference;
 use App\Models\ApiToken;
 use App\Models\Article;
 use App\Models\CartItem;
@@ -537,6 +538,8 @@ class ExpansionTest extends TestCase
     public function test_production_staff_must_enroll_two_factor_before_admin_access(): void
     {
         $u = $this->staff(['support.view']);
+        AdminPreference::ensure();
+        AdminPreference::find(1)->update(['require_two_factor' => true]);
         $this->app['env'] = 'production';
         $this->actingAs($u)->get('/admin/suporte')->assertRedirect(route('profile'));
         $this->app['env'] = 'testing';

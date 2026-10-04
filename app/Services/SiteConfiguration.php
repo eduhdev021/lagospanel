@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AdminPreference;
 use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
@@ -15,7 +16,7 @@ final class SiteConfiguration
     public function __construct()
     {
         $this->baseline = [];
-        foreach (['mail', 'app.name', 'app.url', 'site.registration_enabled', 'site.support_email'] as $key) {
+        foreach (['mail', 'app.name', 'app.url', 'site.registration_enabled', 'site.support_email', 'admin_access.require_two_factor'] as $key) {
             $this->baseline[$key] = config($key);
         }
     }
@@ -40,6 +41,9 @@ final class SiteConfiguration
         try {
             if (is_file(config('setup.state_path')) && ! is_file(config('setup.lock_path'))) {
                 return;
+            }
+            if (Schema::hasTable('admin_preferences') && ($preference = AdminPreference::find(1)) && $preference->require_two_factor !== null) {
+                config(['admin_access.require_two_factor' => $preference->require_two_factor]);
             }
             if (! Schema::hasTable('site_settings') || ! ($s = SiteSetting::find(1))) {
                 return;

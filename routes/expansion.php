@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminConfigurationController;
 use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\AiSettingsController;
 use App\Http\Controllers\ApiAccessController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\CommerceController;
 use App\Http\Controllers\InvoiceDocumentController;
 use App\Http\Controllers\KnowledgeController;
 use App\Http\Controllers\NativeProvisioningController;
+use App\Http\Controllers\PanelUpdateController;
 use App\Http\Controllers\PterodactylAccountController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SiteSettingsController;
@@ -49,7 +51,19 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
         Route::post('/suporte/modelos', [CannedReplyController::class, 'save'])->name('tickets.templates.create');
         Route::post('/suporte/modelos/{template}', [CannedReplyController::class, 'save'])->name('tickets.templates.update');
         Route::get('/suporte/{ticket}/modelos/{template}', [CannedReplyController::class, 'content'])->name('tickets.templates.content');
-        Route::get('/configuracoes', [SiteSettingsController::class, 'index'])->name('settings.index');
+        Route::get('/configuracoes', [AdminConfigurationController::class, 'index'])->name('settings.index');
+        Route::get('/configuracoes/atualizacoes', [PanelUpdateController::class, 'index'])->name('settings.updates');
+        Route::post('/configuracoes/atualizacoes/conferir', [PanelUpdateController::class, 'check'])->middleware('throttle:3,1,lagos-update-check')->name('settings.updates.check');
+        Route::post('/configuracoes/atualizacoes/{update}/aprovar', [PanelUpdateController::class, 'approve'])->middleware('throttle:3,1,lagos-update-approve')->name('settings.updates.approve');
+        Route::post('/configuracoes/atualizacoes/{update}/cancelar', [PanelUpdateController::class, 'cancel'])->name('settings.updates.cancel');
+        Route::get('/configuracoes/atualizacoes/{update}/estado', [PanelUpdateController::class, 'state'])->middleware('throttle:30,1,lagos-update-state')->name('settings.updates.state');
+        Route::get('/configuracoes/geral', [SiteSettingsController::class, 'index'])->defaults('section', 'general')->name('settings.general');
+        Route::post('/configuracoes/geral', [SiteSettingsController::class, 'save'])->defaults('section', 'general')->name('settings.general.save');
+        Route::get('/configuracoes/email', [SiteSettingsController::class, 'index'])->defaults('section', 'email')->name('settings.email');
+        Route::post('/configuracoes/email', [SiteSettingsController::class, 'save'])->defaults('section', 'email')->name('settings.email.save');
+        Route::get('/configuracoes/seguranca', [AdminConfigurationController::class, 'security'])->name('settings.security');
+        Route::post('/configuracoes/seguranca', [AdminConfigurationController::class, 'saveSecurity'])->middleware('throttle:5,1,lagos-admin-security')->name('settings.security.save');
+        Route::get('/configuracoes/ambiente', [AdminConfigurationController::class, 'environment'])->name('settings.environment');
         Route::post('/configuracoes', [SiteSettingsController::class, 'save'])->name('settings.save');
         Route::post('/configuracoes/email-teste', [SiteSettingsController::class, 'testMail'])->middleware('throttle:3,1,lagos-mail-test')->name('settings.mail');
         Route::get('/integracoes/ollama', [AiSettingsController::class, 'index'])->name('connectors.ai');

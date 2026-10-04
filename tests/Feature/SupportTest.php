@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AdminPreference;
 use App\Models\ApiToken;
 use App\Models\StaffRole;
 use App\Models\Ticket;
@@ -114,6 +115,8 @@ class SupportTest extends TestCase
     {
         $a = $this->upload($this->user());
         $this->actingAs($this->user(true));
+        AdminPreference::ensure();
+        AdminPreference::find(1)->update(['require_two_factor' => true]);
         $this->app['env'] = 'production';
         $this->get('/admin/suporte/anexos/'.$a->id)->assertRedirect('/painel/perfil');
     }

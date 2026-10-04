@@ -1,0 +1,6 @@
+@extends('layouts.panel')
+@section('title','Configurações — segurança')
+@section('content')
+@include('admin.configuration.nav')
+<div class="card"><h2>Acesso à administração</h2><p>Desativar a obrigatoriedade não remove autenticação, senhas ou permissões. Quem já ativou um autenticador pessoal continuará usando-o no login.</p><p>Estado atual: <strong>{{ config('admin_access.require_two_factor')?'2FA obrigatório para a equipe em produção':'2FA opcional para a equipe' }}</strong>.</p><form method="post" action="{{ route('admin.settings.security.save') }}">@csrf<input type="hidden" name="version" value="{{ $preference?->version??0 }}"><div class="field"><label>Política de 2FA</label><select name="require_two_factor"><option value="1" @selected(config('admin_access.require_two_factor'))>Obrigatório para acessar o ADM em produção</option><option value="0" @selected(!config('admin_access.require_two_factor'))>Opcional — menor proteção administrativa</option></select></div>@include('admin.webhook-confirm')<label><input type="checkbox" name="ack" value="1" required> Entendo o impacto desta alteração de segurança.</label><button class="btn btn-primary">Salvar política de acesso</button></form></div>
+@endsection

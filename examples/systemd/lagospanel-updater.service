@@ -1,0 +1,19 @@
+[Unit]
+Description=LagosPanel approved update worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=lagospanel-deploy
+Group=www-data
+WorkingDirectory=/var/www/lagospanel
+ExecStart=/usr/bin/php8.4 /var/www/lagospanel/artisan lagos:updates-work
+UMask=0027
+TimeoutStartSec=1900
+KillMode=control-group
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/lagospanel

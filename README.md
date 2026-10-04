@@ -99,3 +99,11 @@ bash scripts/test.sh
 Testes de navegador são opt-in e exigem uma demonstração **local e separada**, Playwright/Chromium e servidor em execução. Não rode os fixtures sobre uma instalação de clientes.
 
 Encontrou problema? [Abra uma Issue](https://github.com/eduhdev021/lagospanel/issues/new/choose) com versão, ambiente, passos e erro sanitizado. **Não publique tokens, senhas, `.env`, dados de clientes ou detalhes exploráveis de vulnerabilidades.** Incidentes de segurança precisam de contato privado com o mantenedor.
+
+### Central de configurações e atualizações
+
+O ADM reúne configurações gerais, e-mail, segurança e ambiente. O 2FA
+administrativo é opcional por padrão e pode ser exigido pelo administrador.
+A atualização aprovada pelo site exige preparação inicial de um worker não-root,
+checkout Git limpo e backup externo; não executa comandos privilegiados pelo PHP-FPM.
+Veja [configuração, requisitos e recuperação](docs/ATUALIZACOES-PELO-PAINEL.md).

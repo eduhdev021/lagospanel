@@ -1,0 +1,19 @@
+@extends('layouts.panel')
+@section('title','Configurações — atualizações')
+@section('content')
+@include('admin.configuration.nav')
+<div class="card"><h2>Atualizações do LagosPanel</h2><p>Fonte fixa: <strong>eduhdev021/lagospanel · main</strong>. Este canal contém desenvolvimento, não uma nova release estável. Nenhum token do GitHub é necessário.</p><p>Versão informada pelo código: {{ config('lagos.version') }}. Execução automática: {{ config('panel_updates.enabled')?'habilitada':'desabilitada no servidor' }}. Worker: {{ $preference?->updater_heartbeat_at?->gt(now()->subMinute())?'pronto':'não confirmado no último minuto' }}.</p><p>O worker dedicado precisa ser configurado uma vez pelo operador, sem root e sem dar escrita no código ao PHP-FPM. Consulte <code>docs/ATUALIZACOES-PELO-PAINEL.md</code>. Nesta implementação, são necessários checkout Git, SQLite, fila database e manutenção em arquivo.</p><form method="post" action="{{ route('admin.settings.updates.check') }}">@csrf<button class="btn btn-primary">Consultar atualização no GitHub</button></form></div>
+@foreach($updates as $update)
+<div class="card"><h3>Consulta #{{ $update->id }}</h3><p>Estado: <strong>{{ $update->status }}</strong> · Etapa: {{ $update->phase??'—' }}</p><p style="overflow-wrap:anywhere">Atual: <code>{{ $update->source_sha }}</code><br>Consultado: <code>{{ $update->target_sha }}</code></p><p><a href="https://github.com/eduhdev021/lagospanel/compare/{{ $update->source_sha }}...{{ $update->target_sha }}" target="_blank" rel="noopener noreferrer">Ver alterações no GitHub</a></p>
+@if($update->status==='checked')<p>Ao aprovar, o worker verificará CI, commit, permissões e alterações locais. Preparará as dependências antes da manutenção, fará backup e aplicará migrations. O site pode ficar indisponível durante a aplicação.</p>
+@if(config('panel_updates.enabled')&&$preference?->updater_heartbeat_at?->gt(now()->subMinute()))<form method="post" action="{{ route('admin.settings.updates.approve',$update) }}">@csrf @include('admin.webhook-confirm')<label><input type="checkbox" name="ack" value="1" required> Revisei o commit e autorizo a manutenção. Tenho backup independente; compreendo que falhas após alterações exigem recuperação manual, sem restauração automática do banco.</label><button class="btn btn-primary">Atualizar painel para este commit</button></form>@else<p class="alert alert-warning">Ative e configure o worker de atualização no servidor para liberar a aplicação pelo painel.</p>@endif
+@endif
+@if(in_array($update->status,['checked','pending'],true))<form method="post" action="{{ route('admin.settings.updates.cancel',$update) }}">@csrf<button class="btn btn-ghost btn-sm">Cancelar solicitação</button></form>@endif
+@if(in_array($update->status,['pending','running'],true))<p data-panel-update="{{ route('admin.settings.updates.state',$update) }}">Acompanhando execução. Durante a manutenção, esta consulta pode retornar 503; aguarde a conclusão.</p>@endif
+@if(in_array($update->status,['blocked','failed'],true))<p class="alert alert-warning">A atualização não foi concluída. Consulte a etapa e o procedimento de recuperação na documentação. Não use git reset --hard nem restaure um banco em uso para contornar o bloqueio.</p>@endif
+@if($update->events)<details><summary>Histórico da execução</summary><ul>@foreach($update->events as $event)<li>{{ $event['at'] }} · {{ $event['phase'] }}</li>@endforeach</ul></details>@endif
+</div>
+@endforeach
+{{ $updates->links('layouts.pagination') }}
+<script src="{{ asset('assets/panel-updates.js') }}" defer></script>
+@endsection

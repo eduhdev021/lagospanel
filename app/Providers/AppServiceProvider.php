@@ -29,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
             } catch (\Throwable) {
             }
         }
+        Queue::looping(fn () => is_file(storage_path('framework/panel-update-pause')) ? false : null);
         Queue::before(function () {
             app(SiteConfiguration::class)->apply();
         });

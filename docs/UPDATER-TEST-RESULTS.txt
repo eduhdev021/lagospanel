@@ -1,0 +1,8 @@
+...Atualização não concluída. Consulte o histórico; fase: migrations
+.Atualização não concluída. Consulte o histórico; fase: backup
+....Atualização não concluída. Consulte o histórico; fase: existing_maintenance
+.......
+----------------------------------------------------------------------
+Ran 15 tests in 0.498s
+
+OK

@@ -11,7 +11,7 @@ class AdminOnly
     {
         abort_unless($request->user()?->isStaff(), 403);
 
-        if (app()->isProduction() && ! $request->user()->totp_secret) {
+        if (config('admin_access.require_two_factor', false) && app()->isProduction() && ! $request->user()->totp_secret) {
             return redirect()->route('profile')->withErrors(['security' => 'Ative a autenticação em duas etapas antes de acessar a administração.']);
         }
 
