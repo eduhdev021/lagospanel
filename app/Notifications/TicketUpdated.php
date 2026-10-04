@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use App\Support\EmailTemplate;
 
 class TicketUpdated extends Notification implements ShouldBeEncrypted, ShouldQueue
 {
@@ -32,6 +33,6 @@ class TicketUpdated extends Notification implements ShouldBeEncrypted, ShouldQue
 
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)->subject('Atualização do chamado #'.$this->ticketId)->line('A equipe respondeu ao seu chamado. Entre no painel para consultar a mensagem e os anexos.')->action('Consultar chamados', url('/painel/suporte'));
+        return EmailTemplate::message('Atualização do chamado #'.$this->ticketId, ['eyebrow' => 'ATENDIMENTO', 'title' => 'A equipe respondeu ao seu chamado', 'greeting' => 'Olá, '.$notifiable->name.'!', 'intro' => 'Há uma nova mensagem no seu atendimento. Consulte o histórico completo e responda pelo painel.', 'details' => [['label' => 'Chamado', 'value' => '#'.$this->ticketId], ['label' => 'Canal', 'value' => 'Central de suporte']], 'action_url' => url('/painel/suporte'), 'action_label' => 'Abrir atendimento']);
     }
 }

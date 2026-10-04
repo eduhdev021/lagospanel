@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\Audit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\FinancialReports;
 
 class ReportController extends Controller
 {
@@ -38,7 +39,7 @@ class ReportController extends Controller
         return $r->validate(['from' => 'required|date_format:Y-m-d|before_or_equal:to', 'to' => 'required|date_format:Y-m-d']);
     }
 
-    public function index(Request $r)
+    public function index(Request $r, FinancialReports $financialReports)
     {
         $range = $this->range($r);
         $p = Payment::whereDate('created_at', '>=', $range['from'])->whereDate('created_at', '<=', $range['to']);
@@ -48,7 +49,8 @@ class ReportController extends Controller
         $balances = User::sum('balance_minor');
         $payments = $p->latest()->paginate(25)->withQueryString();
 
-        return view('admin.reports', compact('range', 'external', 'wallet', 'open', 'balances', 'payments'));
+        $summary = $financialReports->summary($range['from'], $range['to']);
+        return view('admin.reports', compact('range', 'external', 'wallet', 'open', 'balances', 'payments', 'summary'));
     }
 
     public function export(Request $r)

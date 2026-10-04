@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use App\Support\EmailTemplate;
 
 class InvoiceReminder extends Notification implements ShouldQueue
 {
@@ -33,6 +34,7 @@ class InvoiceReminder extends Notification implements ShouldQueue
     {
         $i = Invoice::findOrFail($this->invoiceId);
 
-        return (new MailMessage)->subject('Lembrete de fatura #'.$i->id)->greeting('Olá, '.$notifiable->name)->line('A fatura #'.$i->id.' de '.brl($i->total_minor).' vence em '.$i->due_date->format('d/m/Y').'.')->line('Se já efetuou o pagamento e ele ainda não foi identificado, entre em contato com o financeiro.')->action('Ver fatura', url('/painel/faturas/'.$i->id));
+        $overdue = $i->due_date->isPast();
+        return EmailTemplate::message(($overdue ? 'Fatura vencida' : 'Lembrete de pagamento').' · #'.$i->id, ['eyebrow' => $overdue ? 'ATENÇÃO AO VENCIMENTO' : 'LEMBRETE DE PAGAMENTO', 'title' => $overdue ? 'Sua fatura está vencida' : 'Sua fatura vence em breve', 'greeting' => 'Olá, '.$notifiable->name.'!', 'intro' => $overdue ? 'Identificamos uma fatura em aberto após a data de vencimento. Regularize para evitar interrupções.' : 'Este é um lembrete amigável de que existe uma fatura aguardando pagamento.', 'status' => status_label($i->status), 'details' => [['label' => 'Fatura', 'value' => '#'.$i->id], ['label' => 'Valor', 'value' => brl($i->total_minor)], ['label' => 'Vencimento', 'value' => $i->due_date->format('d/m/Y')]], 'action_url' => url('/painel/faturas/'.$i->id), 'action_label' => 'Regularizar fatura', 'note' => 'Se você já efetuou o pagamento, aguarde a confirmação ou fale com o financeiro.']);
     }
 }
