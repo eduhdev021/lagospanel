@@ -115,4 +115,6 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    'server_log_paths' => env('MAIL_SERVER_LOG_PATHS', ''),
+
 ];

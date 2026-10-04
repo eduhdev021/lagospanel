@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\SiteSetting;
 use App\Services\Audit;
 use App\Services\SiteConfiguration;
+use App\Services\SmtpDiagnostics;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class SiteSettingsController extends Controller
@@ -222,13 +222,22 @@ class SiteSettingsController extends Controller
     public function testMail(Request $r)
     {
         try {
-            Mail::raw('Teste de configuração de e-mail do '.config('app.name').'.', fn ($m) => $m->to($r->user()->email)->subject('Teste de e-mail do painel'));
-        } catch (\Throwable) {
+            $result = app(SmtpDiagnostics::class)->send($r->user()->email);
+        } catch (\Throwable $e) {
             return back()->withErrors(['mail' => 'Falha no envio de teste. Confira SMTP/TLS e credenciais; detalhes sensíveis não são exibidos.']);
         }
-        Audit::record('site.mail_test', 'site:1', [], $r->user()->id);
+        Audit::record('site.mail_test', 'site:1', ['test_id' => $result['test_id'], 'accepted' => $result['accepted'], 'log_status' => $result['log_status']], $r->user()->id);
+        if (! $result['accepted']) {
+            return back()->withErrors(['mail' => 'O transportador não confirmou o envio. Modo log apenas grava localmente e não entrega e-mail.']);
+        }
+        $status = match ($result['log_status']) {
+            'accepted_in_server_log' => 'SMTP aceitou e o identificador foi encontrado no log do servidor.',
+            'correlation_found' => 'SMTP aceitou e o identificador foi encontrado no log, mas sem confirmação de entrega.',
+            'not_found' => 'SMTP aceitou, mas o identificador não apareceu nos logs legíveis. Configure MAIL_SERVER_LOG_PATHS no servidor.',
+            default => 'SMTP aceitou. Isso não confirma entrega na caixa de entrada.',
+        };
 
-        return back()->with('status', 'Teste entregue ao transport configurado. Modo log grava localmente; SMTP aceito não comprova entrega na caixa de entrada.');
+        return back()->with('status', $status.' ID: '.$result['test_id']);
     }
 
     public function logo()

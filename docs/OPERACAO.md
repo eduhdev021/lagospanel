@@ -6,7 +6,7 @@ A release estável é **1.3.0**; a main contém **1.4.0-dev**, desenvolvimento s
 
 1. Configure um domínio real com HTTPS; exponha **apenas `public/`**. Nunca sirva a raiz do projeto, `.env`, `.cache`, banco, storage ou backups.
 2. `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://...`, `SESSION_SECURE_COOKIE=true`, `SESSION_ENCRYPT=true`. Configure os proxies confiáveis no ambiente de implantação antes de depender de cabeçalhos encaminhados.
-3. Troque `MAIL_MAILER=log` por SMTP homologado. O modo `log` salva links sensíveis em `storage/logs/mail.log`, **não envia e-mail**. Proteja/perfaça a rotação desses arquivos; nunca publique-os.
+3. Troque `MAIL_MAILER=log` por SMTP homologado. O modo `log` salva links sensíveis em `storage/logs/mail.log`, **não envia e-mail**. Proteja/perfaça a rotação desses arquivos; nunca publique-os. Para o diagnóstico do painel procurar os logs do MTA, configure `MAIL_SERVER_LOG_PATHS=/var/log/mail.log,/var/log/mail.err` (ou os caminhos reais do Postfix/Exim) e garanta que o usuário da aplicação tenha somente leitura.
 4. Faça a homologação em MariaDB/MySQL com InnoDB antes de assumir resultados de concorrência equivalentes ao SQLite.
 5. Use um usuário SQL de aplicação sem permissões administrativas desnecessárias. Permissões de escrita somente nos diretórios de runtime e banco de avaliação.
 6. Gere `APP_KEY` uma única vez e faça backup seguro. Rotacioná-la sem planejamento impede ler tokens de conectores, segredos 2FA e sessões já criptografados.
@@ -29,6 +29,18 @@ php artisan schedule:list
 ```
 
 O primeiro diagnóstico valida conectividade e configuração básica. O segundo cobra HTTPS, modo de produção, SMTP e 2FA da equipe, mas não verifica entrega real, compatibilidade remota ou um backup restaurável.
+
+### Diagnóstico de e-mail
+
+O botão de teste em **Administração → E-mail** agora gera um identificador `lagos-mail-*` e um `Message-ID`. O resultado distingue:
+
+- `transportador não confirmou`: falha antes da aceitação SMTP ou modo `log`;
+- `SMTP aceitou`: o servidor remoto respondeu positivamente, mas isso ainda não prova que chegou à caixa de entrada;
+- `accepted_in_server_log`: o identificador também apareceu em um log legível do servidor;
+- `correlation_found`: apareceu no log, mas sem uma linha explícita de entrega;
+- `not_found`: o SMTP aceitou, porém os caminhos de log configurados não têm a correlação.
+
+Mesmo com `accepted_in_server_log`, confirmação de entrega final exige o rastreamento do provedor (webhook/evento de delivery) ou consulta da caixa destinatária. O painel não deve declarar “entregue” apenas por receber `250 OK`.
 
 ## Atualização / backup / rollback
 
