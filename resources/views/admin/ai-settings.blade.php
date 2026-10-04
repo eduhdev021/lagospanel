@@ -1,8 +1,8 @@
 @extends('layouts.panel')
-@section('title','Assistente de IA')
+@section('title','Waguri Lagos')
 @section('content')
 @php $draft=$errors->any()&&old('_ai_form')==='settings'; @endphp
-<div class="settings-heading"><div><span class="eyebrow">CONEXÃO, MODELO E FUNCIONAMENTO</span><h2>Seu assistente, sem mistério.</h2><p>Use Ollama Cloud ou uma API nativa Ollama. Conectar o modelo e manter a fila funcionando são etapas diferentes.</p></div><span class="settings-hero-icon">{!! panel_icon('zap',28) !!}</span></div>
+<div class="settings-heading"><div><span class="eyebrow">CONEXÃO, MODELO E FUNCIONAMENTO</span><h2>Waguri Lagos, sem mistério.</h2><p>Waguri Lagos foi criada pela companhia Lagos e usa Ollama Cloud ou uma API nativa Ollama. Conectar o modelo e manter a fila funcionando são etapas diferentes.</p></div><span class="settings-hero-icon">{!! panel_icon('zap',28) !!}</span></div>
 <div class="ai-health-grid">
 <div class="card"><small>CHAT DOS CLIENTES</small><strong>{{ $setting?->active?'Habilitado':'Desabilitado' }}</strong><span>{{ $setting?->model??'Nenhum modelo selecionado' }}</span></div>
 <div class="card"><small>CHAVE DA API</small><strong>{{ $setting?->token?'Chave salva ✓':'Sem chave salva' }}</strong><span>{{ $setting?->token?'Criptografada. O campo vazio não apaga a chave.':'Cloud exige uma chave. Servidor próprio pode não exigir.' }}</span></div>

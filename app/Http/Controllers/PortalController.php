@@ -67,6 +67,15 @@ class PortalController extends Controller
         return view('client.invoice', ['invoice' => $invoice->load('services', 'payments')]);
     }
 
+    public function efi(Request $r, Invoice $invoice, Gateways $gateways)
+    {
+        abort_unless($invoice->user_id === $r->user()->id, 404);
+        $charge = $gateways->efiCharge($invoice);
+        abort_unless($charge && $charge->status === 'active' && (! $charge->expires_at || $charge->expires_at->isFuture()), 404, 'Cobrança Pix não encontrada ou expirada.');
+
+        return view('client.efi-payment', compact('invoice', 'charge'));
+    }
+
     public function walletPay(Request $r, Invoice $invoice, Billing $billing)
     {
         $billing->payWithWallet($r->user(), $invoice->id);
@@ -77,7 +86,7 @@ class PortalController extends Controller
     public function gateway(Request $r, Invoice $invoice, Gateways $gateways)
     {
         abort_unless($invoice->user_id === $r->user()->id, 404);
-        $v = $r->validate(['gateway' => 'required|in:stripe,mercadopago']);
+        $v = $r->validate(['gateway' => 'required|in:stripe,mercadopago,efi']);
 
         return redirect()->away($gateways->checkout($invoice, $v['gateway']));
     }

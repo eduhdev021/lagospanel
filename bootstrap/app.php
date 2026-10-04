@@ -26,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias(['admin' => AdminOnly::class, 'permission' => RequirePermission::class, 'api.token' => ApiAuthenticate::class]);
         $middleware->redirectGuestsTo('/entrar');
         $middleware->redirectUsersTo('/painel');
-        $middleware->validateCsrfTokens(except: ['webhooks/stripe', 'webhooks/mercadopago']);
+        $middleware->validateCsrfTokens(except: ['webhooks/stripe', 'webhooks/mercadopago', 'webhooks/efi', 'webhooks/efi/*']);
         if (env('APP_ENV') === 'local') {
             $middleware->trustProxies(at: '*');
         }

@@ -15,9 +15,9 @@ A configuração de destinos é privilégio administrativo; não há allowlist d
 
 ## Conversa do cliente
 
-Menu **Chat com IA**. O cliente cria conversa, escreve mensagem, confirma ciência do envio ao provedor e aguarda. Respostas são geradas em fila; o navegador atualiza por consultas locais. Sem JavaScript é possível usar “Atualizar conversa”. Após cerca de dois minutos de polling, a página orienta atualizar manualmente; não reenfileira a inferência.
+Menu **Waguri Lagos**. O cliente cria conversa, escreve mensagem, confirma ciência do envio ao provedor e aguarda. Respostas são geradas em fila; o navegador atualiza por consultas locais. Sem JavaScript é possível usar “Atualizar conversa”. Após cerca de dois minutos de polling, a página orienta atualizar manualmente; não reenfileira a inferência.
 
-Há link para abrir chamado humano. Ele **não transfere histórico automaticamente** e não constitui chat humano ao vivo. IA se identifica como assistente, avisa que pode errar e não promete ações/consulta de conta.
+Há link para abrir chamado humano. Ele **não transfere histórico automaticamente** e não constitui chat humano ao vivo. Waguri Lagos se identifica como assistente, avisa que pode errar e não promete ações/consulta de conta.
 
 O modelo recebe somente:
 - instrução fixa de suporte, sem ferramentas;

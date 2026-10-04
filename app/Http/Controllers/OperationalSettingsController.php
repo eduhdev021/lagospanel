@@ -56,6 +56,10 @@ class OperationalSettingsController extends Controller
                 $rules['clear.'.$key] = 'sometimes|boolean';
             }
         }
+        if ($section === 'payments') {
+            $rules['values.efi_environment'] = 'required|in:homologacao,producao';
+            $rules['values.efi_certificate_type'] = 'required|in:PEM,P12,pem,p12';
+        }
         $v = $r->validate($rules);
         $confirmation->verify($r);
         DB::transaction(function () use ($r, $section, $fields, $v) {
@@ -79,7 +83,7 @@ class OperationalSettingsController extends Controller
                 }
             }
             if ($section === 'payments') {
-                foreach (['stripe_enabled' => ['stripe_secret', 'stripe_webhook'], 'mp_enabled' => ['mp_token']] as $enabled => $needed) {
+                foreach (['stripe_enabled' => ['stripe_secret', 'stripe_webhook'], 'mp_enabled' => ['mp_token'], 'efi_enabled' => ['efi_client_id', 'efi_client_secret', 'efi_certificate_path', 'efi_pix_key', 'efi_webhook_hmac']] as $enabled => $needed) {
                     if ($values[$enabled]) {
                         foreach ($needed as $key) {
                             if (! (array_key_exists($key, $values) ? $values[$key] : config($fields[$key][1]))) {

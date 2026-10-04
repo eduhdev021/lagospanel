@@ -57,6 +57,7 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
     Route::post('/pedidos', [PortalController::class, 'order'])->middleware('throttle:20,1,lagos-order-create')->name('orders.create');
     Route::get('/painel/faturas', [PortalController::class, 'invoices'])->name('invoices.index');
     Route::get('/painel/faturas/{invoice}', [PortalController::class, 'invoice'])->name('invoices.show');
+    Route::get('/painel/faturas/{invoice}/pix-efi', [PortalController::class, 'efi'])->name('invoices.efi');
     Route::post('/painel/faturas/{invoice}/saldo', [PortalController::class, 'walletPay'])->middleware('throttle:10,1,lagos-wallet-pay')->name('invoices.wallet');
     Route::post('/painel/faturas/{invoice}/pagar', [PortalController::class, 'gateway'])->middleware('throttle:10,1,lagos-gateway-checkout')->name('invoices.gateway');
     Route::get('/painel/servicos', [PortalController::class, 'services'])->name('services.index');
@@ -93,6 +94,8 @@ Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {
 });
 Route::post('/webhooks/stripe', [WebhookController::class, 'stripe'])->middleware('throttle:120,1,lagos-webhook-stripe');
 Route::post('/webhooks/mercadopago', [WebhookController::class, 'mercadoPago'])->middleware('throttle:120,1,lagos-webhook-mercadopago');
+Route::post('/webhooks/efi', [WebhookController::class, 'efi'])->middleware('throttle:120,1,lagos-webhook-efi');
+Route::post('/webhooks/efi/pix', [WebhookController::class, 'efi'])->middleware('throttle:120,1,lagos-webhook-efi');
 
 require __DIR__.'/social.php';
 require __DIR__.'/expansion.php';

@@ -56,4 +56,4 @@ Biblioteca acessível pelo Atendimento. `support.view` permite consulta; `suppor
 
 ## Chat de IA
 
-Chat com IA é separado dos tickets. Não lê tickets/notas/anexos nem acessa contas automaticamente. Conversas pertencem ao titular e são enviadas, mediante ciência, ao endpoint Ollama configurado. Link para chamado humano não transfere histórico automaticamente. Chave e modelos são configurados por equipe com permissão de integrações. Veja `OLLAMA.md`. Não é chat humano em tempo real.
+Waguri Lagos é separada dos tickets. Não lê tickets/notas/anexos nem acessa contas automaticamente. Conversas pertencem ao titular e são enviadas, mediante ciência, ao endpoint Ollama configurado. Link para chamado humano não transfere histórico automaticamente. Chave e modelos são configurados por equipe com permissão de integrações. Veja `OLLAMA.md`. Não é chat humano em tempo real.

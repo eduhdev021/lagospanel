@@ -73,7 +73,8 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 | PayPal | Planejado | Adaptador independente ainda não portado |
 | Mollie | Planejado | Adaptador independente ainda não implementado |
 | Pix direto e boletos | Planejado | Capacidade depende de PSP/banco e homologação |
-| Asaas, Efí, PagBank e Pagar.me | Planejado | Integrações próprias a especificar e homologar |
+| Efí Bank Pix | Implementado localmente / homologação pendente | OAuth2 + certificado mTLS, cobrança imediata, QR/copia-e-cola, consulta autoritativa e webhook HMAC idempotente; credenciais e homologação reais pendentes |
+| Asaas, PagBank e Pagar.me | Planejado | Integrações próprias a especificar e homologar |
 | Adquirentes internacionais adicionais | Planejado | Inventário depende dos países/contratos |
 | Criptoativos | Planejado | Risco, câmbio e conformidade precisam ser definidos |
 
@@ -150,4 +151,4 @@ Referências oficiais e critérios de comparação: `PLANO-EVOLUCAO.md`. Evidên
 | CI automatizado | Parcial | Workflow ativo; execução no GitHub aprovada na 1.0.0, acompanhar cada commit posterior |
 | Benchmark comparativo reproduzível | Planejado | Sem prova de superioridade |
 
-**104 linhas de escopo acompanhadas.** Novas integrações e versões exigirão revisar esta matriz; linhas planejadas não são funcionalidades instaladas.
+**105 linhas de escopo acompanhadas.** Novas integrações e versões exigirão revisar esta matriz; linhas planejadas não são funcionalidades instaladas.

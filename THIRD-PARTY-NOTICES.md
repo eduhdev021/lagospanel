@@ -10,3 +10,4 @@
 - **Dompdf:** geração de PDF, biblioteca não modificada, licença LGPL-2.1; cópia em `licenses/Dompdf-LGPL-2.1.txt`. Dependências e versões em `composer.lock`, fontes/licenças preservadas nas distribuições instaladas pelo Composer. O ZIP de fonte não embute vendor nem relicencia esses componentes. Projeto: https://github.com/dompdf/dompdf.
 
 - **Pterodactyl / Ollama:** contratos de API usados como referência, sem incorporar os respectivos núcleos, modelos de IA ou assets ao runtime. Fontes/rotas de referência constam em `docs/PTERODACTYL.md` e `docs/OLLAMA.md`. O operador deve observar licenças dos jogos/eggs/imagens/modelos e termos do provedor.
+- **qrcode-generator:** `public/assets/qrcode-generator.js`, copyright (c) 2009 Kazuhiko Arase, licença MIT. Usado somente para gerar o SVG do QR Code Pix no navegador. Fonte: https://github.com/kazuhikoarase/qrcode-generator. A expressão QR Code é marca registrada da DENSO WAVE INCORPORATED.

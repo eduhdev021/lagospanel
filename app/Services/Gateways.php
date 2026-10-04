@@ -2,10 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\GatewayCharge;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\PaymentReview;
 use App\Support\Money;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 
@@ -13,7 +16,7 @@ final class Gateways
 {
     public function enabled(string $gateway): void
     {
-        abort_unless(in_array($gateway, ['stripe', 'mercadopago'], true) && config('lagos.payments.'.$gateway.'.enabled'), 503, 'Gateway desativado.');
+        abort_unless(in_array($gateway, ['stripe', 'mercadopago', 'efi'], true) && config('lagos.payments.'.$gateway.'.enabled'), 503, 'Gateway desativado.');
         abort_if(app()->isProduction() && ! config('lagos.payments.live'), 503, 'Pagamentos reais não foram habilitados.');
     }
 
@@ -22,6 +25,10 @@ final class Gateways
         $this->enabled($gateway);
         abort_if($invoice->expires_at && $invoice->expires_at->isPast(), 422, 'Reserva expirada. Gere um novo pedido.');
         abort_unless(in_array($invoice->status, ['unpaid', 'overdue']) && $invoice->total_minor > 0, 422, 'Fatura indisponível.');
+
+        if ($gateway === 'efi') {
+            return $this->efiCheckout($invoice);
+        }
         if ($gateway === 'stripe') {
             abort_unless(config('lagos.payments.stripe.secret') && config('lagos.payments.stripe.webhook_secret'), 503, 'Configure o gateway e o webhook.');
             $r = Http::asForm()->withToken(config('lagos.payments.stripe.secret'))->withoutRedirecting()->timeout(20)->withHeaders(['Idempotency-Key' => 'lagos-invoice-'.$invoice->id.'-'.$invoice->total_minor])->post('https://api.stripe.com/v1/checkout/sessions', ['mode' => 'payment', 'success_url' => route('invoices.show', $invoice).'?retorno=stripe', 'cancel_url' => route('invoices.show', $invoice), 'client_reference_id' => (string) $invoice->id, 'metadata' => ['invoice_id' => (string) $invoice->id], 'line_items' => [['quantity' => 1, 'price_data' => ['currency' => 'brl', 'unit_amount' => $invoice->total_minor, 'product_data' => ['name' => 'LagosPanel — Fatura #'.$invoice->id]]]]]);
@@ -36,6 +43,11 @@ final class Gateways
         abort_unless($r->successful() && is_string($url) && str_starts_with($url, 'https://'), 502, 'O provedor não criou uma sessão válida.');
 
         return $url;
+    }
+
+    public function efiCharge(Invoice $invoice): ?GatewayCharge
+    {
+        return GatewayCharge::where('invoice_id', $invoice->id)->where('gateway', 'efi')->latest('id')->first();
     }
 
     public function stripe(string $body, string $signature): ?Invoice
@@ -53,7 +65,8 @@ final class Gateways
         $valid = false;
         foreach ($parts['v1'] ?? [] as $sig) {
             $valid = $valid || hash_equals(hash_hmac('sha256', $timestamp.'.'.$body, $secret), $sig);
-        }abort_unless($valid, 403, 'Assinatura inválida.');
+        }
+        abort_unless($valid, 403, 'Assinatura inválida.');
         $e = json_decode($body, true);
         abort_unless(is_array($e), 400);
         if (! in_array($e['type'] ?? '', ['checkout.session.completed', 'checkout.session.async_payment_succeeded'], true)) {
@@ -84,6 +97,132 @@ final class Gateways
         abort_unless(preg_match('/^LAGOS-(\d+)$/D', $p['external_reference'] ?? '', $m), 422);
 
         return $this->settleVerified((int) $m[1], 'mercadopago', (string) $p['id'], Money::parse((string) ($p['transaction_amount'] ?? '')), $p['currency_id'] ?? '');
+    }
+
+    /** Processa callbacks Pix somente depois de consultar a cobrança na Efí. */
+    public function efiWebhook(array $payload): array
+    {
+        $this->enabled('efi');
+        $items = $payload['pix'] ?? [];
+        abort_unless(is_array($items), 400, 'Payload Pix inválido.');
+        $processed = [];
+
+        foreach ($items as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+            $txid = (string) ($item['txid'] ?? '');
+            if (! preg_match('/^[A-Za-z0-9]{26,35}$/D', $txid)) {
+                continue;
+            }
+            $charge = GatewayCharge::where('gateway', 'efi')->where('reference', $txid)->first();
+            if (! $charge) {
+                continue;
+            }
+            $authoritative = $this->efiGetCharge($txid);
+            if (($authoritative['status'] ?? '') !== 'CONCLUIDA') {
+                continue;
+            }
+            $remotePix = collect($authoritative['pix'] ?? [])->first(fn ($pix) => is_array($pix) && (($pix['txid'] ?? '') === $txid));
+            $reference = (string) (($remotePix['endToEndId'] ?? '') ?: ($item['endToEndId'] ?? ''));
+            abort_unless($reference !== '', 422, 'Efí retornou Pix sem endToEndId.');
+            if (Payment::where('gateway', 'efi')->where('reference', $reference)->exists()) {
+                $charge->update(['status' => 'paid', 'provider_reference' => $reference, 'paid_at' => $charge->paid_at ?? now()]);
+                $processed[] = $txid;
+
+                continue;
+            }
+            $amount = Money::parse((string) (($remotePix['valor'] ?? '') ?: ($authoritative['valor']['original'] ?? '0')));
+            $invoice = $this->settleVerified($charge->invoice_id, 'efi', $reference, $amount, 'BRL');
+            $charge->update(['status' => 'paid', 'provider_reference' => $reference, 'paid_at' => now()]);
+            $processed[] = $invoice->id;
+        }
+
+        return ['processed' => $processed];
+    }
+
+    private function efiCheckout(Invoice $invoice): string
+    {
+        $existing = $this->efiCharge($invoice);
+        if ($existing && $existing->status === 'active' && (! $existing->expires_at || $existing->expires_at->isFuture())) {
+            return route('invoices.efi', $invoice);
+        }
+        if ($existing && $existing->status === 'active') {
+            $existing->update(['status' => 'expired']);
+        }
+
+        $this->assertEfiConfig();
+        $txid = 'LAGOS'.str_pad(base_convert((string) $invoice->id, 10, 36), 8, '0', STR_PAD_LEFT).strtoupper(substr(hash('sha256', $invoice->id.'|'.$invoice->total_minor), 0, 20));
+        $expiration = (int) config('lagos.payments.efi.charge_expiration', 3600);
+        $token = $this->efiAccessToken();
+        $body = [
+            'calendario' => ['expiracao' => $expiration],
+            'valor' => ['original' => number_format($invoice->total_minor / 100, 2, '.', '')],
+            'chave' => (string) config('lagos.payments.efi.pix_key'),
+            'solicitacaoPagador' => 'Pagamento da fatura #'.$invoice->id.' — '.config('app.name'),
+        ];
+        $r = $this->efiRequest()->withToken($token)->put($this->efiBaseUrl().'/v2/cob/'.$txid, $body);
+        $pix = $r->json('pixCopiaECola');
+        abort_unless($r->successful() && is_string($pix) && $pix !== '' && ($r->json('txid') === $txid), 502, 'A Efí não criou uma cobrança Pix válida.');
+        GatewayCharge::create([
+            'invoice_id' => $invoice->id,
+            'gateway' => 'efi',
+            'reference' => $txid,
+            'status' => 'active',
+            'amount_minor' => $invoice->total_minor,
+            'currency' => 'BRL',
+            'pix_copia_e_cola' => $pix,
+            'location' => is_string($r->json('location')) ? $r->json('location') : null,
+            'expires_at' => now()->addSeconds($expiration),
+        ]);
+
+        return route('invoices.efi', $invoice);
+    }
+
+    private function efiGetCharge(string $txid): array
+    {
+        $this->assertEfiConfig();
+
+        return $this->efiRequest()->withToken($this->efiAccessToken())->get($this->efiBaseUrl().'/v2/cob/'.$txid)->throw()->json();
+    }
+
+    private function efiAccessToken(): string
+    {
+        $r = $this->efiRequest()->withBasicAuth((string) config('lagos.payments.efi.client_id'), (string) config('lagos.payments.efi.client_secret'))->post($this->efiBaseUrl().'/oauth/token', ['grant_type' => 'client_credentials']);
+        $token = $r->json('access_token');
+        abort_unless($r->successful() && is_string($token) && $token !== '', 502, 'A Efí não autorizou o gateway. Confira Client ID, Client Secret e certificado.');
+
+        return $token;
+    }
+
+    private function efiRequest(): PendingRequest
+    {
+        $options = ['verify' => true];
+        $certificate = (string) config('lagos.payments.efi.certificate');
+        if ($certificate !== '') {
+            $options['cert'] = [(string) $certificate, (string) config('lagos.payments.efi.certificate_password', '')];
+            if (strtoupper((string) config('lagos.payments.efi.certificate_type', 'PEM')) === 'P12') {
+                $options['curl'] = [CURLOPT_SSLCERTTYPE => 'P12'];
+            }
+        }
+
+        return Http::withOptions($options)->acceptJson()->withoutRedirecting()->timeout(20);
+    }
+
+    private function assertEfiConfig(): void
+    {
+        $required = ['client_id', 'client_secret', 'certificate', 'pix_key', 'webhook_hmac'];
+        foreach ($required as $key) {
+            abort_unless(filled(config('lagos.payments.efi.'.$key)), 503, 'Configure todos os dados de segurança da Efí antes de cobrar.');
+        }
+        if (! app()->runningUnitTests()) {
+            abort_unless(is_file((string) config('lagos.payments.efi.certificate')) && is_readable((string) config('lagos.payments.efi.certificate')), 503, 'O certificado da Efí não foi encontrado ou não pode ser lido pelo servidor.');
+        }
+    }
+
+    private function efiBaseUrl(): string
+    {
+        return config('lagos.payments.efi.environment') === 'producao' ? 'https://pix.api.efipay.com.br' : 'https://pix-h.api.efipay.com.br';
     }
 
     private function settleVerified(int $id, string $gateway, string $reference, int $amount, string $currency): Invoice
