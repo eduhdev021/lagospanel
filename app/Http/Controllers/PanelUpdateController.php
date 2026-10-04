@@ -51,7 +51,6 @@ class PanelUpdateController extends Controller
         $this->root($r);
         abort_unless(config('panel_updates.enabled'), 409, 'Atualizador desabilitado no servidor.');
         AdminPreference::ensure();
-        abort_unless(AdminPreference::find(1)?->updater_heartbeat_at?->gt(now()->subMinute()), 409, 'Worker de atualização não está pronto.');
         try {
             $current = $workspace->head();
             $target = $source->latest();
@@ -62,8 +61,6 @@ class PanelUpdateController extends Controller
             return back()->with('status', 'O painel já está atualizado neste commit.');
         }
         DB::transaction(function () use ($r, $current, $target) {
-            $p = AdminPreference::whereKey(1)->lockForUpdate()->firstOrFail();
-            abort_unless($p->updater_heartbeat_at?->gt(now()->subMinute()), 409, 'Worker de atualização não está pronto.');
             abort_if(PanelUpdate::whereIn('status', ['pending', 'running'])->exists(), 409, 'Já existe atualização em andamento.');
             $u = PanelUpdate::create(['user_id' => $r->user()->id, 'source_sha' => $current, 'target_sha' => $target, 'status' => 'pending', 'approved_at' => now(), 'phase' => 'queued']);
             Audit::record('panel.update_requested', 'panel_update:'.$u->id, ['target' => $target, 'one_click' => true], $r->user()->id);
