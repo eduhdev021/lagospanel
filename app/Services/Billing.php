@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\CouponRedemption;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\ServiceAddon;
 use App\Models\StockReservation;
 use App\Models\User;
 use App\Models\WalletEntry;
@@ -57,18 +58,28 @@ final class Billing
             CouponRedemption::where('invoice_id', $id)->where('status', 'held')->update(['status' => 'consumed']);
             if ($invoice->type === 'deposit') {
                 $this->wallet($invoice->user_id, $amount, 'deposit:'.$id, 'Recarga da fatura #'.$id);
-            }
-            foreach ($services as $service) {
-                $base = $invoice->type === 'renewal' ? ($invoice->period_start ?? $service->next_due ?? CarbonImmutable::today()) : CarbonImmutable::today();
-                $anchor = $service->billing_anchor ?? $base->day;
-                $service->update(['next_due' => Cycle::next(CarbonImmutable::instance($base), $service->cycle, $anchor), 'billing_anchor' => $anchor]);
-                if ($service->connector_id) {
-                    $action = ! $service->remote_id ? 'create' : ($service->status === 'suspended' ? 'unsuspend' : null);
-                    if ($action) {
-                        app(Provisioning::class)->enqueue($service, $action, 'invoice:'.$id.':'.$service->id);
+            } elseif ($invoice->type === 'upgrade') {
+                app(ServiceUpgrades::class)->completeInvoice($invoice);
+            } elseif (in_array($invoice->type, ['domain', 'domain_renewal'], true)) {
+                app(Domains::class)->completeInvoice($invoice);
+            } elseif ($invoice->type === 'addon') {
+                foreach (ServiceAddon::where('invoice_id', $id)->lockForUpdate()->get() as $sa) {
+                    $sa->update(['status' => 'active', 'next_due' => Cycle::next(CarbonImmutable::today(), $sa->cycle, CarbonImmutable::today()->day)]);
+                }
+            } else {
+                foreach ($services as $service) {
+                    $base = $invoice->type === 'renewal' ? ($invoice->period_start ?? $service->next_due ?? CarbonImmutable::today()) : CarbonImmutable::today();
+                    $anchor = $service->billing_anchor ?? $base->day;
+                    $service->update(['next_due' => Cycle::next(CarbonImmutable::instance($base), $service->cycle, $anchor), 'billing_anchor' => $anchor]);
+                    if ($service->connector_id) {
+                        $action = ! $service->remote_id ? 'create' : ($service->status === 'suspended' ? 'unsuspend' : null);
+                        if ($action) {
+                            app(Provisioning::class)->enqueue($service, $action, 'invoice:'.$id.':'.$service->id);
+                        }
                     }
                 }
             }
+            app(Affiliates::class)->creditForInvoice($invoice);
             Audit::record('invoice.paid', 'invoice:'.$id, ['gateway' => $gateway, 'amount_minor' => $amount], $actor);
             $invoice->user->notify(new InvoiceNotice($id, true));
 

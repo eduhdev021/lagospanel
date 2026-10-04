@@ -21,9 +21,20 @@ use Illuminate\Validation\ValidationException;
 
 class PortalController extends Controller
 {
-    public function store()
+    public function store(Request $r)
     {
-        return view('store', ['products' => Product::with(['options.values'])->where('active', true)->orderBy('id')->paginate(12)]);
+        if ($r->filled('ref')) {
+            if ($aff = app(\App\Services\Affiliates::class)->trackClick((string) $r->query('ref'))) {
+                $r->session()->put('affiliate_ref', $aff->user_id);
+            }
+        }
+        $q = Product::with(['options.values'])->where('active', true);
+        if ($r->filled('category')) {
+            $q->where('category', (string) $r->query('category'));
+        }
+        $categories = Product::where('active', true)->whereNotNull('category')->where('category', '!=', '')->distinct()->pluck('category');
+
+        return view('store', ['products' => $q->orderBy('id')->paginate(12)->withQueryString(), 'categories' => $categories]);
     }
 
     public function dashboard(Request $r)
@@ -71,7 +82,11 @@ class PortalController extends Controller
 
     public function services(Request $r)
     {
-        return view('client.services', ['services' => $r->user()->services()->latest()->paginate(15)]);
+        return view('client.services', [
+            'services' => $r->user()->services()->with('serviceAddons')->latest()->paginate(15),
+            'upgradeTargets' => Product::where('active', true)->where('allow_upgrade', true)->orderBy('price_minor')->get(),
+            'availableAddons' => \App\Models\ProductAddon::where('active', true)->orderBy('price_minor')->get(),
+        ]);
     }
 
     public function cancellation(Request $r, Service $service)
@@ -116,7 +131,13 @@ class PortalController extends Controller
 
     public function profileUpdate(Request $r)
     {
-        $v = $r->validate(['name' => 'required|string|max:100']);
+        $v = $r->validate([
+            'name' => 'required|string|max:100',
+            'tax_id' => 'nullable|string|max:32',
+            'company_name' => 'nullable|string|max:180',
+            'phone' => 'nullable|string|max:40',
+            'billing_address' => 'nullable|string|max:500',
+        ]);
         $r->user()->update($v);
 
         return back()->with('status', 'Nome atualizado.');

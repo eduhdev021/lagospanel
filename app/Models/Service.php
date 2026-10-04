@@ -39,4 +39,14 @@ class Service extends Model
     {
         return $this->hasMany(Operation::class);
     }
+
+    public function upgrades()
+    {
+        return $this->hasMany(ServiceUpgrade::class);
+    }
+
+    public function serviceAddons()
+    {
+        return $this->hasMany(ServiceAddon::class);
+    }
 }

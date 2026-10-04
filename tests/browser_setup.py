@@ -24,7 +24,7 @@ with sync_playwright()as pw:
  check('Instalador bloqueado após concluir',ctx.request.get(BASE+'/instalar').status==404)
  check('Chave consumida e bloqueio persistente',(INSTALL/'storage/app/private/installed.lock').exists() and not (INSTALL/'storage/app/private/setup.json').exists())
  p.get_by_role('link',name='Entrar no painel',exact=True).click();p.locator('[name=email]').fill(email);p.locator('[name=password]').fill(password);p.get_by_role('button',name='Entrar',exact=True).click();p.wait_for_url('**/painel');check('Administrador criado consegue entrar','Painel instalado pelo navegador' in p.locator('body').inner_text())
- r=p.goto(BASE+'/admin/configuracoes');check('Configuração do site disponível após instalar',r.status==200 and p.locator('[name=name]').input_value()=='Painel instalado pelo navegador')
+ r=p.goto(BASE+'/admin/configuracoes/geral');check('Configuração do site disponível após instalar',r.status==200 and p.locator('[name=name]').input_value()=='Painel instalado pelo navegador')
  with sqlite3.connect(INSTALL/'database/database.sqlite')as db:
   check('Migrations versionadas e somente um administrador',db.execute('select count(*) from migrations').fetchone()[0]==len(list((INSTALL/'database/migrations').glob('*.php'))) and db.execute('select count(*) from users where is_admin=1').fetchone()[0]==1 and db.execute('select count(*) from users').fetchone()[0]==1)
   check('Senha persistida como hash, não texto',password not in db.execute('select password from users').fetchone()[0]);check('Sessão final funciona com banco',db.execute('select count(*) from sessions').fetchone()[0]>=1)

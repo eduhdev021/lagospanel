@@ -6,6 +6,25 @@
 @if(($s->provisioning['driver']??'')==='cpanel')<button class="btn btn-primary btn-sm" formaction="{{ route('services.session',$s) }}">Entrar no cPanel</button>@endif <button class="btn btn-ghost btn-sm">{{ ($s->provisioning['driver']??'')==='plesk'?'Ver acesso de publicação':'Ver acesso inicial' }}</button></form>@endif @if(($s->provisioning['driver']??'')==='plesk')<p style="overflow-wrap:anywhere">Assinatura Plesk gerenciada: {{ $s->provisioning['domain'] }}. Acesso administrativo não é compartilhado. Publique usando as credenciais FTP/FTPS da sua assinatura.</p>@endif @if(($s->provisioning['driver']??'')==='aapanel')<p style="overflow-wrap:anywhere">Site gerenciado: {{ $s->provisioning['domain'] }}. Publicação pela equipe; sem acesso administrativo aaPanel.</p>@endif @if(($s->provisioning['driver']??'')==='pterodactyl')<p>Servidor de jogos #{{ $s->remote_id??'aguardando instalação' }}. Use sua conta vinculada no painel de jogos.</p><a class="btn btn-ghost" href="{{ $s->provisioning['endpoint'] }}" rel="noreferrer">Abrir Pterodactyl</a>
 @if($s->status==='active')<details><summary>Ligar, parar ou reiniciar</summary><p>Use a chave Client API da sua conta no Pterodactyl. Ela vale apenas nesta solicitação e não é armazenada. Não use chave Application API ou de administrador.</p><form method="post" action="{{ route('services.power',$s) }}">@csrf<input type="hidden" name="request_key" value="{{ (string) Str::uuid() }}"><div class="field"><label>Chave Client API</label><input type="password" name="token" autocomplete="off" required minlength="16" maxlength="2000"></div><div class="field"><label>Sua senha atual do LagosPanel</label><input type="password" name="password" autocomplete="current-password" required></div>@if(auth()->user()->totp_secret)<div class="field"><label>Código novo do autenticador</label><input name="code" inputmode="numeric" maxlength="6" required></div>@endif<div class="field"><label>Comando</label><select name="signal"><option value="start">Ligar</option><option value="stop">Parar</option><option value="restart">Reiniciar</option></select></div><label><input type="checkbox" name="ack" value="1" required> Entendo que parar ou reiniciar interrompe os jogadores. Em caso de dúvida, conferirei o estado no provedor antes de outro comando.</label><button class="btn btn-ghost">Enviar comando</button></form></details>@endif
 @endif
+@if($s->status==='active' && isset($upgradeTargets) && $upgradeTargets->where('id','!=',$s->product_id)->count())
+<div class="card" style="margin-top:0.75rem">
+<h4>Upgrade ou Downgrade proporcional (Prorrata)</h4>
+<form method="post" action="{{ route('services.upgrade',$s) }}">@csrf<input type="hidden" name="request_key" value="{{ (string) Str::uuid() }}">
+<div class="field"><label>Novo plano</label><select name="target_product_id">@foreach($upgradeTargets->where('id','!=',$s->product_id) as $tp)<option value="{{ $tp->id }}">{{ $tp->name }} — {{ brl($tp->price_minor) }} ({{ \App\Support\Cycle::LABELS[$tp->cycle] ?? $tp->cycle }})</option>@endforeach</select></div>
+<button class="btn btn-ghost btn-sm">Alterar plano (Prorrata)</button></form>
+</div>
+@endif
+@if($s->serviceAddons && $s->serviceAddons->count())
+<p><strong>Addons vinculados:</strong> @foreach($s->serviceAddons as $sa){{ $sa->name }} ({{ status_label($sa->status) }})@if(!$loop->last), @endif @endforeach</p>
+@endif
+@if($s->status==='active' && isset($availableAddons) && $availableAddons->count())
+<div class="card" style="margin-top:0.75rem">
+<h4>Contratar addon adicional</h4>
+<form method="post" action="{{ route('services.addons.order',$s) }}">@csrf
+<div class="field"><label>Adicional</label><select name="addon_id">@foreach($availableAddons as $ad)<option value="{{ $ad->id }}">{{ $ad->name }} — {{ brl($ad->price_minor) }}</option>@endforeach</select></div>
+<button class="btn btn-ghost btn-sm">Contratar addon</button></form>
+</div>
+@endif
 @if($s->cancellation_requested_at)<p class="muted">Cancelamento solicitado em {{ $s->cancellation_requested_at->format('d/m/Y H:i') }}. Renovação automática desativada.</p>@else<form method="post" action="{{ route('services.cancel',$s) }}">@csrf<div class="field"><label>Motivo do cancelamento</label><textarea name="reason" required minlength="5" maxlength="2000"></textarea></div><button class="btn btn-danger btn-sm">Solicitar cancelamento</button></form>@endif</details>@endif
 @endforeach
 {{ $services->links('layouts.pagination') }}

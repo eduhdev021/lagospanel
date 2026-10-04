@@ -11,6 +11,7 @@ use App\Provisioning\JsonDriver;
 use App\Provisioning\PleskDriver;
 use App\Provisioning\ProtocolError;
 use App\Provisioning\PterodactylDriver;
+use App\Provisioning\VpsDriver;
 use App\Services\Audit;
 use App\Services\Provisioning;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -97,6 +98,7 @@ class RunOperation implements ShouldQueue
                 'plesk' => app(PleskDriver::class)->run($op),
                 'aapanel' => app(AaPanelDriver::class)->run($op),
                 'pterodactyl' => app(PterodactylDriver::class)->run($op),
+                'proxmox', 'virtualizor' => app(VpsDriver::class)->run($op),
                 default => throw new ProtocolError('Driver de provisionamento desconhecido.'),
             };
             DB::transaction(function () use ($op, $remote) {

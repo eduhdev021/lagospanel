@@ -10,7 +10,7 @@ class Product extends Model
 
     protected function casts(): array
     {
-        return ['provisioning' => 'array', 'allow_quantity' => 'boolean', 'max_per_user' => 'integer', 'active' => 'boolean', 'price_minor' => 'integer', 'setup_minor' => 'integer', 'stock' => 'integer'];
+        return ['provisioning' => 'array', 'allow_quantity' => 'boolean', 'allow_upgrade' => 'boolean', 'max_per_user' => 'integer', 'active' => 'boolean', 'price_minor' => 'integer', 'setup_minor' => 'integer', 'stock' => 'integer'];
     }
 
     public function options()

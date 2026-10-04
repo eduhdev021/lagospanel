@@ -27,6 +27,9 @@ final class NativeConfig
         if (in_array($connector->driver, ['directadmin', 'plesk'], true)) {
             return HostingConfig::product($connector->driver, $input);
         }
+        if (in_array($connector->driver, ['proxmox', 'virtualizor'], true)) {
+            return VpsConfig::product($connector->driver, $input);
+        }
         if ($connector->driver === 'pterodactyl') {
             return PterodactylConfig::product($input);
         }
@@ -56,6 +59,11 @@ final class NativeConfig
         }
         if (in_array($c->driver, ['directadmin', 'plesk'], true)) {
             HostingConfig::snapshot($service, $product, $c);
+
+            return;
+        }
+        if (in_array($c->driver, ['proxmox', 'virtualizor'], true)) {
+            VpsConfig::snapshot($service, $product, $c);
 
             return;
         }

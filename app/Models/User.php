@@ -59,6 +59,26 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Ticket::class);
     }
 
+    public function domains()
+    {
+        return $this->hasMany(DomainRegistration::class);
+    }
+
+    public function affiliate()
+    {
+        return $this->hasOne(Affiliate::class);
+    }
+
+    public function contacts()
+    {
+        return $this->hasMany(AccountContact::class, 'owner_id');
+    }
+
+    public function delegatedAccounts()
+    {
+        return $this->hasMany(AccountContact::class, 'contact_user_id');
+    }
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
@@ -71,6 +91,13 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'tax_id',
+        'company_name',
+        'phone',
+        'billing_address',
+        'referred_by_id',
+        'external_source',
+        'external_id',
     ];
 
     /**

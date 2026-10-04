@@ -53,8 +53,18 @@ class AuthController extends Controller
     {
         abort_unless(config('site.registration_enabled'), 403, 'Novos cadastros estão desativados.');
         $r->merge(['email' => Str::lower(trim((string) $r->input('email')))]);
-        $v = $r->validate(['name' => 'required|string|max:100', 'email' => 'required|email|max:254|unique:users', 'password' => ['required', 'confirmed', 'max:128', PasswordRule::min(12)->letters()->numbers()], 'terms' => 'accepted']);
-        $u = User::create(['name' => $v['name'], 'email' => $v['email'], 'password' => $v['password']]);
+        $v = $r->validate(['name' => 'required|string|max:100', 'email' => 'required|email|max:254|unique:users', 'password' => ['required', 'confirmed', 'max:128', PasswordRule::min(12)->letters()->numbers()], 'terms' => 'accepted', 'ref' => 'nullable|string|max:40']);
+        $referrerId = $r->session()->get('affiliate_ref');
+        if (! $referrerId && ! empty($v['ref'])) {
+            $referrerId = app(\App\Services\Affiliates::class)->trackClick($v['ref'])?->user_id;
+        }
+        $u = User::create([
+            'name' => $v['name'],
+            'email' => $v['email'],
+            'password' => $v['password'],
+            'referred_by_id' => $referrerId && User::whereKey($referrerId)->exists() ? (int) $referrerId : null,
+        ]);
+        $r->session()->forget('affiliate_ref');
         event(new Registered($u));
         Auth::login($u);
         $r->session()->regenerate();
