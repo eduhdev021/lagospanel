@@ -15,5 +15,5 @@
 </div>
 @endforeach
 {{ $updates->links('layouts.pagination') }}
-<script src="{{ asset('assets/panel-updates.js') }}" defer></script>
+<script src="{{ panel_asset('assets/panel-updates.js') }}" defer></script>
 @endsection

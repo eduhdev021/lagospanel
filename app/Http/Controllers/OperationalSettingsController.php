@@ -22,6 +22,30 @@ class OperationalSettingsController extends Controller
 
     public function save(Request $r, string $section, AdminConfirmation $confirmation)
     {
+        try {
+            return $this->persist($r, $section, $confirmation);
+        } catch (ValidationException $e) {
+            if ($r->expectsJson()) {
+                throw $e;
+            }
+            // Only known non-secret fields may survive validation redirects.
+            $safe = [];
+            foreach (OperationalSettings::SECTIONS[$section]['fields'] ?? [] as $name => $field) {
+                if ($field[2] !== 'secret' && is_scalar($value = $r->input('values.'.$name))) {
+                    $safe[$name] = $value;
+                }
+            }
+
+            return back()->withErrors($e->errors())->withInput([
+                '_operation_section' => $section,
+                'version' => $r->input('version'),
+                'values' => $safe,
+            ]);
+        }
+    }
+
+    private function persist(Request $r, string $section, AdminConfirmation $confirmation)
+    {
         abort_unless($r->user()->is_admin, 403);
         abort_unless(isset(OperationalSettings::SECTIONS[$section]), 404);
         $fields = OperationalSettings::SECTIONS[$section]['fields'];

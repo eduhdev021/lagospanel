@@ -1,0 +1,182 @@
+{
+  "results": [
+    {
+      "test": "Settings navigation has links",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/configuracoes/geral",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/configuracoes/pagina-inicial",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/configuracoes/email",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/configuracoes/login-social",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/equipe",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/produtos",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/cupons",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/integracoes",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/integracoes/ollama",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/webhooks",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/configuracoes/seguranca",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/configuracoes/atualizacoes",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/configuracoes/ambiente",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/suporte/modelos",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/conhecimento",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/avisos",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/auditoria",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/configuracoes/operacao/billing",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/configuracoes/operacao/automation",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/configuracoes/operacao/payments",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/configuracoes/operacao/support",
+      "passed": true
+    },
+    {
+      "test": "GET /admin/configuracoes/operacao/resources",
+      "passed": true
+    },
+    {
+      "test": "Billing responsive 320",
+      "passed": true
+    },
+    {
+      "test": "Billing responsive 390",
+      "passed": true
+    },
+    {
+      "test": "Billing responsive 768",
+      "passed": true
+    },
+    {
+      "test": "Billing responsive 1366",
+      "passed": true
+    },
+    {
+      "test": "Save explains missing password and consent",
+      "passed": true
+    },
+    {
+      "test": "Invalid browser form keeps entered company",
+      "passed": true
+    },
+    {
+      "test": "Wrong confirmation keeps non-secret draft",
+      "passed": true
+    },
+    {
+      "test": "Wrong confirmation does not re-display password",
+      "passed": true
+    },
+    {
+      "test": "Billing can save by clicking",
+      "passed": true
+    },
+    {
+      "test": "Saved company persists after reload",
+      "passed": true
+    },
+    {
+      "test": "Social error keeps the submitted Client ID",
+      "passed": true
+    },
+    {
+      "test": "Social draft not copied to other providers",
+      "passed": true
+    },
+    {
+      "test": "Social can save with blank existing secret",
+      "passed": true
+    },
+    {
+      "test": "Saved Client ID remains visible",
+      "passed": true
+    },
+    {
+      "test": "Saved secret never in HTML",
+      "passed": true
+    },
+    {
+      "test": "Email can save",
+      "passed": true
+    },
+    {
+      "test": "Email keeps host username and sender",
+      "passed": true
+    },
+    {
+      "test": "Email hides only password",
+      "passed": true
+    },
+    {
+      "test": "Unchecked registration stays unchecked after validation",
+      "passed": true
+    },
+    {
+      "test": "Panel script URL is same-origin versioned",
+      "passed": true
+    },
+    {
+      "test": "No JavaScript errors",
+      "passed": true
+    }
+  ],
+  "javascript_errors": [],
+  "scope": "Local fixture. Real browser form submissions, no external calls."
+}

@@ -128,3 +128,7 @@ Veja [funcionamento, limites e testes](docs/CHAT-E-CONFIGURACOES-OPERACIONAIS.md
 ### Foto de perfil e diagnóstico da IA
 
 Importação consentida do Gravatar, upload de avatar, estado da chave salva, sinal do worker database e teste de geração autorizado no ADM. Veja [operação e configuração](docs/IA-FOTO-E-OPERACAO.md). Testes com provedores simulados não comprovam funcionamento no servidor de produção.
+
+### Formulários e persistência
+
+Os campos comuns continuam visíveis; somente segredos ficam ocultos. [Validação, preservação de valores e testes](docs/CONFIGURACOES-PERSISTENTES.md).

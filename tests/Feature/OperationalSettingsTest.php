@@ -88,7 +88,9 @@ class OperationalSettingsTest extends TestCase
     {
         $this->actingAs($this->root());
         $this->save('payments', ['stripe_secret' => 'private-stripe-secret', 'stripe_enabled' => 1])->assertSessionHasErrors('values.stripe_webhook');
-        $this->assertNull(session('_old_input.values'));
+        $this->assertNull(session('_old_input.values.stripe_secret'));
+        $this->assertSame(1, session('_old_input.values.stripe_enabled'));
+        $this->assertStringNotContainsString('private-stripe-secret', json_encode(session('_old_input')));
     }
 
     public function test_unknown_settings_and_invalid_ranges_are_rejected(): void
@@ -154,5 +156,31 @@ class OperationalSettingsTest extends TestCase
         app(SiteConfiguration::class)->apply();
         $this->assertSame(1, app(Reminders::class)->run());
         $this->assertSame(0, app(Reminders::class)->run());
+    }
+
+    public function test_validation_preserves_non_secret_draft_only_for_its_section(): void
+    {
+        $this->actingAs($this->root());
+        $this->from(route('admin.settings.operation', 'billing'))->post(route('admin.settings.operation.save', 'billing'), [
+            'version' => 0, 'ack' => 1, 'password' => 'wrong',
+            'values' => $this->values('billing', ['issuer_name' => 'Nome mantido', 'issuer_details' => 'Contato mantido']),
+        ])->assertSessionHasErrors('password');
+        $this->assertSame('Nome mantido', session('_old_input.values.issuer_name'));
+        $this->assertNull(session('_old_input.password'));
+        $this->get(route('admin.settings.operation', 'billing'))->assertSee('Nome mantido')->assertSee('Contato mantido');
+        $this->get(route('admin.settings.operation', 'support'))->assertDontSee('Nome mantido');
+    }
+
+    public function test_unknown_fields_are_not_preserved_in_session(): void
+    {
+        $this->actingAs($this->root());
+        $this->save('payments', ['unexpected_secret' => 'DO-NOT-FLASH'])->assertSessionHasErrors('values');
+        $this->assertStringNotContainsString('DO-NOT-FLASH', json_encode(session('_old_input')));
+    }
+
+    public function test_local_assets_are_content_versioned_and_same_origin(): void
+    {
+        $this->assertMatchesRegularExpression('~^/assets/admin-forms\.js\?v=[a-f0-9]{12}$~', panel_asset('assets/admin-forms.js'));
+        $this->actingAs($this->root())->get(route('admin.settings.general'))->assertOk()->assertSee(panel_asset('assets/admin-forms.js'), false);
     }
 }

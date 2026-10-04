@@ -18,5 +18,5 @@
 @endif
 </div>@empty<div class="card">Nenhum ticket.</div>@endforelse
 {{ $tickets->links('layouts.pagination') }}
-<script src="{{ asset('assets/support-templates.js') }}" defer></script>
+<script src="{{ panel_asset('assets/support-templates.js') }}" defer></script>
 @endsection

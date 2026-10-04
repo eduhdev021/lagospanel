@@ -68,3 +68,12 @@ function status_label(string $status): string
 {
     return ['pending' => 'Aguardando ativação', 'active' => 'Ativo', 'suspended' => 'Suspenso', 'cancelled' => 'Cancelado', 'review' => 'Revisão necessária', 'unpaid' => 'Em aberto', 'paid' => 'Paga', 'overdue' => 'Vencida', 'open' => 'Aberto', 'closed' => 'Encerrado', 'answered' => 'Respondido', 'customer_reply' => 'Resposta do cliente', 'reconciling' => 'Conciliação em andamento', 'processing' => 'Em processamento', 'done' => 'Concluído'][$status] ?? $status;
 }
+
+/** Same-origin, content-versioned panel assets; no deployment URL or old cache dependency. */
+function panel_asset(string $path): string
+{
+    static $versions = [];
+    $versions[$path] ??= is_file(public_path($path)) ? substr(hash_file('sha256', public_path($path)), 0, 12) : 'missing';
+
+    return '/'.ltrim($path, '/').'?v='.$versions[$path];
+}

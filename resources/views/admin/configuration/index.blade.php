@@ -38,5 +38,5 @@
 @endforeach
 @endif
 </div><div class="settings-empty" data-settings-empty hidden>{!! panel_icon('search',34) !!}<h3>Nenhuma configuração encontrada</h3><p>Tente outro termo ou escolha uma categoria diferente.</p><button class="btn btn-ghost" type="button" data-settings-reset>Limpar busca e filtros</button></div><p class="settings-bottom-note">{!! panel_icon('shield',15) !!} Você vê somente as configurações permitidas para sua conta.</p><p><a href="{{ route('admin.settings.coverage') }}">Consultar recursos disponíveis e limitações desta versão {!! panel_icon('chevron',14) !!}</a></p></div></div>
-</div><script src="{{ asset('assets/settings-center.js') }}" defer></script>
+</div><script src="{{ panel_asset('assets/settings-center.js') }}" defer></script>
 @endsection
