@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withCommands([__DIR__.'/../app/Console/Commands'])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trimStrings(except: ['client_secret', 'db_password', 'smtp_password', 'setup_key', 'web_token']);
         $middleware->append(LoadSiteConfiguration::class);

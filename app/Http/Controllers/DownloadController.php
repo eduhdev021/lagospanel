@@ -7,6 +7,7 @@ use App\Services\Audit;
 use App\Services\Downloads;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class DownloadController extends Controller
 {
@@ -45,7 +46,11 @@ class DownloadController extends Controller
     {
         $admin = $r->routeIs('admin.*');
         abort_unless($admin || DownloadAsset::availableTo($r->user())->whereKey($asset->id)->exists(), 404);
-        $bytes = $downloads->bytes($asset);
+        try {
+            $bytes = $downloads->bytes($asset);
+        } catch (HttpExceptionInterface $e) {
+            return response($e->getStatusCode() === 409 ? 'Arquivo indisponível ou com integridade inválida.' : 'Arquivo não encontrado.', $e->getStatusCode());
+        }
         // Recheck entitlement after storage I/O; never expose a file withdrawn in that interval.
         abort_unless($admin || DownloadAsset::availableTo($r->user())->whereKey($asset->id)->exists(), 404);
         Audit::record('download.retrieved', 'download:'.$asset->id, [], $r->user()->id);

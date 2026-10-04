@@ -55,7 +55,7 @@ final class Downloads
         try {
             $raw = Crypt::decryptString($disk->get($asset->path));
         } catch (\Throwable) {
-            abort(409, 'Arquivo indisponível ou com integridade inválida.');
+            throw new \Symfony\Component\HttpKernel\Exception\HttpException(409, 'Arquivo indisponível ou com integridade inválida.');
         }
         abort_unless(strlen($raw) === $asset->size && hash_equals($asset->sha256, hash('sha256', $raw)), 409);
 
