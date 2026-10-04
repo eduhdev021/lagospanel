@@ -37,8 +37,7 @@ class PanelUpdateController extends Controller
         try {
             $target = $source->latest();
         } catch (\Throwable $error) {
-            $reason = $error->getMessage() === 'A main ainda não tem CI aprovado.' ? 'A versão publicada ainda não possui CI aprovado. Aguarde a conclusão dos testes no GitHub.' : 'Não foi possível validar a versão no GitHub. Confira DNS, TLS, saída HTTPS e limite de consultas à API pública.';
-            throw ValidationException::withMessages(['update' => $reason.' Nenhum arquivo foi alterado.']);
+            throw ValidationException::withMessages(['update' => 'Não foi possível validar a versão no GitHub: '.$error->getMessage().' Nenhum arquivo foi alterado.']);
         }
         $u = PanelUpdate::create(['user_id' => $r->user()->id, 'source_sha' => $current, 'target_sha' => $target, 'status' => $current === $target ? 'current' : 'checked', 'phase' => 'checked']);
         Audit::record('panel.update_checked', 'panel_update:'.$u->id, ['target' => $target], $r->user()->id);
@@ -55,7 +54,7 @@ class PanelUpdateController extends Controller
             $current = $workspace->head();
             $target = $source->latest();
         } catch (\Throwable $error) {
-            throw ValidationException::withMessages(['update' => 'Não foi possível consultar a versão publicada. Nenhum arquivo foi alterado.']);
+            throw ValidationException::withMessages(['update' => 'Não foi possível consultar a versão publicada: '.$error->getMessage().' Nenhum arquivo foi alterado.']);
         }
         if ($current === $target) {
             return back()->with('status', 'O painel já está atualizado neste commit.');

@@ -13,7 +13,7 @@ class PanelUpdateSource
 
     private function get(string $path): array
     {
-        $r = Http::withoutRedirecting()->connectTimeout(3)->timeout(10)->withOptions(['verify' => true, 'on_headers' => function ($r) {
+        $r = Http::retry(2, 250)->withoutRedirecting()->connectTimeout(5)->timeout(15)->withOptions(['verify' => true, 'on_headers' => function ($r) {
             if ((int) $r->getHeaderLine('Content-Length') > 2097152) {
                 throw new RuntimeException('Resposta excessiva.');
             }
@@ -22,8 +22,11 @@ class PanelUpdateSource
                 throw new RuntimeException('Resposta excessiva.');
             }
         }])->withHeaders(['Accept' => 'application/vnd.github+json', 'User-Agent' => 'LagosPanel-Updater/1'])->get('https://api.github.com/repos/'.self::REPOSITORY.$path);
-        if (! $r->successful() || strlen($r->body()) > 2097152 || ! is_array($r->json())) {
-            throw new RuntimeException('GitHub indisponível.');
+        if (! $r->successful()) {
+            throw new RuntimeException('GitHub respondeu HTTP '.$r->status().'.');
+        }
+        if (strlen($r->body()) > 2097152 || ! is_array($r->json())) {
+            throw new RuntimeException('GitHub retornou uma resposta inválida.');
         }
 
         return $r->json();
@@ -44,7 +47,7 @@ class PanelUpdateSource
         usort($runs, fn ($a, $b) => ($b['id'] ?? 0) <=> ($a['id'] ?? 0));
         $run = $runs[0] ?? [];
         if (($run['status'] ?? '') !== 'completed' || ($run['conclusion'] ?? '') !== 'success') {
-            throw new RuntimeException('A main ainda não tem CI aprovado.');
+            throw new RuntimeException('A main ainda não tem CI aprovado; status='.($run['status'] ?? 'ausente').', conclusão='.($run['conclusion'] ?? 'ausente').'.');
         }
 
         return $sha;
