@@ -19,6 +19,8 @@ use App\Http\Controllers\TeamController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/marca/logo', [SiteSettingsController::class, 'logo'])->name('brand.logo');
+Route::get('/marca/favicon', [SiteSettingsController::class, 'favicon'])->name('brand.favicon');
+Route::get('/marca/cartao-social', [SiteSettingsController::class, 'socialCard'])->name('brand.social-card');
 Route::get('/conhecimento', [KnowledgeController::class, 'index'])->name('knowledge.index');
 Route::get('/conhecimento/{slug}', [KnowledgeController::class, 'show'])->name('knowledge.show');
 Route::middleware(['auth', 'auth.session', 'verified'])->group(function () {

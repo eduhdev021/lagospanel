@@ -10,7 +10,7 @@
 <div class="settings-help"><span class="settings-mini-icon">{!! panel_icon('book',22) !!}</span><strong>Uma configuração de cada vez.</strong><p>Escolha uma seção para ajustar as opções. As permissões da sua equipe continuam valendo.</p></div></nav>
 <div class="settings-results"><div class="settings-results-heading"><h3>Explore as configurações</h3><span data-settings-result aria-live="polite"></span></div><div class="settings-tile-grid">
 @foreach([
- ['admin.settings.general','globe','business','Identidade, rodapé e redes','Nome, logo, contato e presença da sua empresa no site público.','violet'],
+ ['admin.settings.general','globe','business','Site, marca e SEO','Logo, cores, metadados, rodapé, links e redes sociais.','violet']
  ['admin.settings.homepage','home','business','Página inicial','Apresentação, chamada principal e vitrine de planos.','blue'],
  ['admin.settings.email','mail','business','E-mail e notificações','Remetente, servidor SMTP e envio de teste.','amber'],
  ['admin.settings.social','key','customers','Login social','Google, GitHub, Microsoft, Facebook e X / Twitter.','blue'],

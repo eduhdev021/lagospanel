@@ -60,6 +60,27 @@ function panel_icon($name, $size = 18, $class = '')
     return '<svg class="ic '.e($class).'" width="'.$s.'" height="'.$s.'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'.$paths[$name].'</svg>';
 }
 
+function social_icon(string $name, int $size = 19): string
+{
+    $paths = [
+        'instagram' => '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor" stroke="none"/>',
+        'facebook' => '<path d="M14 8h3V4h-3c-3 0-5 2-5 5v2H6v4h3v6h4v-6h3l1-4h-4V9c0-.7.3-1 1-1z" fill="currentColor" stroke="none"/>',
+        'x' => '<path d="M4 4l16 16M20 4L4 20" stroke-width="2.2"/>',
+        'youtube' => '<path d="M21 7.2a2.5 2.5 0 0 0-1.7-1.8C17.8 5 12 5 12 5s-5.8 0-7.3.4A2.5 2.5 0 0 0 3 7.2 24 24 0 0 0 2.6 12 24 24 0 0 0 3 16.8a2.5 2.5 0 0 0 1.7 1.8c1.5.4 7.3.4 7.3.4s5.8 0 7.3-.4a2.5 2.5 0 0 0 1.7-1.8 24 24 0 0 0 .4-4.8 24 24 0 0 0-.4-4.8z"/><path d="m10 9 5 3-5 3z" fill="currentColor" stroke="none"/>',
+        'linkedin' => '<path d="M5 9v10M5 5v.01M10 19v-6a3 3 0 0 1 6 0v6M10 10v9M3 3h18v18H3z" stroke-width="2"/>',
+        'tiktok' => '<path d="M14 4v10.5a3.5 3.5 0 1 1-3-3.46M14 4c.7 2.5 2.4 4 5 4.3" stroke-width="2.2"/>',
+        'whatsapp' => '<path d="M20.5 11.5a8.5 8.5 0 0 1-12.7 7.4L3 20l1.1-4.5a8.5 8.5 0 1 1 16.4-4z"/><path d="M8.5 8.5c.7 3.1 2.4 4.8 5.5 5.5l1.3-1.3 2 .9c-.2 1.6-1.3 2.4-2.5 2.3-3.8-.5-6.6-3.2-7.1-7.1-.1-1.2.7-2.3 2.3-2.5l.9 2z" stroke-width="1.5"/>',
+        'discord' => '<path d="M7 7.5a13 13 0 0 1 10 0l2 9a12 12 0 0 1-4 2l-.8-1.5M10 17l-.8 1.5a12 12 0 0 1-4-2l2-9"/><path d="M9 12h.01M15 12h.01" stroke-width="3"/>',
+    ];
+    if (! isset($paths[$name])) {
+        return '';
+    }
+
+    $size = max(12, min(32, $size));
+
+    return '<svg class="social-icon" width="'.$size.'" height="'.$size.'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'.$paths[$name].'</svg>';
+}
+
 function brl(int $amount): string
 {
     return Money::format($amount);

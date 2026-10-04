@@ -89,7 +89,7 @@ p.lead { font-size: 1.15rem; color: var(--muted); }
 .field { margin-bottom: 16px; }
 .field label { display: block; font-size: .84rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
 .field input[type="text"], .field input[type="email"], .field input[type="password"],
-.field input[type="number"], .field select, .field textarea {
+.field input[type="number"], .field input[type="url"], .field select, .field textarea {
   width: 100%;
   padding: 11px 14px;
   border: 1px solid var(--line);
@@ -105,6 +105,7 @@ p.lead { font-size: 1.15rem; color: var(--muted); }
   box-shadow: 0 0 0 4px rgba(46, 107, 255, .12);
 }
 .field textarea { min-height: 120px; resize: vertical; }
+.field input[type="file"] { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
 .check-line { display: flex; align-items: center; gap: 8px; font-size: .9rem; color: var(--muted); }
 

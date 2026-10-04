@@ -209,13 +209,28 @@ class WebAndSiteTest extends TestCase
             ->assertSee('footer_description')
             ->assertSee('footer_copyright')
             ->assertSee('footer_tagline')
-            ->assertSee('social_links[instagram]');
+            ->assertSee('social_links[instagram]')
+            ->assertSee('og_image')
+            ->assertSee('favicon')
+            ->assertSee('footer_links[0][url]')
+            ->assertSee('meta_description');
 
         $this->post(route('admin.settings.general.save'), $this->settingsData([
             'name' => 'Lagos Cloud',
             'footer_description' => 'Hospedagem com atendimento próximo.',
             'footer_copyright' => 'CNPJ 00.000.000/0001-00 · Todos os direitos reservados.',
             'footer_tagline' => '<script>alert(1)</script>',
+            'footer_explore_title' => 'Navegue',
+            'footer_info_title' => 'Nossa empresa',
+            'footer_links' => [
+                ['group' => 'explore', 'label' => 'Área de clientes', 'url' => '/entrar', 'order' => 2],
+                ['group' => 'information', 'label' => 'Blog', 'url' => 'https://blog.example.test', 'order' => 1],
+                ['group' => 'information', 'label' => 'Contato', 'url' => 'mailto:contato@example.test', 'order' => 3],
+                ['group' => 'explore', 'label' => '', 'url' => '', 'order' => 4],
+            ],
+            'brand_color' => '#123456',
+            'accent_color' => '#654321',
+            'meta_description' => 'Hospedagem simples para os projetos da sua empresa.',
             'social_links' => ['instagram' => 'https://instagram.com/lagospanel', 'youtube' => 'https://youtube.com/@lagospanel', 'discord' => ''],
         ]))->assertRedirect()->assertSessionHasNoErrors();
 
@@ -225,10 +240,18 @@ class WebAndSiteTest extends TestCase
             'footer_copyright' => 'CNPJ 00.000.000/0001-00 · Todos os direitos reservados.',
             'footer_tagline' => '<script>alert(1)</script>',
         ]);
+        $setting = SiteSetting::find(1);
         $this->assertSame([
             'instagram' => 'https://instagram.com/lagospanel',
             'youtube' => 'https://youtube.com/@lagospanel',
-        ], SiteSetting::find(1)->social_links);
+        ], $setting->social_links);
+        $this->assertSame('Navegue', $setting->footer_explore_title);
+        $this->assertSame('Nossa empresa', $setting->footer_info_title);
+        $this->assertSame([
+            ['group' => 'information', 'label' => 'Blog', 'url' => 'https://blog.example.test'],
+            ['group' => 'explore', 'label' => 'Área de clientes', 'url' => '/entrar'],
+            ['group' => 'information', 'label' => 'Contato', 'url' => 'mailto:contato@example.test'],
+        ], $setting->footer_links);
 
         $this->get(route('home'))
             ->assertOk()
@@ -239,7 +262,16 @@ class WebAndSiteTest extends TestCase
             ->assertDontSee('<script>alert(1)</script>', false)
             ->assertSee('Instagram')
             ->assertSee('https://instagram.com/lagospanel')
-            ->assertSee('YouTube');
+            ->assertSee('YouTube')
+            ->assertSee('class="social-icon"', false)
+            ->assertSee('Navegue')
+            ->assertSee('Nossa empresa')
+            ->assertSee('Área de clientes')
+            ->assertSee('https://blog.example.test')
+            ->assertSee('property="og:description" content="Hospedagem simples para os projetos da sua empresa."', false)
+            ->assertSee('twitter:card', false)
+            ->assertSee('<link rel="canonical"', false)
+            ->assertSee('--brand:#123456', false);
     }
 
     public function test_social_links_require_valid_https_urls_without_embedded_credentials(): void
@@ -258,6 +290,47 @@ class WebAndSiteTest extends TestCase
         $this->post(route('admin.settings.general.save'), array_replace_recursive($base, [
             'social_links' => ['instagram' => 'javascript:alert(1)'],
         ]))->assertSessionHasErrors('social_links.instagram');
+    }
+
+    public function test_footer_links_and_brand_colors_reject_unsafe_values(): void
+    {
+        $this->actingAs($this->root());
+        $base = $this->settingsData();
+
+        $this->post(route('admin.settings.general.save'), array_replace_recursive($base, [
+            'footer_links' => [['group' => 'explore', 'label' => 'Abrir', 'url' => '//evil.example.test/path']],
+        ]))->assertSessionHasErrors('footer_links.0.url');
+
+        $this->post(route('admin.settings.general.save'), array_replace_recursive($base, [
+            'footer_links' => [['group' => 'explore', 'label' => 'Executar', 'url' => 'javascript:alert(1)']],
+        ]))->assertSessionHasErrors('footer_links.0.url');
+
+        $this->post(route('admin.settings.general.save'), array_replace_recursive($base, [
+            'brand_color' => '#fff; background:url(javascript:alert(1))',
+        ]))->assertSessionHasErrors('brand_color');
+    }
+
+    public function test_favicon_and_social_card_uploads_are_served_and_can_be_removed(): void
+    {
+        $this->actingAs($this->root());
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/pWQAAAAASUVORK5CYII=');
+
+        $this->post(route('admin.settings.general.save'), $this->settingsData([
+            'favicon' => UploadedFile::fake()->createWithContent('favicon.png', $png),
+            'og_image' => UploadedFile::fake()->createWithContent('social-card.png', $png),
+        ]))->assertRedirect()->assertSessionHasNoErrors();
+
+        $this->get(route('brand.favicon'))->assertOk()->assertHeader('Content-Type', 'image/png');
+        $this->get(route('brand.social-card'))->assertOk()->assertHeader('Content-Type', 'image/png');
+
+        $this->post(route('admin.settings.general.save'), $this->settingsData([
+            'version' => 1,
+            'remove_favicon' => 1,
+            'remove_og_image' => 1,
+        ]))->assertRedirect()->assertSessionHasNoErrors();
+
+        $this->get(route('brand.favicon'))->assertNotFound();
+        $this->get(route('brand.social-card'))->assertNotFound();
     }
 
     public function test_site_configuration_permission_and_stale_edit_protection(): void
@@ -285,13 +358,19 @@ class WebAndSiteTest extends TestCase
     {
         $baseline = config('mail');
         $service = app(SiteConfiguration::class);
-        $setting = SiteSetting::create(['id' => 1, 'name' => 'Example', 'url' => 'https://panel.example.test', 'mailer' => 'smtp', 'smtp_host' => 'smtp.example.test', 'smtp_port' => 587, 'smtp_scheme' => 'smtp', 'smtp_password' => 'secret', 'mail_from_address' => 'custom@example.test', 'footer_description' => 'Descrição atualizada', 'footer_copyright' => 'CNPJ de exemplo', 'footer_tagline' => 'Assinatura personalizada', 'social_links' => ['instagram' => 'https://instagram.com/example', 'facebook' => 'javascript:alert(1)']]);
+        $setting = SiteSetting::create(['id' => 1, 'name' => 'Example', 'url' => 'https://panel.example.test', 'mailer' => 'smtp', 'smtp_host' => 'smtp.example.test', 'smtp_port' => 587, 'smtp_scheme' => 'smtp', 'smtp_password' => 'secret', 'mail_from_address' => 'custom@example.test', 'footer_description' => 'Descrição atualizada', 'footer_copyright' => 'CNPJ de exemplo', 'footer_tagline' => 'Assinatura personalizada', 'social_links' => ['instagram' => 'https://instagram.com/example', 'facebook' => 'javascript:alert(1)'], 'footer_links' => [['group' => 'explore', 'label' => 'Planos', 'url' => '/loja'], ['group' => 'information', 'label' => 'Malicioso', 'url' => 'javascript:alert(1)']], 'footer_explore_title' => 'Mais', 'footer_info_title' => 'Institucional', 'brand_color' => '#123456', 'accent_color' => '#654321', 'meta_description' => 'Metadados de teste']);
         $service->apply();
         $this->assertSame('smtp', config('mail.default'));
         $this->assertSame('Descrição atualizada', view()->shared('siteFooterDescription'));
         $this->assertSame('CNPJ de exemplo', view()->shared('siteFooterCopyright'));
         $this->assertSame('Assinatura personalizada', view()->shared('siteFooterTagline'));
         $this->assertSame(['instagram' => 'https://instagram.com/example'], view()->shared('siteSocialLinks'));
+        $this->assertSame([['group' => 'explore', 'label' => 'Planos', 'url' => '/loja']], view()->shared('siteFooterLinks'));
+        $this->assertSame('Mais', view()->shared('siteFooterExploreTitle'));
+        $this->assertSame('Institucional', view()->shared('siteFooterInfoTitle'));
+        $this->assertSame('#123456', view()->shared('siteBrandColor'));
+        $this->assertSame('#654321', view()->shared('siteAccentColor'));
+        $this->assertSame('Metadados de teste', view()->shared('siteMetaDescription'));
         $setting->update(['mailer' => 'inherit']);
         app(SiteConfiguration::class)->apply();
         $this->assertSame($baseline, config('mail'));
@@ -301,6 +380,10 @@ class WebAndSiteTest extends TestCase
         $this->assertSame('Um lugar para seus projetos. Um painel para acompanhar cada passo.', view()->shared('siteFooterDescription'));
         $this->assertSame('Todos os direitos reservados.', view()->shared('siteFooterCopyright'));
         $this->assertSame('Feito para conectar suas ideias.', view()->shared('siteFooterTagline'));
+        $this->assertSame(SiteConfiguration::DEFAULT_BRAND_COLOR, view()->shared('siteBrandColor'));
+        $this->assertSame(SiteConfiguration::DEFAULT_ACCENT_COLOR, view()->shared('siteAccentColor'));
+        $this->assertSame(SiteConfiguration::DEFAULT_META_DESCRIPTION, view()->shared('siteMetaDescription'));
+        $this->assertSame(SiteConfiguration::DEFAULT_FOOTER_LINKS, view()->shared('siteFooterLinks'));
         $this->assertSame([], view()->shared('siteSocialLinks'));
     }
 
