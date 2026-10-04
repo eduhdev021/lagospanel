@@ -16,6 +16,8 @@ use App\Services\Gateways;
 use App\Services\SupportDesk;
 use App\Support\Money;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -131,8 +133,10 @@ class PortalController extends Controller
 
     public function profileUpdate(Request $r)
     {
+        $r->merge(['username' => Str::lower(trim((string) $r->input('username')))]);
         $v = $r->validate([
             'name' => 'required|string|max:100',
+            'username' => ['sometimes', 'nullable', 'string', 'max:32', 'regex:/^[a-z0-9][a-z0-9._-]{2,31}$/D', Rule::unique('users', 'username')->ignore($r->user()->id)],
             'tax_id' => 'nullable|string|max:32',
             'company_name' => 'nullable|string|max:180',
             'phone' => 'nullable|string|max:40',
@@ -140,7 +144,7 @@ class PortalController extends Controller
         ]);
         $r->user()->update($v);
 
-        return back()->with('status', 'Nome atualizado.');
+        return back()->with('status', 'Dados do perfil atualizados.');
     }
 
     public function deposit(Request $r)

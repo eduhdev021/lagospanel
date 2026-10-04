@@ -9,10 +9,46 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     protected $attributes = ['is_admin' => false, 'balance_minor' => 0, 'password_reset_required' => false, 'totp_last_step' => -1];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $user): void {
+            if (blank($user->username)) {
+                $user->username = self::uniqueUsername($user->name, $user->email);
+            }
+        });
+    }
+
+    public static function uniqueUsername(?string $name, ?string $email = null): string
+    {
+        $source = Str::before(Str::lower(trim((string) ($email ?: $name))), '@');
+        $base = Str::slug($source ?: (string) $name);
+        $base = substr(preg_replace('/[^a-z0-9]+/', '-', $base) ?: 'user', 0, 24);
+        $base = trim($base, '-') ?: 'user';
+        $username = $base;
+        $suffix = 2;
+        while (static::where('username', $username)->exists()) {
+            $username = substr($base, 0, 31 - strlen((string) $suffix)).'-'.$suffix++;
+        }
+
+        return $username;
+    }
+
+    public function avatarUrl(int $size = 96): string
+    {
+        if ($this->avatar_content) {
+            return route('profile.avatar').'?v='.($this->avatar_updated_at?->timestamp ?? $this->updated_at?->timestamp ?? time());
+        }
+
+        $hash = hash('sha256', Str::lower(trim((string) $this->email)));
+
+        return 'https://www.gravatar.com/avatar/'.$hash.'?s='.$size.'&d=identicon&r=g';
+    }
 
     public function sendEmailVerificationNotification()
     {
@@ -89,6 +125,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
         'tax_id',

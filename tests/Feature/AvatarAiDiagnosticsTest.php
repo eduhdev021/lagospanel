@@ -68,6 +68,18 @@ class AvatarAiDiagnosticsTest extends TestCase
         $this->post(route('profile.avatar.save'), ['source' => 'upload', 'avatar' => UploadedFile::fake()->createWithContent('bad.svg', '<svg onload="alert(1)"/>')])->assertSessionHasErrors('avatar');
     }
 
+    public function test_profile_has_unique_username_and_automatic_gravatar_fallback(): void
+    {
+        $u = User::factory()->create(['name' => 'Cliente Exemplo', 'email' => 'cliente@example.test']);
+        $same = User::factory()->create(['name' => 'Outro Cliente', 'email' => 'cliente@example.test.2']);
+
+        $this->assertSame('cliente', $u->username);
+        $this->assertNotSame($u->username, $same->username);
+        $this->assertStringContainsString(hash('sha256', $u->email), $u->avatarUrl());
+        $this->assertStringContainsString('d=identicon', $u->avatarUrl());
+        $this->actingAs($u)->get(route('profile'))->assertOk()->assertSee('Gravatar automático pelo e-mail');
+    }
+
     public function test_worker_health_requires_correct_connection_queue_and_recent_signal(): void
     {
         $d = app(AiDiagnostics::class);
