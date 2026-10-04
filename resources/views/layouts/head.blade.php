@@ -1,4 +1,7 @@
 @php
+    $siteMetaDescription ??= 'Planos de hospedagem, domínios e suporte para manter seus projetos online.';
+    $siteBrandColor ??= '#7C3AED';
+    $siteAccentColor ??= '#C040E0';
     $pageTitle = trim(strip_tags($__env->yieldContent('title')));
     $pageTitle = $pageTitle !== '' ? $pageTitle : config('app.name');
     $metaDescription = trim(strip_tags($__env->yieldContent('meta-description', $siteMetaDescription)));
